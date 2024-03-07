@@ -58,6 +58,7 @@ dkms.conf
 Debug/
 Release/
 *.launch
+*.ld
 
 # others
 .directory
