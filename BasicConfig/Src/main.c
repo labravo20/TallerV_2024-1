@@ -19,10 +19,35 @@
 #include <stdint.h>
 #include <stdio.h>
 
+//Definicion constantes
+
+#define RCC_BASE_ADDRESS      0x40023800UL
+#define RCC_AHB1ENR_OFFSET    0x30
+#define RCC_AHB1ENR           (RCC_BASE_ADDRESS + RCC_AHB1ENR_OFFSET)
+
+#define GPIOA_BASE_ADDRESS    0x40020000UL
+#define GPIOA_MODE_REG_OFFSET 0x00
+#define GPIOA_MODE_ODR_OFFSET 0x14
+#define GPIOA_MODE_REG        (GPIOA_BASE_ADDRESS + GPIOA_MODE_REG_OFFSET)
+#define GPIOA_OPD_REG         (GPIOA_BASE_ADDRESS + GPIOA_MODE_ODR_OFFSET)
+
+//uint32_t *registerAHB1enb;
+unsigned int day;
+
 int main(void)
 {
 
-	printf("Hello world!!!");
+	uint32_t *registerAHB1enb = (uint32_t *)RCC_AHB1ENR;
+	//uint32_t *registerAHB1enb = (uint32_t *)0x40023830UL;
+
+	*registerAHB1enb |= (1 << 2); //Activando la señal de reloj para el puerto GPIOc
+	*registerAHB1enb |= (1 << 0); //Activando la señal de reloj para el puerto GPIOA
+
+	uint32_t *registerGPIOA_MODE = (uint32_t *)GPIOA_MODE_REG;
+	*registerGPIOA_MODE |= (1 << 10);
+
+	uint32_t *registerGPIOA_ODR = (uint32_t *)GPIOA_OPD_REG;
+	*registerGPIOA_ODR |= (1 << 5); //LED2 (green) set
 
     /* Loop forever */
 	while(1){
