@@ -18,6 +18,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include "Ejemplo.h"
 
 //Definicion constantes
 
@@ -30,6 +31,10 @@
 #define GPIOA_MODE_ODR_OFFSET 0x14
 #define GPIOA_MODE_REG        (GPIOA_BASE_ADDRESS + GPIOA_MODE_REG_OFFSET)
 #define GPIOA_OPD_REG         (GPIOA_BASE_ADDRESS + GPIOA_MODE_ODR_OFFSET)
+
+//Definicion variables
+BasicExample ejemploClase = {0};
+BasicExample datosEjemplo = {0};
 
 //uint32_t *registerAHB1enb;
 unsigned int day;
@@ -48,6 +53,21 @@ int main(void)
 
 	uint32_t *registerGPIOA_ODR = (uint32_t *)GPIOA_OPD_REG;
 	*registerGPIOA_ODR |= (1 << 5); //LED2 (green) set
+
+	ejemploClase.ID = 'w';
+	ejemploClase.counterUp = 100;
+	ejemploClase.dummy = 25;
+
+	datosEjemplo.ID = 'f';
+	datosEjemplo.dummy = 28;
+	datosEjemplo.timestamp = 0x1234;
+	//Elemento tipo float: cuando estamos trabajando con elementos de punto flotante se anexa la "f"
+	datosEjemplo.promedio = 32.45f;
+
+	for(datosEjemplo.counterUp=0;datosEjemplo.counterUp < ejemploClase.dummy;datosEjemplo.counterUp++){
+		datosEjemplo.promedio += 0.25f;
+		ejemploClase.counterUp -=2;
+	}
 
     /* Loop forever */
 	while(1){
