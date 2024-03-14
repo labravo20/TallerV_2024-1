@@ -45,6 +45,7 @@ int main(void)
 	uint32_t *registerAHB1enb = (uint32_t *)RCC_AHB1ENR;
 	//uint32_t *registerAHB1enb = (uint32_t *)0x40023830UL;
 
+	//ESTAMOS ENCENDIENDO LA SEÑAL DE RELOJ PARA PUERTOS ESPECÍFICOS
 	*registerAHB1enb |= (1 << 2); //Activando la señal de reloj para el puerto GPIOc
 	*registerAHB1enb |= (1 << 0); //Activando la señal de reloj para el puerto GPIOA
 
