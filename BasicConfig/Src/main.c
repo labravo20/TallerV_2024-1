@@ -55,6 +55,9 @@ int main(void)
 	uint32_t *registerGPIOA_ODR = (uint32_t *)GPIOA_OPD_REG;
 	*registerGPIOA_ODR |= (1 << 5); //LED2 (green) set
 
+	*registerGPIOA_ODR &= ~(1 << 5); //LED2 (green) off
+	*registerGPIOA_ODR |= (0 << 5); //LED2 (green) off
+
 	ejemploClase.ID = 'w';
 	ejemploClase.counterUp = 100;
 	ejemploClase.dummy = 25;
