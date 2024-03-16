@@ -121,6 +121,18 @@
 //#define TIM3_BASE_ADDR       (APB1_BASE_ADDR + 0x0400U)
 //#define TIM2_BASE_ADDR       (APB1_BASE_ADDR + 0x0000U)
 
+/*
+ * Macros Genericos
+ */
+#define DISABLE       (0)
+#define ENABLE        (1)
+#define SET           ENABLE
+#define CLEAR         DISABLE
+#define RESET         DISABLE
+#define FLAG_SET      SET
+#define FLAG_RESET    RESET
+#define I2C_WRITE     (0)
+#define I2C_READ      (1)
 
 #endif /* STM32F4XX_HAL_H_ */
 
