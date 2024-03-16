@@ -72,5 +72,56 @@
  * Comenzar de arriba hacia abajo como se muestra en la tabla. Inicia USB_OTG_FS (AHB2)
  */
 
+/* Posiciones de memoria para perifericos del AHB2 */
+#define USB_OTG_FS_BASE_ADDR    (AHB2_BASE_ADDR + 0x0000U)
+
+/* Posiciones de memoria para perifericos del AHB1 */
+#define DMA2_BASE_ADDR          (AHB1_BASE_ADDR + 0x6400U)
+#define DMA1_BASE_ADDR          (AHB1_BASE_ADDR + 0x6000U)
+#define FIR_BASE_ADDR           (AHB1_BASE_ADDR + 0x3C00U)
+#define RCC_BASE_ADDR           (AHB1_BASE_ADDR + 0x3800U)
+#define CRC_BASE_ADDR           (AHB1_BASE_ADDR + 0x3000U)
+#define GPIOH_BASE_ADDR         (AHB1_BASE_ADDR + 0x1C00U)
+#define GPIOE_BASE_ADDR         (AHB1_BASE_ADDR + 0x1000U)
+#define GPIOD_BASE_ADDR         (AHB1_BASE_ADDR + 0x0C00U)
+#define GPIOC_BASE_ADDR         (AHB1_BASE_ADDR + 0x0800U)
+#define GPIOB_BASE_ADDR         (AHB1_BASE_ADDR + 0x0400U)
+#define GPIOA_BASE_ADDR         (AHB1_BASE_ADDR + 0x0000U)
+
+/* Posiciones de memoria para perifericos del APB2 */
+//#define SPI5_BASE_ADDR       (APB2_BASE_ADDR + 0x5000U)
+//#define TIM11_BASE_ADDR      (APB2_BASE_ADDR + 0x4800U)
+//#define TIM10_BASE_ADDR      (APB2_BASE_ADDR + 0x4400U)
+//#define TIM9_BASE_ADDR       (APB2_BASE_ADDR + 0x4000U)
+//#define EXTI_BASE_ADDR       (APB2_BASE_ADDR + 0x3C00U)
+//#define SYSCFG_BASE_ADDR     (APB2_BASE_ADDR + 0x3800U)
+//#define SPI4_BASE_ADDR       (APB2_BASE_ADDR + 0x3400U)
+//#define SPI1_BASE_ADDR       (APB2_BASE_ADDR + 0x3000U)
+//#define SDI0_BASE_ADDR       (APB2_BASE_ADDR + 0x2C00U)
+//#define ADC1_BASE_ADDR       (APB2_BASE_ADDR + 0x2000U)
+//#define USART6_BASE_ADDR     (APB2_BASE_ADDR + 0x1400U)
+//#define USART1_BASE_ADDR     (APB2_BASE_ADDR + 0x1000U)
+//#define TIM1_BASE_ADDR       (APB2_BASE_ADDR + 0x0000U)
+
+/* Posiciones de memoria para perifericos del APB1 */
+//#define PWR_BASE_ADDR        (APB1_BASE_ADDR + 0x7000U)
+//#define I2C3_BASE_ADDR       (APB1_BASE_ADDR + 0x5C00U)
+//#define I2C2_BASE_ADDR       (APB1_BASE_ADDR + 0x5800U)
+//#define I2C1_BASE_ADDR       (APB1_BASE_ADDR + 0x5400U)
+//#define USART2_BASE_ADDR     (APB1_BASE_ADDR + 0x4400U)
+//#define I2Sext_BASE_ADDR     (APB1_BASE_ADDR + 0x4000U)
+//#define SPI3_BASE_ADDR       (APB1_BASE_ADDR + 0x3C00U)
+//#define SPI2_BASE_ADDR       (APB1_BASE_ADDR + 0x3800U)
+//#define I2S2ext_BASE_ADDR    (APB1_BASE_ADDR + 0x3400U)
+//#define IWDG_BASE_ADDR       (APB1_BASE_ADDR + 0x3000U)
+//#define WWDG_BASE_ADDR       (APB1_BASE_ADDR + 0x2C00U)
+//#define RTC_BASE_ADDR        (APB1_BASE_ADDR + 0x2800U)
+//#define TIM5_BASE_ADDR       (APB1_BASE_ADDR + 0x0C00U)
+//#define TIM4_BASE_ADDR       (APB1_BASE_ADDR + 0x0800U)
+//#define TIM3_BASE_ADDR       (APB1_BASE_ADDR + 0x0400U)
+//#define TIM2_BASE_ADDR       (APB1_BASE_ADDR + 0x0000U)
+
 
 #endif /* STM32F4XX_HAL_H_ */
+
+
