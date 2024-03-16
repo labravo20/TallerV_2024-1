@@ -134,6 +134,8 @@
 #define I2C_WRITE     (0)
 #define I2C_READ      (1)
 
+
+/*  */
 #endif /* STM32F4XX_HAL_H_ */
 
 
