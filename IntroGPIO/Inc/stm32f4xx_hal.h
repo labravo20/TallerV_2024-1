@@ -220,10 +220,67 @@ typedef struct
 /* 6.3.17 RCC_BDCR */
 /* 6.3.18 RCC_CSR */
 
-/* +++====== FIN de la descripcion de los elemento suqe componen el periferico ======+++ */
+/* +++====== FIN de la descripcion de los elementos que componen el periferico ======+++ */
 
+/* ++++++++ Posibles valores de las configuraciones */
+/* System clock (main clock) possible options */
+/* Microcontroller clock output 1 (MCO1) options */
+/* Microcontroller preescaler clock output1 (MCO1PRE) options */
+/* Microcontroller preescaler clock output1 (MCO1PRE) options */
+/* Microcontroller clock output 2 (MCO2) options */
 
+/* +++====== INICIO de la descripcion de los elementos que componen el periferico ======+++ */
+/*Definicion de la estructura de datos que representa a cada uno de los elementos que componen el
+ * periferico GPIO
+ *
+ * Debido a que el periferico GPIOx es muy simple, no es muy necesario crear la descripcion bit a bit
+ * de cada uno de los registros que componen el dicho periferico, pero si es necesario comprender que
+ * hace cada registro, para poder cargar correctamente la configuracion.
+ */
+
+typedef struct
+{
+	volatile uint32_t MODER;    //port mode register                 ADDR_OFFSET: 0x00
+	volatile uint32_t OTYPE;    //port output type register          ADDR_OFFSET: 0x04
+	volatile uint32_t OSPEEDR;  //port output speed register         ADDR_OFFSET: 0X08
+	volatile uint32_t PUPDR;    //port pull-up/pull-down register    ADDR_OFFSET: 0x0C
+	volatile uint32_t IDR;      //port input data register           ADDR_OFFSET: 0x10
+	volatile uint32_t ODR;      //port output data register          ADDR_OFFSET: 0x14
+	volatile uint32_t BSRR;     //port bit set/reset register        ADDR_OFFSET: 0x18
+	volatile uint32_t LCKR;     //port configuration lock register   ADDR_OFFSET: 0x1C
+	volatile uint32_t AFR[2];   //port alternate function registers  ADDR_OFFSET: 0x20-0x24
+} GPIO_TypeDef;
+
+/*Creamos un objeto de la estructura definida y hacemos que quede ubicada exactamente sobre
+ * la posicion de memoria donde se encuentra el registro.
+ * Debido a que son varios perifericos GPIOx, es necesario hacer la definicion para cada uno.
+ *
+ * Tener cuidado que cada elemento coincida con su respectiva direccion base
+ */
+#define GPIOA      ((GPIO_TypeDef *) GPIOA_BASE_ADDR)
+#define GPIOB      ((GPIO_TypeDef *) GPIOB_BASE_ADDR)
+#define GPIOC      ((GPIO_TypeDef *) GPIOC_BASE_ADDR)
+#define GPIOD      ((GPIO_TypeDef *) GPIOD_BASE_ADDR)
+#define GPIOE      ((GPIO_TypeDef *) GPIOE_BASE_ADDR)
+#define GPIOH      ((GPIO_TypeDef *) GPIOH_BASE_ADDR)
+
+/* For testing assert parameters. */
+#define IS_GPIO_ALL_INSTANCE(GPIOx)  ((GPIOx == GPIOA) || \
+		                              (GPIOx == GPIOB) || \
+									  (GPIOx == GPIOC) || \
+									  (GPIOx == GPIOD) || \
+									  (GPIOx == GPIOE) || \
+									  (GPIOx == GPIOH))
+
+/*
+typedef struct
+{
+	volatile uint32_t dummy;    //dummy example register    ADDR_OFFSET: 0x00
+} DUMMY_RegDef_t;
+*/
+
+/* No es necesario hacer nada mas en este archivo para este primer proyecto */
+
+/* Incluimos las librerias de cada periferico */
 
 #endif /* STM32F4XX_HAL_H_ */
-
-
