@@ -85,6 +85,26 @@ enum
 	PIN_15
 };
 
+/*Definicion de las funciones alternativas */
+enum
+{
+	AF0   = 0b0000,
+	AF1   = 0b0001,
+	AF2   = 0b0010,
+	AF3   = 0b0011,
+	AF4   = 0b0100,
+	AF5   = 0b0101,
+	AF6   = 0b0110,
+	AF7   = 0b0111,
+	AF8   = 0b1000,
+	AF9   = 0b1001,
+	AF10  = 0b1010,
+	AF11  = 0b1011,
+	AF12  = 0b1100,
+	AF13  = 0b1101,
+	AF14  = 0b1110,
+	AF15  = 0b1111,
+};
 
 
 #endif /* GPIO_DRIVER_HAL_H_ */
