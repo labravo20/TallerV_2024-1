@@ -55,7 +55,7 @@ enum
 	GPIO_PUPDR_NOTHING = 0,
 	GPIO_PUPDR_PULLUP,
 	GPIO_PUPDR_PULLDOWN,
-	GPIO_PUPDR_RESERVED //IMPORTANTE: Lleva coma el último término o no???
+	GPIO_PUPDR_RESERVED, //IMPORTANTE: Lleva coma el último término o no???
 };
 
 /* 8.4.5 GPIOx_IDR (un bit por PIN) - este es el registro para leer el estado de un PIN*/
