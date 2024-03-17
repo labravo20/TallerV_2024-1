@@ -186,6 +186,41 @@ typedef struct
 	volatile uint32_t DCKCFGR ;    //Dedicated clocks configuration reg        ADDR_OFFSET:    0x8C
 } RCC_RegDef_t;
 
+/*
+ * Hacemos como un "merge", en el cual ubicamos la estructura RCC_RegDef_t a apuntar a la posicion de
+ * memoria correspondiente, de forma que cada variable dentro de la estructura coincide con cada uno
+ * delos SFR en la memoria del MCU
+ */
+#define RCC       ((RCC_RegDef_t *)RCC_BASE_ADDR)
+
+/* Descripcion bit a bit de cada uno de los registros del que componen al periferico RCC */
+/* 6.3.1 RCC_CR */
+/* 6.3.2 RCC_PLLCFGR */
+/* 6.3.3 RCC_CFGR */
+/* 6.3.4 RCC_CIR */
+/* 6.3.5 RCC_AHB1RSTR */
+/* 6.3.6 RCC_AHB2RSTR */
+/* 6.3.7 RCC_APB1RSTR */
+/* 6.3.8 RCC_APB2RSTR */
+
+/* 6.3.9 RCC_AHB1ENR */
+#define RCC_AHB1ENR_GPIOAEN      0
+#define RCC_AHB1ENR_GPIOBEN      1
+#define RCC_AHB1ENR_GPIOCEN      2
+#define RCC_AHB1ENR_GPIODEN      3
+#define RCC_AHB1ENR_GPIOEEN      4
+#define RCC_AHB1ENR_GPIOHEN      7
+#define RCC_AHB1ENR_CRCEN        12
+#define RCC_AHB1ENR_DMA1EN       21
+#define RCC_AHB1ENR_DMA2EN       22
+
+/* 6.3.10 RCC_AHB2ENR */
+/* 6.3.11 RCC_APB1ENR */
+/* 6.3.12 RCC_APB2ENR */
+/* 6.3.17 RCC_BDCR */
+/* 6.3.18 RCC_CSR */
+
+/* +++====== FIN de la descripcion de los elemento suqe componen el periferico ======+++ */
 
 
 
