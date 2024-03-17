@@ -106,5 +106,21 @@ enum
 	AF15  = 0b1111,
 };
 
+#define GPIO_PIN_MASK    0x0FU  /* Pin mask for assert */
+
+/* Strcture definition which will keeps the configuration information for PinX */
+typedef struct
+{
+	uint8_t GPIO_PinNumber;         //Working Pin
+	uint8_t GPIO_PinMode;           //Config mode: input, output, analog, alternate func.
+	uint8_t GPIO_PinOutputSpeed;    //Output speed for working pin
+	uint8_t GPIO_PinPuPdControl;    //Turn ON-OFF the pull_up and pull_down resistor for working pin
+	uint8_t GPIO_PinOutputType;     //Selects output type: push-pull or openDrain
+	uint8_t GPIO_PinAltFunMode;     //Type of alternate function assigned to working pin
+} GPIO_PinConfig_t;
+
+/*
+ *
+ */
 
 #endif /* GPIO_DRIVER_HAL_H_ */
