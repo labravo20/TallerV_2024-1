@@ -120,7 +120,43 @@ typedef struct
 } GPIO_PinConfig_t;
 
 /*
- *
+ * Pin Handler definition.
+ * This handler is used to configure the port at which the selected pin is working
+ * It holds two elements:
+ * - Reference to the complete port (GPIOx), to have acces for the specific registers.
+ * - Configuration strcture: GPIO_PinConfig_t
  */
+typedef struct
+{
+	GPIO_TypeDef      *pGPIOx;   //Pointer to the port of selected PinX...IMPORTANTE!!! Reviar porque no es verde
+	GPIO_PinConfig_t  pinConfig; //Holds the configuration for selected PinX
+} GPIO_Handler_t;
+
+/* For testing assert parameters - checking basic configurations. */
+#define IS_GPIO_PIN_ACTION(ACTION)     (((ACTION) == GPIO_PIN_RESER) || ((ACTION) == GPIO_PIN_SET))
+
+#define IS_GPIO_PIN(PIN)               (((uint32_t)PIN) <= GPIO_PIN_MASK))
+
+#define IS_GPIO_MODE(MODE)             (((MODE) == GPIO_MODE_IN)     || \
+		                                ((MODE) == GPIO_MODE_OUT)    || \
+										((MODE) == GPIO_MODE_ALTFN)  || \
+										((MODE) == GPIO_MODE_ANALOG))
+
+#define IS_GPIO_OUTPUT_TYPE(OUTPUT)    (((OUTPUT) == GPIO_OTYPE_PUSHPULL) || ((OUTPUT) == GPIO_OTYPE_OPENDRAIN))
+
+#define IS_GPIO_OSPEED(SPEED)          (((SPEED) == GPIO_OSPEED_LOW)       || \
+		                                ((SPEED) == GPIO_OSPEED_MEDIUM)    || \
+										((SPEED) == GPIO_OSPEED_FAST)      || \
+										((SPEED) == GPIO_OSPEED_HIGH))
+
+#define IS_GPIO_PUPDR(PULL)            (((PULL) == GPIO_PUPDR_NOTHING)     || \
+		                                ((PULL) == GPIO_PUPDR_PULLUP)      || \
+										((PULL) == GPIO_PUPDR_PULLDOWN))
+
+/* Header definitions for the "public functions" of gpio_driver_hal */
+void gpio_Config (GPIO_Handler_t *pGPIOHandler);
+void gpio_WritePin (GPIO_Handler_t *pPinHandler, uint8_t newState);
+void gpio_TooglePin (GPIO_Handler_t *pPinHandler);
+uint32_t gpio_ReadPin (GPIO_Handler_t *pGPinHandler);
 
 #endif /* GPIO_DRIVER_HAL_H_ */
