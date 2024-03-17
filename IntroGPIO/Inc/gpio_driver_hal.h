@@ -55,7 +55,7 @@ enum
 	GPIO_PUPDR_NOTHING = 0,
 	GPIO_PUPDR_PULLUP,
 	GPIO_PUPDR_PULLDOWN,
-	GPIO_PUPDR_RESERVED, //IMPORTANTE: Lleva coma el último término o no???
+	GPIO_PUPDR_RESERVED //IMPORTANTE: Lleva coma el último término o no???
 };
 
 /* 8.4.5 GPIOx_IDR (un bit por PIN) - este es el registro para leer el estado de un PIN*/
@@ -64,6 +64,26 @@ enum
  * PIN (1 o 0). Este registro puede ser escrito y leido desde el sofware, pero no garantiza
  * una escritura "atomica", por lo cual es preferible utilizar el registro BSRR */
 
+/* Definicion de los nombres de los pines */
+enum
+{
+	PIN_0 = 0,
+	PIN_1,
+	PIN_2,
+	PIN_3,
+	PIN_4,
+	PIN_5,
+	PIN_6,
+	PIN_7,
+	PIN_8,
+	PIN_9,
+	PIN_10,
+	PIN_11,
+	PIN_12,
+	PIN_13,
+	PIN_14,
+	PIN_15
+};
 
 
 
