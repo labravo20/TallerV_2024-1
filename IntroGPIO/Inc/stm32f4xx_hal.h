@@ -135,7 +135,60 @@
 #define I2C_READ      (1)
 
 
-/*  */
+/* +++======== INICIO de la descripcion de los elementos que componen el periferico ========+++ */
+
+/*Definicion de la estructura de datos que representa a cada uno de los registros que componen el
+ * periferico RCC.
+ *
+ * Debido a los temas que se van a manejar en el curso solo se deben definir los bits de los registros:
+ * 6.3.1 (RCC_CR) hasta 6.3.2 (RCC_APB2ENR), 6.3.17 (RCC_BDCR) y 6.3.18 (RCC_CSR)
+ *
+ * NOTA: La posicion de memoria (offset) debe encajar perfectamente con la posicion de memoria indicada
+ * en la hoja de datos del equipo. Observe que los elementos "reservedx" tambien estan presentes ahi.
+ */
+typedef struct
+{
+	volatile uint32_t CR;         //Clock Control Register                    ADDR_OFFSET:    0x00
+	volatile uint32_t PLLCFGR;    //PLL Congiguration Register                ADDR_OFFSET:    0x04
+	volatile uint32_t CFGR;       //Clock Configuration Register              ADDR_OFFSET:    0x08
+	volatile uint32_t CIR;        //Clock Interrupt Register                  ADDR_OFFSET:    0x0C
+	volatile uint32_t AHB1RSTR;   //AHB1 Peripherical Reset Register          ADDR_OFFSET:    0x10
+	volatile uint32_t AHB2RSTR;   //AHB2 Peripherical Reset Register          ADDR_OFFSET:    0x14
+	volatile uint32_t reserved0;  //reserved                                  ADDR_OFFSET:    0x18
+	volatile uint32_t reserved1;  //reserved                                  ADDR_OFFSET:    0x1C
+	volatile uint32_t APB1RSTR;   //APB1 Peripherical Reset Register          ADDR_OFFSET:    0x20
+	volatile uint32_t APB2RSTR;   //APB2 Peripherical Reset Register          ADDR_OFFSET:    0x24
+	volatile uint32_t reserved2;  //reserved                                  ADDR_OFFSET:    0x28
+	volatile uint32_t reserved3;  //reserved                                  ADDR_OFFSET:    0x2C
+	volatile uint32_t AHB1ENR;    //AHB1 Peripherical Clock Enable Register   ADDR_OFFSET:    0x30
+	volatile uint32_t AHB2ENR;    //AHB2 Peripherical Clock Enable REgister   ADDR_OFFSET:    0x34
+	volatile uint32_t reserved4;  //reserved                                  ADDR_OFFSET:    0x38
+	volatile uint32_t reserved5;  //reserved                                  ADDR_OFFSET:    0x3C
+	volatile uint32_t APB1ENR;    //APB1 Peripherical Clock Enable Register   ADDR_OFFSET:    0x40
+	volatile uint32_t APB2ENR;    //APB2 Peripherical Clock Enable Register   ADDR_OFFSET:    0x44
+	volatile uint32_t reserved6;  // reserved                                 ADDR_OFFSET:    0x48
+	volatile uint32_t reserved7;  //reserved                                  ADDR_OFFSET:    0x4C
+	volatile uint32_t AHB1LPENR;  //AHB1 Clock Enable Low Power Register      ADDR_OFFSET:    0x50
+	volatile uint32_t AHB2LPENR;  //AHB2 Clock Enable Low Power Register      ADDR_OFFSET:    0x54
+	volatile uint32_t reserved8;  //reserved                                  ADDR_OFFSET:    0x58
+	volatile uint32_t reserved9;  //reserved                                  ADDR_OFFSET:    0x5C
+	volatile uint32_t APB1LPENR;  //APB1 Clock Enable Low Power Register      ADDR_OFFSET:    0x60
+	volatile uint32_t APB2LPENR;  //APB2 Clock Enable Low Power Register      ADDR_OFFSET:    0x64
+	volatile uint32_t reserved10; //reserved                                  ADDR_OFFSET:    0x68
+	volatile uint32_t reserved11; //reserved                                  ADDR_OFFSET:    0x6C
+	volatile uint32_t BDCR;       //Backup domain control register            ADDR_OFFSET:    0x70
+	volatile uint32_t CSR;        //Clock control & status register           ADDR_OFFSET:    0x74
+	volatile uint32_t reserved12; //reserved                                  ADDR_OFFSET:    0x78
+	volatile uint32_t reserved13; //reserved                                  ADDR_OFFSET:    0x7C
+	volatile uint32_t SSCGR;      //Spread spectrum clock generation reg      ADDR_OFFSET:    0x80
+	volatile uint32_t PLLI2SCFGR; //PLLI2S configuration register             ADDR_OFFSET:    0x84
+	volatile uint32_t reserved14; //reserved                                  ADDR_OFFSET:    0x88
+	volatile uint32_t DCKCFGR ;    //Dedicated clocks configuration reg        ADDR_OFFSET:    0x8C
+} RCC_RegDef_t;
+
+
+
+
 #endif /* STM32F4XX_HAL_H_ */
 
 
