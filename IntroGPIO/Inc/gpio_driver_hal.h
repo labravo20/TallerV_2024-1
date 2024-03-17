@@ -55,7 +55,7 @@ enum
 	GPIO_PUPDR_NOTHING = 0,
 	GPIO_PUPDR_PULLUP,
 	GPIO_PUPDR_PULLDOWN,
-	GPIO_PUPDR_RESERVED, //IMPORTANTE: Lleva coma el último término o no???
+	GPIO_PUPDR_RESERVED //IMPORTANTE: Lleva coma el último término o no???
 };
 
 /* 8.4.5 GPIOx_IDR (un bit por PIN) - este es el registro para leer el estado de un PIN*/
@@ -128,7 +128,7 @@ typedef struct
  */
 typedef struct
 {
-	GPIO_TypeDef      *pGPIOx;   //Pointer to the port of selected PinX...IMPORTANTE!!! Reviar porque no es verde
+	GPIO_TypeDef      *pGPIOx;   //Pointer to the port of selected PinX
 	GPIO_PinConfig_t  pinConfig; //Holds the configuration for selected PinX
 } GPIO_Handler_t;
 
