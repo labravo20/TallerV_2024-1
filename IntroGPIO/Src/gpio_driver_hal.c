@@ -91,7 +91,31 @@ void gpio_enable_clock_peripheral(GPIO_Handler_t *pGPIOHandler){
 		RCC ->AHB1ENR |= (1 << RCC_AHB1ENR_GPIOHEN);
 	}
 }
+/*
+ * Configures the mode in which the pin will work:
+ * -Input
+ * Output
+ * -Analog
+ * -Alternate function
+ */
+void gpio_config_mode(GPIO_Handler_t *pGPIOHandler){
 
+	uint32_t auxConfig = 0;
+
+	/* Verificamos si el modo que se ha seleccionado es permitido */
+	assert_param(IS_GPIO_MODE(pGPIOHandler -> pinConfig.GPIO_PinMode));
+
+	//Aqui estamos leyendo la config. moviendo "PinNumber" veces hacia la izquierda ese valor (shift left)
+	//y todo eso lo cargamos en la variable auxConfig
+	auxConfig = (pGPIOHandler ->pinConfig.GPIO_PinMode <<2 * pGPIOHandler ->pinConfig.GPIO_PinNumber);
+
+	//Antes de cargar el nuevo valor, limpiamos los bits especificos de ese registro (debemos escribir 0b00)
+	//para lo cual aplicamos una mascara y una operacion bitwise AND
+	pGPIOHandler -> pGPIOx -> MODER &= ~(0b11 <<2 * pGPIOHandler ->pinConfig.GPIO_PinNumber);
+
+	//Cargamos auxConfig en el registro MODER
+	pGPIOHandler -> pGPIOx -> MODER |= auxConfig;
+}
 
 
 
