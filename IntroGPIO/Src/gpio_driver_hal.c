@@ -159,7 +159,24 @@ void gpio_config_output_speed(GPIO_Handler_t *pGPIOHandler){
 	//Cargamos el resultado sobre el registro adecuado
 	pGPIOHandler -> pGPIOx -> OSPEEDR |= auxConfig;
 }
+/*
+ * Turns ON/OFF the pull-up and pull-down resistor for each PinX in selected GPIO port
+ */
+void gpio_config_pullup_pulldown(GPIO_Handler_t *pGPIOHandler){
 
+	uint32_t auxConfig = 0;
+
+	/* Verificamos si la configuracion cargada para las resistencias es correcta */
+	assert_param(IS_GPIO_PUPDR(pGPIOHandler ->pinConfig.GPIO_PinPuPdControl));
+
+	auxConfig = (pGPIOHandler ->pinConfig.GPIO_PinPuPdControl << 2 * pGPIOHandler ->pinConfig.GPIO_PinNumber);
+
+	//Limpiando la posicion antes de cargar la nueva configuracion
+	pGPIOHandler -> pGPIOx -> PUPDR &= ~(0b11 << 2 * pGPIOHandler ->pinConfig.GPIO_PinNumber);
+
+	//Cargamos el resultado sobre el registro adecuado
+	pGPIOHandler -> pGPIOx -> PUPDR |= auxConfig;
+}
 
 
 
