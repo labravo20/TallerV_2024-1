@@ -152,20 +152,20 @@ typedef struct
 	volatile uint32_t PLLCFGR;    //PLL Congiguration Register                ADDR_OFFSET:    0x04
 	volatile uint32_t CFGR;       //Clock Configuration Register              ADDR_OFFSET:    0x08
 	volatile uint32_t CIR;        //Clock Interrupt Register                  ADDR_OFFSET:    0x0C
-	volatile uint32_t AHB1RSTR;   //AHB1 Peripherical Reset Register          ADDR_OFFSET:    0x10
-	volatile uint32_t AHB2RSTR;   //AHB2 Peripherical Reset Register          ADDR_OFFSET:    0x14
+	volatile uint32_t AHB1RSTR;   //AHB1 Peripheral Reset Register          ADDR_OFFSET:    0x10
+	volatile uint32_t AHB2RSTR;   //AHB2 Peripheral Reset Register          ADDR_OFFSET:    0x14
 	volatile uint32_t reserved0;  //reserved                                  ADDR_OFFSET:    0x18
 	volatile uint32_t reserved1;  //reserved                                  ADDR_OFFSET:    0x1C
-	volatile uint32_t APB1RSTR;   //APB1 Peripherical Reset Register          ADDR_OFFSET:    0x20
-	volatile uint32_t APB2RSTR;   //APB2 Peripherical Reset Register          ADDR_OFFSET:    0x24
+	volatile uint32_t APB1RSTR;   //APB1 Peripheral Reset Register          ADDR_OFFSET:    0x20
+	volatile uint32_t APB2RSTR;   //APB2 Peripheral Reset Register          ADDR_OFFSET:    0x24
 	volatile uint32_t reserved2;  //reserved                                  ADDR_OFFSET:    0x28
 	volatile uint32_t reserved3;  //reserved                                  ADDR_OFFSET:    0x2C
-	volatile uint32_t AHB1ENR;    //AHB1 Peripherical Clock Enable Register   ADDR_OFFSET:    0x30
-	volatile uint32_t AHB2ENR;    //AHB2 Peripherical Clock Enable REgister   ADDR_OFFSET:    0x34
+	volatile uint32_t AHB1ENR;    //AHB1 Peripheral Clock Enable Register   ADDR_OFFSET:    0x30
+	volatile uint32_t AHB2ENR;    //AHB2 Peripheral Clock Enable REgister   ADDR_OFFSET:    0x34
 	volatile uint32_t reserved4;  //reserved                                  ADDR_OFFSET:    0x38
 	volatile uint32_t reserved5;  //reserved                                  ADDR_OFFSET:    0x3C
-	volatile uint32_t APB1ENR;    //APB1 Peripherical Clock Enable Register   ADDR_OFFSET:    0x40
-	volatile uint32_t APB2ENR;    //APB2 Peripherical Clock Enable Register   ADDR_OFFSET:    0x44
+	volatile uint32_t APB1ENR;    //APB1 Peripheral Clock Enable Register   ADDR_OFFSET:    0x40
+	volatile uint32_t APB2ENR;    //APB2 Peripheral Clock Enable Register   ADDR_OFFSET:    0x44
 	volatile uint32_t reserved6;  // reserved                                 ADDR_OFFSET:    0x48
 	volatile uint32_t reserved7;  //reserved                                  ADDR_OFFSET:    0x4C
 	volatile uint32_t AHB1LPENR;  //AHB1 Clock Enable Low Power Register      ADDR_OFFSET:    0x50
