@@ -121,6 +121,22 @@ void gpio_config_mode(GPIO_Handler_t *pGPIOHandler){
  * -Push-pull
  * -openDrain
  */
+void gpio_config_output_type(GPIO_Handler_t *pGPIOHandler){
+
+	uint32_t auxConfig = 0;
+
+	/* Verificamos que el tipo de salida corresponda a los que se pueden utilizar */
+	assert_param(IS_GPIO_OUTPUT_TYPE(pGPIOHandler ->pinConfig.GPIO_PinNumber));
+
+	//De nuevo leemos y movemos el valor un numero "PinNumber" de veces
+	auxConfig = (pGPIOHandler ->pinConfig.GPIO_PinOutputType << pGPIOHandler ->pinConfig.GPIO_PinNumber);
+
+	//Limpiamos antes de cargar
+	pGPIOHandler -> pGPIOx -> OTYPER &= ~(SET << pGPIOHandler ->pinConfig.GPIO_PinNumber);
+
+	//Cargamos el resultado sobre el registro adecuado
+	pGPIOHandler -> pGPIOx -> OTYPER |= auxConfig;
+}
 
 
 

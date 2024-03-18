@@ -241,7 +241,7 @@ typedef struct
 typedef struct
 {
 	volatile uint32_t MODER;    //port mode register                 ADDR_OFFSET: 0x00
-	volatile uint32_t OTYPE;    //port output type register          ADDR_OFFSET: 0x04
+	volatile uint32_t OTYPER;    //port output type register          ADDR_OFFSET: 0x04
 	volatile uint32_t OSPEEDR;  //port output speed register         ADDR_OFFSET: 0X08
 	volatile uint32_t PUPDR;    //port pull-up/pull-down register    ADDR_OFFSET: 0x0C
 	volatile uint32_t IDR;      //port input data register           ADDR_OFFSET: 0x10
