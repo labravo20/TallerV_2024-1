@@ -116,6 +116,11 @@ void gpio_config_mode(GPIO_Handler_t *pGPIOHandler){
 	//Cargamos auxConfig en el registro MODER
 	pGPIOHandler -> pGPIOx -> MODER |= auxConfig;
 }
+/*
+ * Configures which type of output the PinX will use:
+ * -Push-pull
+ * -openDrain
+ */
 
 
 
