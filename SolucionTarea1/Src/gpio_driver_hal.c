@@ -1,7 +1,7 @@
 /*
  * gpio_driver_hal.c
  *
- *  Created on: 17/03/2024
+ *  Created on: Mar 18, 2024
  *      Author: laurasofia
  */
 
@@ -243,3 +243,5 @@ uint32_t gpio_ReadPin(GPIO_Handler_t *pPinHandler){
 
 	return pinValue;
 }
+
+
