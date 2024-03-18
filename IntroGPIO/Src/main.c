@@ -45,6 +45,8 @@ int main(void)
 
 	gpio_WritePin(&userLed,SET);
 
+	gpio_ReadPin(&userLed);
+
 	/* Loop forever */
 	while(1){
 
