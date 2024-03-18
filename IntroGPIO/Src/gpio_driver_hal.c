@@ -126,7 +126,7 @@ void gpio_config_output_type(GPIO_Handler_t *pGPIOHandler){
 	uint32_t auxConfig = 0;
 
 	/* Verificamos que el tipo de salida corresponda a los que se pueden utilizar */
-	assert_param(IS_GPIO_OUTPUT_TYPE(pGPIOHandler ->pinConfig.GPIO_PinNumber));
+	assert_param(IS_GPIO_OUTPUT_TYPE(pGPIOHandler ->pinConfig.GPIO_PinOutputType));
 
 	//De nuevo leemos y movemos el valor un numero "PinNumber" de veces
 	auxConfig = (pGPIOHandler ->pinConfig.GPIO_PinOutputType << pGPIOHandler ->pinConfig.GPIO_PinNumber);
@@ -137,6 +137,29 @@ void gpio_config_output_type(GPIO_Handler_t *pGPIOHandler){
 	//Cargamos el resultado sobre el registro adecuado
 	pGPIOHandler -> pGPIOx -> OTYPER |= auxConfig;
 }
+/*
+ * Selcts between four different possible speeds for output PinX
+ * - Low
+ * - Medium
+ * - Fast
+ * - HighSpeed
+ */
+void gpio_config_output_speed(GPIO_Handler_t *pGPIOHandler){
+
+	uint32_t auxConfig = 0;
+
+	/**/
+	assert_param(IS_GPIO_OSPEED(pGPIOHandler ->pinConfig.GPIO_PinOutputSpeed));
+
+	auxConfig = (pGPIOHandler ->pinConfig.GPIO_PinOutputSpeed << 2 * pGPIOHandler ->pinConfig.GPIO_PinNumber);
+
+	//Limpiando la posicion antes de cargar la nueva configuracion
+	pGPIOHandler -> pGPIOx -> OSPEEDR &= ~(0b11 << 2 * pGPIOHandler ->pinConfig.GPIO_PinNumber);
+
+	//Cargamos el resultado sobre el registro adecuado
+	pGPIOHandler -> pGPIOx -> OSPEEDR |= auxConfig;
+}
+
 
 
 
