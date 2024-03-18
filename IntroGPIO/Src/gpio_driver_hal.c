@@ -209,7 +209,25 @@ void gpio_config_alternate_function(GPIO_Handler_t *pGPIOHandler){
 		}
 	}
 }
+/*
+ * Funcion utilizada para cambiar de estado el pin entrregado en el handler, asignando
+ * el valor entregado en la variable newState
+ */
+void gpio_WritePin(GPIO_Handler_t *pPinHandler, uint8_t newState){
 
+	/* Verificamos si la accion que deseamos realizar es permitida */
+	assert_param(IS_GPIO_PIN_ACTION(newState));
 
+	//Limpiamos la posicion que deseamos
+	//pPinHandler ->pGPIOx->ODR &= ~(SET << pPinHandler -> pinConfig.GPIO_PinNumber);
+	if(newState == SET){
+		//Trabajando con la parte baja del registro
+		pPinHandler -> pGPIOx -> BSRR |= (SET << pPinHandler -> pinConfig.GPIO_PinNumber);
+	}
+	else{
+		//Trabajando con la parte alta del registro
+		pPinHandler -> pGPIOx -> BSRR |= (SET << (pPinHandler -> pinConfig.GPIO_PinNumber + 16));
+	}
+}
 
 
