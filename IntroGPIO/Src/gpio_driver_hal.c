@@ -177,7 +177,38 @@ void gpio_config_pullup_pulldown(GPIO_Handler_t *pGPIOHandler){
 	//Cargamos el resultado sobre el registro adecuado
 	pGPIOHandler -> pGPIOx -> PUPDR |= auxConfig;
 }
+/*
+ * Allows to configure other functions (more specialized) on the selected PinX
+ */
+void gpio_config_alternate_function(GPIO_Handler_t *pGPIOHandler){
 
+	uint32_t auxPosition = 0;
+
+	if(pGPIOHandler ->pinConfig.GPIO_PinMode == GPIO_MODE_ALTFN){
+
+		//Seleccionamos primero si se debe utilizar el registro bajo (AFRL) o el alto (AFRH)
+		if(pGPIOHandler ->pinConfig.GPIO_PinNumber < 8){
+				//Estamos en el registro AFRL, que controla los pines del PIN_0 al PIN_7
+				auxPosition = 4*pGPIOHandler ->pinConfig.GPIO_PinNumber;
+
+				//Limpiamos primero la posicion del registro que deseamos escribir a continuacion
+				pGPIOHandler -> pGPIOx -> AFR[0] &= ~(0b1111 << auxPosition);
+
+				//Escribimos el valor configurado en la posicion seleccionada
+				pGPIOHandler -> pGPIOx -> AFR[0] |= (pGPIOHandler ->pinConfig.GPIO_PinAltFunMode << auxPosition);
+		}
+		else{
+				//Estamos en el registro AFRH, que controla los pines del PIN_8 al PIN_15
+				auxPosition = 4* (pGPIOHandler ->pinConfig.GPIO_PinNumber -8);
+
+				//Limpiamos primero la posicion del registro que deseamos escribir a continuacion
+				pGPIOHandler -> pGPIOx -> AFR[1] &= ~(0b1111 << auxPosition);
+
+				//Escribimos el valor configurado en la posicion seleccionada
+				pGPIOHandler -> pGPIOx -> AFR[1] |= (pGPIOHandler ->pinConfig.GPIO_PinAltFunMode << auxPosition);
+		}
+	}
+}
 
 
 
