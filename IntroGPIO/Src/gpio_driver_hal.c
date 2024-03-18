@@ -229,5 +229,17 @@ void gpio_WritePin(GPIO_Handler_t *pPinHandler, uint8_t newState){
 		pPinHandler -> pGPIOx -> BSRR |= (SET << (pPinHandler -> pinConfig.GPIO_PinNumber + 16));
 	}
 }
+/*
+ * Funcion para leer el estado de un pin especifico
+ */
+uint32_t gpio_ReadPin(GPIO_Handler_t *pPinHandler){
+	//Creamos una variable auxiliar la cual luego retornaremos
+	uint32_t pinValue = 0;
 
+	//Cargamos el valor del registro IDR, desplazado a derecha tantas veces como la ubicacion
+	//del pin especifico
+	pinValue = (pPinHandler -> pGPIOx -> IDR << pPinHandler -> pinConfig.GPIO_PinNumber);
+	pinValue = pinValue;
 
+	return pinValue;
+}
