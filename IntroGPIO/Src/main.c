@@ -43,7 +43,7 @@ int main(void)
 	/* Cargamos la configuracion en los registros que gobiernan el puerto */
 	gpio_Config(&userLed);
 
-	gpio_WritePin(&userLed);
+	gpio_WritePin(&userLed,SET);
 
 	/* Loop forever */
 	while(1){
