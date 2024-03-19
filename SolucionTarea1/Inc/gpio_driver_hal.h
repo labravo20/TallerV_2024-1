@@ -163,7 +163,7 @@ typedef struct
 // Adicionalmente las publicas son continuadas despues del _ con mayuscula
 void gpio_Config (GPIO_Handler_t *pGPIOHandler);
 void gpio_WritePin (GPIO_Handler_t *pPinHandler, uint8_t newState);
-uint32_t gpio_TooglePin (GPIO_Handler_t *pPinHandler);
+void gpio_TooglePin (GPIO_Handler_t *pPinHandler);
 uint32_t gpio_ReadPin (GPIO_Handler_t *pPinHandler);
 
 
