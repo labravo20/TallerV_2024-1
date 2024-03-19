@@ -65,6 +65,11 @@ enum
  * una escritura "atomica", por lo cual es preferible utilizar el registro BSRR */
 
 /* Definicion de los nombres de los pines */
+//PINES RESTRINGIDOS:
+/*A 2,3,13,14 y 15
+ *B 11
+ *C 14 y 15
+ * */
 enum
 {
 	PIN_0 = 0,
