@@ -44,14 +44,16 @@ int main(void)
 	/* Cargamos la configuracion en los registros que gobiernan el puerto */
 	gpio_Config(&userLed);
 
-	gpio_WritePin(&userLed,SET);
-
 	/* ++++====== PRIMER PUNTO ======++++ */
 
 
 
 	//Llamamos a la función que se desea analizar
 	gpio_ReadPin(&userLed);
+
+	/* ++++====== FIN PRIMER PUNTO ======++++ */
+
+	gpio_WritePin(&userLed,SET);
 
 	/* Loop forever */
 	while(1){

@@ -238,13 +238,21 @@ uint32_t gpio_ReadPin(GPIO_Handler_t *pPinHandler){
 	uint32_t pinValue = 0;
 
 	/* ===== Corrección #1 ===== */
-	/* Verificamos si la accion que deseamos realizar es permitida */
-	//assert_param(IS_GPIO_PIN_ACTION(newState));
+	/* Operación desarrollada a continuación brinda valor resultante incorrecto */
 
-	//Cargamos el valor del registro IDR, desplazado a derecha tantas veces como la ubicacion
-	//del pin especifico
-	pinValue = (pPinHandler -> pGPIOx -> IDR << pPinHandler -> pinConfig.GPIO_PinNumber);
-	pinValue = pinValue;
+	//Cargamos el valor del registro IDR, desplazado a derecha tantas veces como la ubicacion del pin especifico
+	//pinValue = (pPinHandler -> pGPIOx -> IDR << pPinHandler -> pinConfig.GPIO_PinNumber);
+
+	/* Propuesta de solución */
+
+	//Definimos a pinValue en terminos de IDR
+	pinValue = pPinHandler -> pGPIOx -> IDR;
+	//Para determinar si la posición específica está activa aplicamos un shift de pinNumber
+
+
+	/* ===== Corrección #2 ===== */
+	/*Es redundante la asignación de la variable sobre si misma*/
+	//pinValue = pinValue;
 
 	return pinValue;
 }
