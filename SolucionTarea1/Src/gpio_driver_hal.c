@@ -234,6 +234,7 @@ void gpio_WritePin(GPIO_Handler_t *pPinHandler, uint8_t newState){
  * Funcion para leer el estado de un pin especifico
  */
 uint32_t gpio_ReadPin(GPIO_Handler_t *pPinHandler){
+
 	//Creamos una variable auxiliar la cual luego retornaremos
 	uint32_t pinValue = 0;
 
@@ -276,7 +277,29 @@ uint32_t gpio_ReadPin(GPIO_Handler_t *pPinHandler){
 
 /* ++++++====== SEGUNDO PUNTO ======++++++ */
 
+//Creación de función gpio_TooglePin
+/*
+ * Cambia el estado de un PinX (encendido -> apagado o apagado -> encendido)
+ */
+uint32_t gpio_TooglePin(GPIO_Handler_t *pPinHandler){
 
+	// Definimos variable para cargar en ella el resultado de pinValue obtenido al evaluar
+	// gpio_ReadPin(pPinHandler)
+	uint32_t pinToogle = 0;
+
+	// Llamamos a la función gpio_ReadPin para determinar si el pin está inicialmente
+	// encendido o apagado.
+	pinToogle = gpio_ReadPin(pPinHandler);
+
+	// Hacemos uso de la función XOR para cambiar el estado del pin
+	pinToogle ^= 1;
+
+	//Retornamos el valor de pinToogle resultante después del cambio
+	// 1 -> pin activado
+	// 0 -> pin desactivado
+	return pinToogle;
+
+}
 
 
 

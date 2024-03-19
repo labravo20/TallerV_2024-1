@@ -47,12 +47,17 @@ int main(void)
 
 	/* ++++====== PRIMER PUNTO ======++++ */
 
-
-
 	//Llamamos a la función que se desea analizar
 	gpio_ReadPin(&userLed);
 
 	/* ++++====== FIN PRIMER PUNTO ======++++ */
+
+	/* ++++====== SEGUNDO PUNTO ======++++ */
+
+	//Llamamos a la función que se desea analizar
+	gpio_TooglePin(&userLed);
+
+	/* ++++====== FIN SEGUNDO PUNTO ======++++ */
 
 	/* Loop forever */
 	while(1){
