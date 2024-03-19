@@ -238,10 +238,11 @@ typedef struct
  * hace cada registro, para poder cargar correctamente la configuracion.
  */
 
+//volatile le dice al sistema: "Este valor puede cambiar"
 typedef struct
 {
 	volatile uint32_t MODER;    //port mode register                 ADDR_OFFSET: 0x00
-	volatile uint32_t OTYPER;    //port output type register          ADDR_OFFSET: 0x04
+	volatile uint32_t OTYPER;   //port output type register          ADDR_OFFSET: 0x04
 	volatile uint32_t OSPEEDR;  //port output speed register         ADDR_OFFSET: 0X08
 	volatile uint32_t PUPDR;    //port pull-up/pull-down register    ADDR_OFFSET: 0x0C
 	volatile uint32_t IDR;      //port input data register           ADDR_OFFSET: 0x10
@@ -257,6 +258,8 @@ typedef struct
  *
  * Tener cuidado que cada elemento coincida con su respectiva direccion base
  */
+
+//NOTA: El * es un "puntero"
 #define GPIOA      ((GPIO_TypeDef *) GPIOA_BASE_ADDR)
 #define GPIOB      ((GPIO_TypeDef *) GPIOB_BASE_ADDR)
 #define GPIOC      ((GPIO_TypeDef *) GPIOC_BASE_ADDR)

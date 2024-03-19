@@ -133,7 +133,7 @@ typedef struct
 } GPIO_Handler_t;
 
 /* For testing assert parameters - checking basic configurations. */
-#define IS_GPIO_PIN_ACTION(ACTION)     (((ACTION) == GPIO_PIN_RESER) || ((ACTION) == GPIO_PIN_SET))
+#define IS_GPIO_PIN_ACTION(ACTION)     (((ACTION) == GPIO_PIN_RESET) || ((ACTION) == GPIO_PIN_SET))
 
 #define IS_GPIO_PIN(PIN)               (((uint32_t)PIN) <= GPIO_PIN_MASK))
 
@@ -154,6 +154,8 @@ typedef struct
 										((PULL) == GPIO_PUPDR_PULLDOWN))
 
 /* Header definitions for the "public functions" of gpio_driver_hal */
+// Porque headers estan en final de archivo .h
+// Adicionalmente las publicas son continuadas despues del _ con mayuscula
 void gpio_Config (GPIO_Handler_t *pGPIOHandler);
 void gpio_WritePin (GPIO_Handler_t *pPinHandler, uint8_t newState);
 void gpio_TooglePin (GPIO_Handler_t *pPinHandler);

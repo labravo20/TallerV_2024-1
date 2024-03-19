@@ -9,7 +9,8 @@
 #include "stm32f4xx_hal.h"
 #include "stm32_assert.h"
 
-/* === Headers for private functions */
+/* === Headers for private functions (Porque su header esta en inicio archivo .c) */
+// Adicionalmente las privadas son continuadas despues del _ con minuscula
 void gpio_enable_clock_peripheral (GPIO_Handler_t *pGPIOHandler);
 void gpio_config_mode (GPIO_Handler_t *pGPIOHandler);
 void gpio_config_output_type (GPIO_Handler_t *pGPIOHandler);
@@ -236,6 +237,10 @@ uint32_t gpio_ReadPin(GPIO_Handler_t *pPinHandler){
 	//Creamos una variable auxiliar la cual luego retornaremos
 	uint32_t pinValue = 0;
 
+	/* ===== Corrección #1 ===== */
+	/* Verificamos si la accion que deseamos realizar es permitida */
+	//assert_param(IS_GPIO_PIN_ACTION(newState));
+
 	//Cargamos el valor del registro IDR, desplazado a derecha tantas veces como la ubicacion
 	//del pin especifico
 	pinValue = (pPinHandler -> pGPIOx -> IDR << pPinHandler -> pinConfig.GPIO_PinNumber);
@@ -243,5 +248,11 @@ uint32_t gpio_ReadPin(GPIO_Handler_t *pPinHandler){
 
 	return pinValue;
 }
+
+/* ++++++====== SEGUNDO PUNTO ======++++++ */
+
+
+
+
 
 

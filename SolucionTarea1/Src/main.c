@@ -33,7 +33,8 @@ GPIO_Handler_t userLed = {0}; //PinA5
 int main(void)
 {
     /* Configuramos el pin */
-	userLed.pGPIOx                        = GPIOA;
+	//NOTA: p en pGPIO indica un counter
+	userLed.pGPIOx                        = GPIOA; //Determinando el puerto a utilizar
 	userLed.pinConfig.GPIO_PinNumber      = PIN_5;
 	userLed.pinConfig.GPIO_PinMode        = GPIO_MODE_OUT;
 	userLed.pinConfig.GPIO_PinOutputType  = GPIO_OTYPE_PUSHPULL;
@@ -46,6 +47,8 @@ int main(void)
 	gpio_WritePin(&userLed,SET);
 
 	/* ++++====== PRIMER PUNTO ======++++ */
+
+
 
 	//Llamamos a la función que se desea analizar
 	gpio_ReadPin(&userLed);
