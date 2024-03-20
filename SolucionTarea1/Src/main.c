@@ -24,8 +24,24 @@
 //Headers definition
 int add(int x, int y);
 
-//Definimos un Pin de prueba
-GPIO_Handler_t userLed = {0}; //PinA5
+//Definición de variables para desarrollo de Tercer Punto
+uint8_t counteri = 0;
+uint8_t decimalInput = 0;
+uint8_t decimalInput01 = 0;
+
+//Definición de constantes para desarrollo de Tercer Punto
+#define LIMITE_INFERIOR 0
+#define LIMITE_SUPERIOR 61
+
+//Definimos Pines a utilizar
+GPIO_Handler_t userLed    = {0}; //PinA5
+GPIO_Handler_t userLed_00 = {0}; //PinA0
+GPIO_Handler_t userLed_01 = {0}; //PinA6
+GPIO_Handler_t userLed_02 = {0}; //PinB9
+GPIO_Handler_t userLed_03 = {0}; //PinC6
+GPIO_Handler_t userLed_04 = {0}; //PinC7
+GPIO_Handler_t userLed_05 = {0}; //PinB6
+GPIO_Handler_t userLed_06 = {0}; //PinA9
 
 /*
  * The main function, where everything happens
@@ -97,10 +113,110 @@ int main(void)
 
 	/* ++++====== SEGUNDO PUNTO ======++++ */
 
+	/*
+	 * Detalle sobre funcionamiento de la función se encuentra en documento gpio_driver_hal.c
+	 */
+
 	//Llamamos a la función que se desea analizar
 	gpio_TooglePin(&userLed);
 
 	/* ++++====== FIN SEGUNDO PUNTO ======++++ */
+
+	/* ++++====== TERCER PUNTO ======++++ */
+
+	//En primera instancia se define la configuración de los pines a usar:
+
+	/* PinA0 */
+	userLed_00.pGPIOx                        = GPIOA; //Determinando el puerto a utilizar
+	userLed_00.pinConfig.GPIO_PinNumber      = PIN_0;
+	userLed_00.pinConfig.GPIO_PinMode        = GPIO_MODE_OUT;
+	userLed_00.pinConfig.GPIO_PinOutputType  = GPIO_OTYPE_PUSHPULL;
+	userLed_00.pinConfig.GPIO_PinOutputSpeed = GPIO_OSPEED_MEDIUM;
+	userLed_00.pinConfig.GPIO_PinPuPdControl = GPIO_PUPDR_NOTHING;
+	/* Cargamos la configuracion en los registros que gobiernan el puerto */
+	gpio_Config(&userLed_00);
+
+	/* PinA6 */
+	userLed_01.pGPIOx                        = GPIOA; //Determinando el puerto a utilizar
+	userLed_01.pinConfig.GPIO_PinNumber      = PIN_6;
+	userLed_01.pinConfig.GPIO_PinMode        = GPIO_MODE_OUT;
+	userLed_01.pinConfig.GPIO_PinOutputType  = GPIO_OTYPE_PUSHPULL;
+	userLed_01.pinConfig.GPIO_PinOutputSpeed = GPIO_OSPEED_MEDIUM;
+	userLed_01.pinConfig.GPIO_PinPuPdControl = GPIO_PUPDR_NOTHING;
+	/* Cargamos la configuracion en los registros que gobiernan el puerto */
+	gpio_Config(&userLed_01);
+
+	/* PinB9 */
+	userLed_02.pGPIOx                        = GPIOB; //Determinando el puerto a utilizar
+	userLed_02.pinConfig.GPIO_PinNumber      = PIN_9;
+	userLed_02.pinConfig.GPIO_PinMode        = GPIO_MODE_OUT;
+	userLed_02.pinConfig.GPIO_PinOutputType  = GPIO_OTYPE_PUSHPULL;
+	userLed_02.pinConfig.GPIO_PinOutputSpeed = GPIO_OSPEED_MEDIUM;
+	userLed_02.pinConfig.GPIO_PinPuPdControl = GPIO_PUPDR_NOTHING;
+	/* Cargamos la configuracion en los registros que gobiernan el puerto */
+	gpio_Config(&userLed_02);
+
+	/* PinC6 */
+	userLed_03.pGPIOx                        = GPIOC; //Determinando el puerto a utilizar
+	userLed_03.pinConfig.GPIO_PinNumber      = PIN_6;
+	userLed_03.pinConfig.GPIO_PinMode        = GPIO_MODE_OUT;
+	userLed_03.pinConfig.GPIO_PinOutputType  = GPIO_OTYPE_PUSHPULL;
+	userLed_03.pinConfig.GPIO_PinOutputSpeed = GPIO_OSPEED_MEDIUM;
+	userLed_03.pinConfig.GPIO_PinPuPdControl = GPIO_PUPDR_NOTHING;
+	/* Cargamos la configuracion en los registros que gobiernan el puerto */
+	gpio_Config(&userLed_03);
+
+	/* PinC7 */
+	userLed_04.pGPIOx                        = GPIOC; //Determinando el puerto a utilizar
+	userLed_04.pinConfig.GPIO_PinNumber      = PIN_7;
+	userLed_04.pinConfig.GPIO_PinMode        = GPIO_MODE_OUT;
+	userLed_04.pinConfig.GPIO_PinOutputType  = GPIO_OTYPE_PUSHPULL;
+	userLed_04.pinConfig.GPIO_PinOutputSpeed = GPIO_OSPEED_MEDIUM;
+	userLed_04.pinConfig.GPIO_PinPuPdControl = GPIO_PUPDR_NOTHING;
+	/* Cargamos la configuracion en los registros que gobiernan el puerto */
+	gpio_Config(&userLed_04);
+
+	/* PinB6 */
+	userLed_05.pGPIOx                        = GPIOB; //Determinando el puerto a utilizar
+	userLed_05.pinConfig.GPIO_PinNumber      = PIN_6;
+	userLed_05.pinConfig.GPIO_PinMode        = GPIO_MODE_OUT;
+	userLed_05.pinConfig.GPIO_PinOutputType  = GPIO_OTYPE_PUSHPULL;
+	userLed_05.pinConfig.GPIO_PinOutputSpeed = GPIO_OSPEED_MEDIUM;
+	userLed_05.pinConfig.GPIO_PinPuPdControl = GPIO_PUPDR_NOTHING;
+	/* Cargamos la configuracion en los registros que gobiernan el puerto */
+	gpio_Config(&userLed_05);
+
+	/* PinA9 */
+	userLed_06.pGPIOx                        = GPIOA; //Determinando el puerto a utilizar
+	userLed_06.pinConfig.GPIO_PinNumber      = PIN_9;
+	userLed_06.pinConfig.GPIO_PinMode        = GPIO_MODE_OUT;
+	userLed_06.pinConfig.GPIO_PinOutputType  = GPIO_OTYPE_PUSHPULL;
+	userLed_06.pinConfig.GPIO_PinOutputSpeed = GPIO_OSPEED_MEDIUM;
+	userLed_06.pinConfig.GPIO_PinPuPdControl = GPIO_PUPDR_NOTHING;
+	/* Cargamos la configuracion en los registros que gobiernan el puerto */
+	gpio_Config(&userLed_06);
+
+	//Inicalmente planteamos contador que permita cuenta creciente (1 -> 60)
+
+	for(counteri = LIMITE_INFERIOR; counteri < LIMITE_SUPERIOR; counteri ++){
+
+		//Variable que deseamos convertir a binario
+		decimalInput = counteri;
+
+		/*Estamos aplicando copia de variable para poder usarla
+		en ciclo while sin alterar el filtro de las siguientes
+		condiciones sobre la variable original*/
+		decimalInput01 = decimalInput;
+
+		// A continuación se verifica si el número es cero
+
+		// A continuación se verifica si el número es uno
+
+
+
+	}
+
+	/* ++++====== FIN TERCER PUNTO ======++++ */
 
 	/* Loop forever */
 	while(1){
