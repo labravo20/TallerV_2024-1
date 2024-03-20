@@ -231,7 +231,7 @@ void gpio_WritePin(GPIO_Handler_t *pPinHandler, uint8_t newState){
 	}
 }
 /*
- * Funcion para leer el estado de un pin especifico
+ * Función para leer el estado de un pin específico
  */
 uint32_t gpio_ReadPin(GPIO_Handler_t *pPinHandler){
 
@@ -300,11 +300,47 @@ void gpio_TooglePin(GPIO_Handler_t *pPinHandler){
 
 	//Llamamos función gpio_WritePin para aplicar el cambio en el estado del pin.
 	//El valor asignado en pinToogle será el encargado de configurar el encendido
-	//(en caso de ser 1) o apagado (en caso de ser 0) en el estado del PIn
+	//(en caso de ser 1) o apagado (en caso de ser 0) en el estado del Pin.
 	gpio_WritePin(pPinHandler,pinToogle);
 
 }
 
+/* ++++++====== FIN SEGUNDO PUNTO ======++++++ */
+
+/*
+ * Función para determinar configuración de Leds como binarios en cuenta de 1 a 60
+ */
+void gpio_LedBinario(GPIO_Handler_t *pPinHandler, uint8_t counter){
+
+	// Definimos variable para cargar resultado de pin activo o no activo dependiendo
+	// del número específico en análisis
+	uint8_t pinLed    = 0;
+
+	// Haciendo uso de la función shift ">>" en un desplazamiento total de "pinNumber"
+	// puede llevarse al bit 0 el valor asignado al bit "pinNumber" originalmente.
+	pinLed= (counter >> pPinHandler -> pinConfig.GPIO_PinNumber);
+
+	//Evaluamos según el resultado del shift si el bit específico de análisis debe estar
+	//o no activo para poder representar el número.
+
+	//Evaluamos si el nuevo número asignado a pinLed es par o impar
+	if((pinLed%2) == 0){
+
+		//Si el valor de pinLed es par implica pin estará desactivado
+		pinLed = 0;
+	}
+	else{
+
+		//Si el valor de pinLed es par implica pin estará activado
+		pinLed = 1;
+	}
+
+	//Llamamos función gpio_WritePin para aplicar el cambio en el estado del pin.
+	//El valor asignado en pinLed será el encargado de configurar el encendido
+	//(en caso de ser 1) o apagado (en caso de ser 0) en el estado del Pin.
+	gpio_WritePin(pPinHandler,pinLed);
+
+}
 
 
 

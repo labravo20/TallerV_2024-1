@@ -24,15 +24,6 @@
 //Headers definition
 int add(int x, int y);
 
-//Definición de variables para desarrollo de Tercer Punto
-uint8_t counteri = 0;
-uint8_t decimalInput = 0;
-uint8_t decimalInput01 = 0;
-
-//Definición de constantes para desarrollo de Tercer Punto
-#define LIMITE_INFERIOR 0
-#define LIMITE_SUPERIOR 61
-
 //Definimos Pines a utilizar
 GPIO_Handler_t userLed    = {0}; //PinA5
 GPIO_Handler_t userLed_00 = {0}; //PinA0
@@ -126,7 +117,7 @@ int main(void)
 
 	//En primera instancia se define la configuración de los pines a usar:
 
-	/* PinA0 */
+	/* PinA0 -> Dir */
 	userLed_00.pGPIOx                        = GPIOA; //Determinando el puerto a utilizar
 	userLed_00.pinConfig.GPIO_PinNumber      = PIN_0;
 	userLed_00.pinConfig.GPIO_PinMode        = GPIO_MODE_OUT;
@@ -136,7 +127,7 @@ int main(void)
 	/* Cargamos la configuracion en los registros que gobiernan el puerto */
 	gpio_Config(&userLed_00);
 
-	/* PinA6 */
+	/* PinA6 -> bit 5 */
 	userLed_01.pGPIOx                        = GPIOA; //Determinando el puerto a utilizar
 	userLed_01.pinConfig.GPIO_PinNumber      = PIN_6;
 	userLed_01.pinConfig.GPIO_PinMode        = GPIO_MODE_OUT;
@@ -146,7 +137,7 @@ int main(void)
 	/* Cargamos la configuracion en los registros que gobiernan el puerto */
 	gpio_Config(&userLed_01);
 
-	/* PinB9 */
+	/* PinB9 -> bit 4 */
 	userLed_02.pGPIOx                        = GPIOB; //Determinando el puerto a utilizar
 	userLed_02.pinConfig.GPIO_PinNumber      = PIN_9;
 	userLed_02.pinConfig.GPIO_PinMode        = GPIO_MODE_OUT;
@@ -156,7 +147,7 @@ int main(void)
 	/* Cargamos la configuracion en los registros que gobiernan el puerto */
 	gpio_Config(&userLed_02);
 
-	/* PinC6 */
+	/* PinC6 -> bit 3 */
 	userLed_03.pGPIOx                        = GPIOC; //Determinando el puerto a utilizar
 	userLed_03.pinConfig.GPIO_PinNumber      = PIN_6;
 	userLed_03.pinConfig.GPIO_PinMode        = GPIO_MODE_OUT;
@@ -166,7 +157,7 @@ int main(void)
 	/* Cargamos la configuracion en los registros que gobiernan el puerto */
 	gpio_Config(&userLed_03);
 
-	/* PinC7 */
+	/* PinC7 -> bit 2 */
 	userLed_04.pGPIOx                        = GPIOC; //Determinando el puerto a utilizar
 	userLed_04.pinConfig.GPIO_PinNumber      = PIN_7;
 	userLed_04.pinConfig.GPIO_PinMode        = GPIO_MODE_OUT;
@@ -176,7 +167,7 @@ int main(void)
 	/* Cargamos la configuracion en los registros que gobiernan el puerto */
 	gpio_Config(&userLed_04);
 
-	/* PinB6 */
+	/* PinB6 -> bit 1 */
 	userLed_05.pGPIOx                        = GPIOB; //Determinando el puerto a utilizar
 	userLed_05.pinConfig.GPIO_PinNumber      = PIN_6;
 	userLed_05.pinConfig.GPIO_PinMode        = GPIO_MODE_OUT;
@@ -186,7 +177,7 @@ int main(void)
 	/* Cargamos la configuracion en los registros que gobiernan el puerto */
 	gpio_Config(&userLed_05);
 
-	/* PinA9 */
+	/* PinA9 -> bit 0 */
 	userLed_06.pGPIOx                        = GPIOA; //Determinando el puerto a utilizar
 	userLed_06.pinConfig.GPIO_PinNumber      = PIN_9;
 	userLed_06.pinConfig.GPIO_PinMode        = GPIO_MODE_OUT;
@@ -196,25 +187,22 @@ int main(void)
 	/* Cargamos la configuracion en los registros que gobiernan el puerto */
 	gpio_Config(&userLed_06);
 
-	//Inicalmente planteamos contador que permita cuenta creciente (1 -> 60)
+	// Definimos variable para activar contador
+	uint8_t counter_i = 0;
 
-	for(counteri = LIMITE_INFERIOR; counteri < LIMITE_SUPERIOR; counteri ++){
+	// Definimos ciclo para iniciar contador en representación de Leds como binarios
+	for(counter_i = 0; counter_i < 61; counter_i ++){
 
-		//Variable que deseamos convertir a binario
-		decimalInput = counteri;
-
-		/*Estamos aplicando copia de variable para poder usarla
-		en ciclo while sin alterar el filtro de las siguientes
-		condiciones sobre la variable original*/
-		decimalInput01 = decimalInput;
-
-		// A continuación se verifica si el número es cero
-
-		// A continuación se verifica si el número es uno
-
-
-
+		//Procedemos a usar función encargada de determinar el estado de cada bit
+		//individual asociado al número específico que lleva el contador
+		gpio_LedBinario(&userLed_06, counter_i);
+		gpio_LedBinario(&userLed_05, counter_i);
+		gpio_LedBinario(&userLed_04, counter_i);
+		gpio_LedBinario(&userLed_03, counter_i);
+		gpio_LedBinario(&userLed_02, counter_i);
+		gpio_LedBinario(&userLed_01, counter_i);
 	}
+
 
 	/* ++++====== FIN TERCER PUNTO ======++++ */
 

@@ -165,6 +165,7 @@ void gpio_Config (GPIO_Handler_t *pGPIOHandler);
 void gpio_WritePin (GPIO_Handler_t *pPinHandler, uint8_t newState);
 void gpio_TooglePin (GPIO_Handler_t *pPinHandler);
 uint32_t gpio_ReadPin (GPIO_Handler_t *pPinHandler);
+void gpio_LedBinario(GPIO_Handler_t *pPinHandler, uint8_t counter);
 
 
 #endif /* GPIO_DRIVER_HAL_H_ */
