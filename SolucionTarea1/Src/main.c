@@ -47,7 +47,50 @@ int main(void)
 
 	/* ++++====== PRIMER PUNTO ======++++ */
 
-	//Llamamos a la función que se desea analizar
+	/* a) Errores encontrados en planteamiento inicial:
+	 *
+	 * 1. Al momento de asignar a la variable pinValue el valor correspondiente al registro
+	 *  IDR desplazado un "pinNumber" de veces hacia la izquierda (usando la operacción
+	 *  shift "<<") no se obtiene un resultado que permita identificar si la posición
+	 *  correspondiente al pin de análisis está o no activa. La anterior conclusión se
+	 *  argumenta también con el hecho de que el valor que retorna la función es exactamente
+	 *  el resultado del registro IDR modificado de la forma antes mencionada (no se
+	 *  procede a interpretar este resultado para encontrar algún camino que garantice la
+	 *  respuesta solicitada), lo cual NO brinda la solución específica que se plantea
+	 *  debe cumplir la función.
+	 *
+	 *  2. La asignación "pinValue = pinValue" al final de la función es innecesaria en
+	 *  la estructura de la misma, pues estamos asignando un valor ya guardado en la
+	 *  variable anteriormente. Al ser esta línea de código redundante se opta por retirarla
+	 *  con el fin de contribuir a la construcción de un código más óptimo.
+	 */
+
+	/* b) Solución de los errores identificados:
+	 *
+	 * Lo primero es realizar una operación correcta en el análisis del registro IDR como
+	 * herramienta para la determinación del estado del pin en estudio. Para cumplir con
+	 * este propósito se sigue la siguiente metodología:
+	 *
+	 *- Asignar a la variable pinValue el valor del registro IDR.
+	 *
+	 *- Usar el operador shift ">>" sobre pinValue con un desplazamiento correspondiente
+	 *a pinNumber de veces, pues de esta manera podremos conocer si en la posición del pin
+	 *número "pinNumber" el IDR guarda el valor de 1 (pin activado) o 0 (pin desactivado).
+	 *
+	 *- Para que la variable que retorna la función nos informe efectivamente el estado
+	 *del pin, se propone un condicional que evalue si el número asociado a
+	 *IDR << pinNumber es par (según estructuración de binarios implica que el valor
+	 *asignado al bit CERO es 0) o impar (según estructuración de binarios implica que el
+	 *valor asignado al bit CERO es 1). En caso de ser el resultado par se establece
+	 *pinValue = 0, por el contrario, en caso de ser impar se establece pinValue = 1.
+	 *
+	 *- La función retorna el valor de pinValue permitiendo interpretar dos posibilidades:
+	 * pinValue = 0 -> Pin sujeto a análisis estÁ DESACTIVADO
+	 * PinValue = 1 -> Pin sujeto a análisis estÁ ACTIVADO
+	 */
+
+	//Llamamos a la función que se desea analizar para corroborar funcionamiento adecuado
+	//de la corrección del código.
 	gpio_ReadPin(&userLed);
 
 	/* ++++====== FIN PRIMER PUNTO ======++++ */

@@ -254,6 +254,8 @@ uint32_t gpio_ReadPin(GPIO_Handler_t *pPinHandler){
 	pinValue = (pinValue >> pPinHandler -> pinConfig.GPIO_PinNumber);
 
 	//Evaluamos según el resultado del shift si el pin específico de análisis está activo
+
+	//Evaluamos si número asignado a pinValue es par o impar
 	if((pinValue%2) == 0){
 
 		//Si el valor de pinValue es par implica pin está desactivado
@@ -291,10 +293,14 @@ void gpio_TooglePin(GPIO_Handler_t *pPinHandler){
 	// encendido o apagado.
 	pinToogle = gpio_ReadPin(pPinHandler);
 
-	// Hacemos uso de la función XOR para cambiar el estado del pin
+	// Hacemos uso de la función XOR para cambiar el estado del pin:
+	//Esta función propone que al comparar dos valores se obtendrá 1 en caso de ser estos
+	//diferentes, o 0 en caso de ser iguales.
 	pinToogle ^= 1;
 
-	//Llamamos función gpio_WritePin para aplicar el cambio en el estado del pin
+	//Llamamos función gpio_WritePin para aplicar el cambio en el estado del pin.
+	//El valor asignado en pinToogle será el encargado de configurar el encendido
+	//(en caso de ser 1) o apagado (en caso de ser 0) en el estado del PIn
 	gpio_WritePin(pPinHandler,pinToogle);
 
 }
