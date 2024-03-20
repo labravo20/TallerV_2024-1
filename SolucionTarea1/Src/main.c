@@ -128,6 +128,9 @@ int main(void)
 	gpio_Config(&userLed_00);
 
 	/* PinA6 -> bit 5 */
+	// Especificamos el bit que va a representar este pin
+	uint8_t bit_5 = 5;
+	// Definimos la configuración
 	userLed_01.pGPIOx                        = GPIOA; //Determinando el puerto a utilizar
 	userLed_01.pinConfig.GPIO_PinNumber      = PIN_6;
 	userLed_01.pinConfig.GPIO_PinMode        = GPIO_MODE_OUT;
@@ -138,6 +141,9 @@ int main(void)
 	gpio_Config(&userLed_01);
 
 	/* PinB9 -> bit 4 */
+	// Especificamos el bit que va a representar este pin
+	uint8_t bit_4 = 4;
+	// Definimos la configuración
 	userLed_02.pGPIOx                        = GPIOB; //Determinando el puerto a utilizar
 	userLed_02.pinConfig.GPIO_PinNumber      = PIN_9;
 	userLed_02.pinConfig.GPIO_PinMode        = GPIO_MODE_OUT;
@@ -148,6 +154,9 @@ int main(void)
 	gpio_Config(&userLed_02);
 
 	/* PinC6 -> bit 3 */
+	// Especificamos el bit que va a representar este pin
+	uint8_t bit_3 = 3;
+	// Definimos la configuración
 	userLed_03.pGPIOx                        = GPIOC; //Determinando el puerto a utilizar
 	userLed_03.pinConfig.GPIO_PinNumber      = PIN_6;
 	userLed_03.pinConfig.GPIO_PinMode        = GPIO_MODE_OUT;
@@ -158,6 +167,9 @@ int main(void)
 	gpio_Config(&userLed_03);
 
 	/* PinC7 -> bit 2 */
+	// Especificamos el bit que va a representar este pin
+	uint8_t bit_2 = 2;
+	// Definimos la configuración
 	userLed_04.pGPIOx                        = GPIOC; //Determinando el puerto a utilizar
 	userLed_04.pinConfig.GPIO_PinNumber      = PIN_7;
 	userLed_04.pinConfig.GPIO_PinMode        = GPIO_MODE_OUT;
@@ -168,6 +180,9 @@ int main(void)
 	gpio_Config(&userLed_04);
 
 	/* PinB6 -> bit 1 */
+	// Especificamos el bit que va a representar este pin
+	uint8_t bit_1 = 1;
+	// Definimos la configuración
 	userLed_05.pGPIOx                        = GPIOB; //Determinando el puerto a utilizar
 	userLed_05.pinConfig.GPIO_PinNumber      = PIN_6;
 	userLed_05.pinConfig.GPIO_PinMode        = GPIO_MODE_OUT;
@@ -178,6 +193,9 @@ int main(void)
 	gpio_Config(&userLed_05);
 
 	/* PinA9 -> bit 0 */
+	// Especificamos el bit que va a representar este pin
+	uint8_t bit_0 = 0;
+	// Definimos la configuración
 	userLed_06.pGPIOx                        = GPIOA; //Determinando el puerto a utilizar
 	userLed_06.pinConfig.GPIO_PinNumber      = PIN_9;
 	userLed_06.pinConfig.GPIO_PinMode        = GPIO_MODE_OUT;
@@ -195,12 +213,12 @@ int main(void)
 
 		//Procedemos a usar función encargada de determinar el estado de cada bit
 		//individual asociado al número específico que lleva el contador
-		gpio_LedBinario(&userLed_06, counter_i);
-		gpio_LedBinario(&userLed_05, counter_i);
-		gpio_LedBinario(&userLed_04, counter_i);
-		gpio_LedBinario(&userLed_03, counter_i);
-		gpio_LedBinario(&userLed_02, counter_i);
-		gpio_LedBinario(&userLed_01, counter_i);
+		gpio_LedBinario(&userLed_06, counter_i, bit_0);
+		gpio_LedBinario(&userLed_05, counter_i, bit_1);
+		gpio_LedBinario(&userLed_04, counter_i, bit_2);
+		gpio_LedBinario(&userLed_03, counter_i, bit_3);
+		gpio_LedBinario(&userLed_02, counter_i, bit_4);
+		gpio_LedBinario(&userLed_01, counter_i, bit_5);
 	}
 
 

@@ -310,7 +310,7 @@ void gpio_TooglePin(GPIO_Handler_t *pPinHandler){
 /*
  * Función para determinar configuración de Leds como binarios en cuenta de 1 a 60
  */
-void gpio_LedBinario(GPIO_Handler_t *pPinHandler, uint8_t counter){
+void gpio_LedBinario(GPIO_Handler_t *pPinHandler, uint8_t counter, uint8_t bitNumber){
 
 	// Definimos variable para cargar resultado de pin activo o no activo dependiendo
 	// del número específico en análisis
@@ -318,7 +318,7 @@ void gpio_LedBinario(GPIO_Handler_t *pPinHandler, uint8_t counter){
 
 	// Haciendo uso de la función shift ">>" en un desplazamiento total de "pinNumber"
 	// puede llevarse al bit 0 el valor asignado al bit "pinNumber" originalmente.
-	pinLed= (counter >> pPinHandler -> pinConfig.GPIO_PinNumber);
+	pinLed= (counter >> bitNumber);
 
 	//Evaluamos según el resultado del shift si el bit específico de análisis debe estar
 	//o no activo para poder representar el número.
