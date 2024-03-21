@@ -229,6 +229,13 @@ int main(void)
 		//de operación del MCU es de aprox 16MHz
 		for(counter_j = 0; counter_j < 1000000; counter_j ++){}
 
+		//Para garantizar que el contador permanezca activo se realiza la siguiente redefinición
+		//de variables
+		if(counter_i == 60){
+			//Al asignar nuevamente el valor inicial al contador se reinicia el ciclo
+			counter_i = 0;
+		//}
+
 	}
 
 	// Definimos variable para activar contador
@@ -236,6 +243,9 @@ int main(void)
 
 	// Definimos ciclo para iniciar contador (decreciente) en representación de Leds como binarios
 	for(counter_k = 60; counter_k > 0; counter_k --){
+
+		//Encendemos led Dir para indicar cuenta hacia atrás
+		gpio_WritePin(&userLed_00,SET);
 		//Procedemos a usar función encargada de determinar el estado de cada bit
 		//individual asociado al número específico que lleva el contador
 		gpio_LedBinario(&userLed_06, counter_k, bit_0);
@@ -254,7 +264,16 @@ int main(void)
 		//de operación del MCU es de aprox 16MHz
 		for(counter_m = 0; counter_m < 1000000; counter_m ++){}
 
+		//Para garantizar que el contador permanezca activo se realiza la siguiente redefinición
+		//de variables
+		if(counter_k == 1){
+			//Al asignar nuevamente el valor inicial al contador se reinicia el ciclo
+			counter_k = 61;
+		}
+
 	}
+	//Apagamos led Dir para indicar desactivada la cuenta hacia atrás
+	gpio_WritePin(&userLed_00,RESET);
 
 
 	/* ++++====== FIN TERCER PUNTO ======++++ */
