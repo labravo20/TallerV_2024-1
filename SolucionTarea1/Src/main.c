@@ -213,83 +213,105 @@ int main(void)
 	/* Cargamos la configuracion en los registros que gobiernan el puerto */
 	gpio_Config(&userLed_06);
 
-	// Definimos variable para activar contador
-	uint8_t counter_i = 0;
-
-	// Definimos ciclo para iniciar contador (creciente) en representación de Leds como binarios
-	for(counter_i = 0; counter_i < 61; counter_i ++){
-
-		//Procedemos a usar función encargada de determinar el estado de cada bit
-		//individual asociado al número específico que lleva el contador
-		gpio_LedBinario(&userLed_06, counter_i, bit_0);
-		gpio_LedBinario(&userLed_05, counter_i, bit_1);
-		gpio_LedBinario(&userLed_04, counter_i, bit_2);
-		gpio_LedBinario(&userLed_03, counter_i, bit_3);
-		gpio_LedBinario(&userLed_02, counter_i, bit_4);
-		gpio_LedBinario(&userLed_01, counter_i, bit_5);
-
-		//Configuramos un ciclo for para crear delay de aprox un segundo
-
-		//Definimos variable para activar contador del ciclo para el delay
-		uint32_t counter_j = 0;
-
-		//Valor límite superior del counter es establecido teniendo en cuenta que la velocidad
-		//de operación del MCU es de aprox 16MHz
-		for(counter_j = 0; counter_j < 1000000; counter_j ++){}
-
-		//Para garantizar que el contador permanezca activo se realiza la siguiente redefinición
-		//de variables
-		if(counter_i == 60){
-			//Al asignar nuevamente el valor inicial al contador se reinicia el ciclo
-			counter_i = 0;
-		//}
-
-	}
-
-	// Definimos variable para activar contador
-	uint8_t counter_k = 0;
-
-	// Definimos ciclo para iniciar contador (decreciente) en representación de Leds como binarios
-	for(counter_k = 60; counter_k > 0; counter_k --){
-
-		//Encendemos led Dir para indicar cuenta hacia atrás
-		gpio_WritePin(&userLed_00,SET);
-		//Procedemos a usar función encargada de determinar el estado de cada bit
-		//individual asociado al número específico que lleva el contador
-		gpio_LedBinario(&userLed_06, counter_k, bit_0);
-		gpio_LedBinario(&userLed_05, counter_k, bit_1);
-		gpio_LedBinario(&userLed_04, counter_k, bit_2);
-		gpio_LedBinario(&userLed_03, counter_k, bit_3);
-		gpio_LedBinario(&userLed_02, counter_k, bit_4);
-		gpio_LedBinario(&userLed_01, counter_k, bit_5);
-
-		//Configuramos un ciclo for para crear delay de aprox un segundo
-
-		//Definimos variable para activar contador del ciclo para el delay
-		uint32_t counter_m = 0;
-
-		//Valor límite superior del counter es establecido teniendo en cuenta que la velocidad
-		//de operación del MCU es de aprox 16MHz
-		for(counter_m = 0; counter_m < 1000000; counter_m ++){}
-
-		//Para garantizar que el contador permanezca activo se realiza la siguiente redefinición
-		//de variables
-		if(counter_k == 1){
-			//Al asignar nuevamente el valor inicial al contador se reinicia el ciclo
-			counter_k = 61;
-		}
-
-	}
-	//Apagamos led Dir para indicar desactivada la cuenta hacia atrás
-	gpio_WritePin(&userLed_00,RESET);
-
-
-	/* ++++====== FIN TERCER PUNTO ======++++ */
+	// Procedemos a analizar el estado del User Button usando la función gpio_ReadPin
+	/*
+	 * userButton = 1 -> contador debe incrementar
+	 * userButton = 0 -> contador debe decrementar
+	 */
+	//Definimos variable para almacenar el resultado que brinde gpio_ReadPin
+	uint8_t pinUserButton = 0;
 
 	/* Loop forever */
 	while(1){
 
+		// Definimos variable para activar contador
+		uint8_t counter_i = 0;
+
+		// Definimos ciclo para iniciar contador (creciente) en representación de Leds como binarios
+		for(counter_i = 0; counter_i < 61; counter_i ++){
+			// Leemos el estado del User Button
+			pinUserButton = gpio_ReadPin(&userButton);
+
+			//Evaluamos si es necesario cambiar de contador
+			if(pinUserButton == 0){
+				//Encendemos led Dir para indicar cuenta hacia atrás
+				gpio_WritePin(&userLed_00,SET);
+				break;
+			}
+
+			//Procedemos a usar función encargada de determinar el estado de cada bit
+			//individual asociado al número específico que lleva el contador
+			gpio_LedBinario(&userLed_06, counter_i, bit_0);
+			gpio_LedBinario(&userLed_05, counter_i, bit_1);
+			gpio_LedBinario(&userLed_04, counter_i, bit_2);
+			gpio_LedBinario(&userLed_03, counter_i, bit_3);
+			gpio_LedBinario(&userLed_02, counter_i, bit_4);
+			gpio_LedBinario(&userLed_01, counter_i, bit_5);
+
+			//Configuramos un ciclo for para crear delay de aprox un segundo
+
+			//Definimos variable para activar contador del ciclo para el delay
+			uint32_t counter_j = 0;
+
+			//Valor límite superior del counter es establecido teniendo en cuenta que la velocidad
+			//de operación del MCU es de aprox 16MHz
+			for(counter_j = 0; counter_j < 1000000; counter_j ++){}
+
+			//Para garantizar que el contador permanezca activo se realiza la siguiente redefinición
+			//de variables
+			if(counter_i == 60){
+				//Al asignar nuevamente el valor inicial al contador se reinicia el ciclo
+				counter_i = 0;
+			}
+
+		}
+
+		// Definimos variable para activar contador
+		uint8_t counter_k = 0;
+
+		// Definimos ciclo para iniciar contador (decreciente) en representación de Leds como binarios
+		for(counter_k = 60; counter_k > 0; counter_k --){
+
+			// Leemos el estado del User Button
+			pinUserButton = gpio_ReadPin(&userButton);
+
+			//Evaluamos si es necesario cambiar de contador
+			if(pinUserButton == 1){
+
+				//Apagamos led Dir para indicar desactivada la cuenta hacia atrás
+				gpio_WritePin(&userLed_00,RESET);
+				break;
+			}
+
+			//Procedemos a usar función encargada de determinar el estado de cada bit
+			//individual asociado al número específico que lleva el contador
+			gpio_LedBinario(&userLed_06, counter_k, bit_0);
+			gpio_LedBinario(&userLed_05, counter_k, bit_1);
+			gpio_LedBinario(&userLed_04, counter_k, bit_2);
+			gpio_LedBinario(&userLed_03, counter_k, bit_3);
+			gpio_LedBinario(&userLed_02, counter_k, bit_4);
+			gpio_LedBinario(&userLed_01, counter_k, bit_5);
+
+			//Configuramos un ciclo for para crear delay de aprox un segundo
+
+			//Definimos variable para activar contador del ciclo para el delay
+			uint32_t counter_m = 0;
+
+			//Valor límite superior del counter es establecido teniendo en cuenta que la velocidad
+			//de operación del MCU es de aprox 16MHz
+			for(counter_m = 0; counter_m < 1000000; counter_m ++){}
+
+			//Para garantizar que el contador permanezca activo se realiza la siguiente redefinición
+			//de variables
+			if(counter_k == 1){
+				//Al asignar nuevamente el valor inicial al contador se reinicia el ciclo
+				counter_k = 61;
+			}
+
+		}
 	}
+
+	/* ++++====== FIN TERCER PUNTO ======++++ */
 }
 
 /*
