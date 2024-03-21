@@ -60,7 +60,8 @@ int main(void)
 	 * 1. Al momento de asignar a la variable pinValue el valor correspondiente al registro
 	 *  IDR desplazado un "pinNumber" de veces hacia la izquierda (usando la operacción
 	 *  shift "<<") no se obtiene un resultado que permita identificar si la posición
-	 *  correspondiente al pin de análisis está o no activa. La anterior conclusión se
+	 *  correspondiente al pin de análisis está o no activa (pues el resultado obtenido
+	 *  corresponde a un  overflow"). La anterior conclusión se
 	 *  argumenta también con el hecho de que el valor que retorna la función es exactamente
 	 *  el resultado del registro IDR modificado de la forma antes mencionada (no se
 	 *  procede a interpretar este resultado para encontrar algún camino que garantice la
