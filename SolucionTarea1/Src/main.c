@@ -26,6 +26,7 @@ int add(int x, int y);
 
 //Definimos Pines a utilizar
 GPIO_Handler_t userLed    = {0}; //PinA5
+GPIO_Handler_t userButton = {0}; //PinC13
 GPIO_Handler_t userLed_00 = {0}; //PinA0
 GPIO_Handler_t userLed_01 = {0}; //PinA6
 GPIO_Handler_t userLed_02 = {0}; //PinB9
@@ -116,6 +117,13 @@ int main(void)
 	/* ++++====== TERCER PUNTO ======++++ */
 
 	//En primera instancia se define la configuración de los pines a usar:
+
+	/* PinC13 -> User Button */
+	userButton.pGPIOx                        = GPIOC; //Determinando el puerto a utilizar
+	userButton.pinConfig.GPIO_PinNumber      = PIN_13;
+	userButton.pinConfig.GPIO_PinMode        = GPIO_MODE_IN;
+	/* Cargamos la configuracion en los registros que gobiernan el puerto */
+	gpio_Config(&userButton);
 
 	/* PinA0 -> Dir */
 	userLed_00.pGPIOx                        = GPIOA; //Determinando el puerto a utilizar
