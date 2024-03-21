@@ -208,7 +208,7 @@ int main(void)
 	// Definimos variable para activar contador
 	uint8_t counter_i = 0;
 
-	// Definimos ciclo para iniciar contador en representación de Leds como binarios
+	// Definimos ciclo para iniciar contador (creciente) en representación de Leds como binarios
 	for(counter_i = 0; counter_i < 61; counter_i ++){
 
 		//Procedemos a usar función encargada de determinar el estado de cada bit
@@ -228,6 +228,31 @@ int main(void)
 		//Valor límite superior del counter es establecido teniendo en cuenta que la velocidad
 		//de operación del MCU es de aprox 16MHz
 		for(counter_j = 0; counter_j < 1000000; counter_j ++){}
+
+	}
+
+	// Definimos variable para activar contador
+	uint8_t counter_k = 0;
+
+	// Definimos ciclo para iniciar contador (decreciente) en representación de Leds como binarios
+	for(counter_k = 60; counter_k > 0; counter_k --){
+		//Procedemos a usar función encargada de determinar el estado de cada bit
+		//individual asociado al número específico que lleva el contador
+		gpio_LedBinario(&userLed_06, counter_k, bit_0);
+		gpio_LedBinario(&userLed_05, counter_k, bit_1);
+		gpio_LedBinario(&userLed_04, counter_k, bit_2);
+		gpio_LedBinario(&userLed_03, counter_k, bit_3);
+		gpio_LedBinario(&userLed_02, counter_k, bit_4);
+		gpio_LedBinario(&userLed_01, counter_k, bit_5);
+
+		//Configuramos un ciclo for para crear delay de aprox un segundo
+
+		//Definimos variable para activar contador del ciclo para el delay
+		uint32_t counter_m = 0;
+
+		//Valor límite superior del counter es establecido teniendo en cuenta que la velocidad
+		//de operación del MCU es de aprox 16MHz
+		for(counter_m = 0; counter_m < 1000000; counter_m ++){}
 
 	}
 
