@@ -221,19 +221,24 @@ int main(void)
 	//Definimos variable para almacenar el resultado que brinde gpio_ReadPin
 	uint8_t pinUserButton = 0;
 
+	// Definimos variable para activar contador
+	uint8_t counter_i = 0;
+	uint8_t counter_k = 0;
+
 	/* Loop forever */
 	while(1){
 
-		// Definimos variable para activar contador
-		uint8_t counter_i = 0;
-
 		// Definimos ciclo para iniciar contador (creciente) en representación de Leds como binarios
-		for(counter_i = 0; counter_i < 61; counter_i ++){
+		for(counter_i > 0; counter_i < 61; counter_i ++){
 			// Leemos el estado del User Button
 			pinUserButton = gpio_ReadPin(&userButton);
 
 			//Evaluamos si es necesario cambiar de contador
 			if(pinUserButton == 0){
+
+				//Asignamos al contador decreciente el valor que se lleva actualmente
+				//para iniciar en la cuenta
+				counter_k = counter_i;
 				//Encendemos led Dir para indicar cuenta hacia atrás
 				gpio_WritePin(&userLed_00,SET);
 				break;
@@ -266,11 +271,8 @@ int main(void)
 
 		}
 
-		// Definimos variable para activar contador
-		uint8_t counter_k = 0;
-
 		// Definimos ciclo para iniciar contador (decreciente) en representación de Leds como binarios
-		for(counter_k = 60; counter_k > 0; counter_k --){
+		for(counter_k < 61; counter_k > 0; counter_k --){
 
 			// Leemos el estado del User Button
 			pinUserButton = gpio_ReadPin(&userButton);
@@ -278,6 +280,9 @@ int main(void)
 			//Evaluamos si es necesario cambiar de contador
 			if(pinUserButton == 1){
 
+				//Asignamos al contador decreciente el valor que se lleva actualmente
+				//para iniciar en la cuenta
+				counter_i = counter_k;
 				//Apagamos led Dir para indicar desactivada la cuenta hacia atrás
 				gpio_WritePin(&userLed_00,RESET);
 				break;
