@@ -219,6 +219,16 @@ int main(void)
 		gpio_LedBinario(&userLed_03, counter_i, bit_3);
 		gpio_LedBinario(&userLed_02, counter_i, bit_4);
 		gpio_LedBinario(&userLed_01, counter_i, bit_5);
+
+		//Configuramos un ciclo for para crear delay de aprox un segundo
+
+		//Definimos variable para activar contador del ciclo para el delay
+		uint32_t counter_j = 0;
+
+		//Valor límite superior del counter es establecido teniendo en cuenta que la velocidad
+		//de operación del MCU es de aprox 16MHz
+		for(counter_j = 0; counter_j < 1000000; counter_j ++){}
+
 	}
 
 
