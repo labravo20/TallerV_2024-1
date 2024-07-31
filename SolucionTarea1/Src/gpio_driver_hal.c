@@ -316,7 +316,7 @@ void gpio_LedBinario(GPIO_Handler_t *pPinHandler, uint8_t counter, uint8_t bitNu
 	// del número específico en análisis
 	uint8_t pinLed    = 0;
 
-	// Haciendo uso de la función shift ">>" en un desplazamiento total de "pinNumber"
+	// Haciendo uso de la función shift ">>" en un desplazamiento total de "bitNumber"
 	// puede llevarse al bit 0 el valor asignado al bit "pinNumber" originalmente.
 	pinLed= (counter >> bitNumber);
 
@@ -331,7 +331,7 @@ void gpio_LedBinario(GPIO_Handler_t *pPinHandler, uint8_t counter, uint8_t bitNu
 	}
 	else{
 
-		//Si el valor de pinLed es par implica pin estará activado
+		//Si el valor de pinLed es impar implica pin estará activado
 		pinLed = 1;
 	}
 

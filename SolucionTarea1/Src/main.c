@@ -51,7 +51,7 @@ int main(void)
 
 	/* Cargamos la configuracion en los registros que gobiernan el puerto */
 	gpio_Config(&userLed);
-	gpio_WritePin(&userLed,SET);
+	//gpio_WritePin(&userLed,SET);
 
 	/* ++++====== PRIMER PUNTO ======++++ */
 
@@ -213,6 +213,9 @@ int main(void)
 	userLed_06.pinConfig.GPIO_PinPuPdControl = GPIO_PUPDR_NOTHING;
 	/* Cargamos la configuracion en los registros que gobiernan el puerto */
 	gpio_Config(&userLed_06);
+
+	//A continuación se está probando la correcta funcionalidad del pin A9
+	//gpio_WritePin(&userLed_06,SET);
 
 	// Procedemos a analizar el estado del User Button usando la función gpio_ReadPin
 	/*
