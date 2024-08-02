@@ -9,7 +9,7 @@
 #define GPIO_DRIVER_HAL_H_
 
 #include <stdint.h>
-#include "stm32f4xx_hal.h"
+#include "stm32f4xx.h"
 
 /* Descripcion de cada uno de los registros del periferico (no es necesario para este) */
 

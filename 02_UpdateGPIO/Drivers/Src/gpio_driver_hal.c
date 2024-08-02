@@ -6,7 +6,7 @@
  */
 
 #include "gpio_driver_hal.h"
-#include "stm32f4xx_hal.h"
+#include "stm32f4xx.h"
 #include "stm32_assert.h"
 
 /* === Headers for private functions (Porque su header esta en inicio archivo .c) */
@@ -89,7 +89,7 @@ void gpio_enable_clock_peripheral(GPIO_Handler_t *pGPIOHandler){
 	//Verificamos para GPIOH
 	else if(pGPIOHandler ->pGPIOx == GPIOH){
 		//Escribimos 1 (SET) en la posicion correspondiente al GPIOH
-		RCC ->AHB1ENR |= (1 << RCC_AHB1ENR_GPIOHEN);
+		RCC ->AHB1ENR |= (RCC_AHB1ENR_GPIOHEN);
 	}
 }
 /*
