@@ -64,27 +64,27 @@ void gpio_enable_clock_peripheral(GPIO_Handler_t *pGPIOHandler){
 	//Verificamos para GPIOA
 	if(pGPIOHandler ->pGPIOx == GPIOA){
 		//Escribimos 1 (SET) en la posicion correspondiente al GPIOA
-		RCC ->AHB1ENR |= (1 << RCC_AHB1ENR_GPIOAEN);
+		RCC ->AHB1ENR |= (RCC_AHB1ENR_GPIOAEN);
 	}
 	//Verificamos para GPIOB
 	else if(pGPIOHandler ->pGPIOx == GPIOB){
 		//Escribimos 1 (SET) en la posicion correspondiente al GPIOB
-		RCC ->AHB1ENR |= (1 << RCC_AHB1ENR_GPIOBEN);
+		RCC ->AHB1ENR |= (RCC_AHB1ENR_GPIOBEN);
 	}
 	//Verificamos para GPIOC
 	else if(pGPIOHandler ->pGPIOx == GPIOC){
 		//Escribimos 1 (SET) en la posicion correspondiente al GPIOC
-		RCC ->AHB1ENR |= (1 << RCC_AHB1ENR_GPIOCEN);
+		RCC ->AHB1ENR |= (RCC_AHB1ENR_GPIOCEN);
 	}
 	//Verificamos para GPIOD
 	else if(pGPIOHandler ->pGPIOx == GPIOD){
 		//Escribimos 1 (SET) en la posicion correspondiente al GPIOD
-		RCC ->AHB1ENR |= (1 << RCC_AHB1ENR_GPIODEN);
+		RCC ->AHB1ENR |= (RCC_AHB1ENR_GPIODEN);
 	}
 	//Verificamos para GPIOE
 	else if(pGPIOHandler ->pGPIOx == GPIOE){
 		//Escribimos 1 (SET) en la posicion correspondiente al GPIOE
-		RCC ->AHB1ENR |= (1 << RCC_AHB1ENR_GPIOEEN);
+		RCC ->AHB1ENR |= (RCC_AHB1ENR_GPIOEEN);
 	}
 	//Verificamos para GPIOH
 	else if(pGPIOHandler ->pGPIOx == GPIOH){
