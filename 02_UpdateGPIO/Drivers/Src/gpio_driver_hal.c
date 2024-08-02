@@ -11,12 +11,12 @@
 
 /* === Headers for private functions (Porque su header esta en inicio archivo .c) */
 // Adicionalmente las privadas son continuadas despues del _ con minuscula
-void gpio_enable_clock_peripheral (GPIO_Handler_t *pGPIOHandler);
-void gpio_config_mode (GPIO_Handler_t *pGPIOHandler);
-void gpio_config_output_type (GPIO_Handler_t *pGPIOHandler);
-void gpio_config_output_speed (GPIO_Handler_t *pGPIOHandler);
-void gpio_config_pullup_pulldown (GPIO_Handler_t *pGPIOHandler);
-void gpio_config_alternate_function (GPIO_Handler_t *pGPIOHandler);
+static void gpio_enable_clock_peripheral (GPIO_Handler_t *pGPIOHandler);
+static void gpio_config_mode (GPIO_Handler_t *pGPIOHandler);
+static void gpio_config_output_type (GPIO_Handler_t *pGPIOHandler);
+static void gpio_config_output_speed (GPIO_Handler_t *pGPIOHandler);
+static void gpio_config_pullup_pulldown (GPIO_Handler_t *pGPIOHandler);
+static void gpio_config_alternate_function (GPIO_Handler_t *pGPIOHandler);
 
 /*
  * Para cualquier periferico, hay varios pasos que siempre se deben seguir en un
