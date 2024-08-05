@@ -62,7 +62,7 @@ void timer_Config(Timer_Handler_t *pTimerHandler){
 	timer_config_interrupt(pTimerHandler);
 
 	/* x. Volvemos a activar las interrupciones del sistema */
-	__enable_irq(pTimerHandler);
+	__enable_irq();
 
 	/* El timer inicia apagado */
 	timer_SetState(pTimerHandler, TIMER_OFF);
