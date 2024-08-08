@@ -76,14 +76,28 @@ void timer_enable_clock_peripheral(Timer_Handler_t *pTimerHandler){
 	//Verificamos que es un timer permitido
 	assert_param(IS_TIM_INSTANCE(pTimerHandler->pTIMx));
 
+	//IMPORTANTE: El TIM1 NO se debe configurar, pues tiene funciones específicas relacionadas con el MCU
 	if(pTimerHandler->pTIMx == TIM2){
 		RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
 	}
 	else if(pTimerHandler -> pTIMx == TIM3){
 		RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
 	}
-
-	///CUALES ESPECÍFICAMENTE SON LOS TIM ADICIONALES QUE DEBEMOS TENER EN CUENTA???
+	else if(pTimerHandler -> pTIMx == TIM4){
+		RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;
+	}
+	else if(pTimerHandler -> pTIMx == TIM5){
+		RCC->APB1ENR |= RCC_APB1ENR_TIM5EN;
+	}
+	else if(pTimerHandler -> pTIMx == TIM9){
+		RCC->APB2ENR |= RCC_APB2ENR_TIM9EN;
+	}
+	else if(pTimerHandler -> pTIMx == TIM10){
+		RCC->APB2ENR |= RCC_APB2ENR_TIM10EN;
+	}
+	else if(pTimerHandler -> pTIMx == TIM11){
+		RCC->APB2ENR |= RCC_APB2ENR_TIM11EN;
+	}
 
 	else{
 		__NOP();
