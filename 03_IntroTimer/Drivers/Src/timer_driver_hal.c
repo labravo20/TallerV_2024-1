@@ -76,7 +76,8 @@ void timer_enable_clock_peripheral(Timer_Handler_t *pTimerHandler){
 	//Verificamos que es un timer permitido
 	assert_param(IS_TIM_INSTANCE(pTimerHandler->pTIMx));
 
-	//IMPORTANTE: El TIM1 NO se debe configurar, pues tiene funciones específicas relacionadas con el MCU
+	//IMPORTANTE: El TIM1 NO se debe configurar, pues tiene funciones específicas
+	//relacionadas con el MCU
 	if(pTimerHandler->pTIMx == TIM2){
 		RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
 	}
@@ -164,14 +165,31 @@ void timer_config_interrupt(Timer_Handler_t *pTimerHandler){
 		pTimerHandler->pTIMx->DIER |= TIM_DIER_UIE;
 
 		/* Activamos el canal del sistema NVIC para que lea la interrupción*/
+
+		//IMPORTANTE: El TIM1 NO se debe configurar, pues tiene funciones específicas
+		//relacionadas con el MCU
+
 		if(pTimerHandler->pTIMx == TIM2){
 			NVIC_EnableIRQ(TIM2_IRQn);
 		}
 		else if(pTimerHandler->pTIMx == TIM3){
 			NVIC_EnableIRQ(TIM3_IRQn);
 		}
-
-		///CUALES ESPECÍFICAMENTE SON LOS TIM ADICIONALES QUE DEBEMOS TENER EN CUENTA???
+		else if(pTimerHandler->pTIMx == TIM4){
+			NVIC_EnableIRQ(TIM4_IRQn);
+		}
+		else if(pTimerHandler->pTIMx == TIM5){
+			NVIC_EnableIRQ(TIM5_IRQn);
+		}
+		else if(pTimerHandler->pTIMx == TIM9){
+			NVIC_EnableIRQ(TIM1_BRK_TIM9_IRQn);
+		}
+		else if(pTimerHandler->pTIMx == TIM10){
+			NVIC_EnableIRQ(TIM1_UP_TIM10_IRQn);
+		}
+		else if(pTimerHandler->pTIMx == TIM11){
+			NVIC_EnableIRQ(TIM1_TRG_COM_TIM11_IRQn);
+		}
 
 		else{
 			__NOP();
