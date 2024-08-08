@@ -126,9 +126,7 @@ void timer_set_prescaler(Timer_Handler_t *pTimerHandler){
 void timer_set_period(Timer_Handler_t *pTimerHandler){
 
 	//Verificamos que el valor que genera el periodo es válido
-	assert_param(IS_TIMER_PERIOD(pTimerHandler->TIMx_Config.TIMx_Prescaler));
-
-	//Acá hace falta algo...
+	assert_param(IS_TIMER_PERIOD(pTimerHandler->TIMx_Config.TIMx_Period));
 
 	//Configuramos el valor del autoreload
 	pTimerHandler->pTIMx->ARR = pTimerHandler->TIMx_Config.TIMx_Period - 1;
