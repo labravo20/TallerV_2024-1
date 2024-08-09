@@ -43,11 +43,11 @@ int main(void)
 	userLed01.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
 	userLed01.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
 
-		//Cargamos la configuración en los registros que gobiernan el puerto
-		gpio_Config(&userLed01);
+	//Cargamos la configuración en los registros que gobiernan el puerto
+	gpio_Config(&userLed01);
 
-		//Ejecutamos la configuración realizada en H1
-		//gpio_WritePin(&userLed01, SET);
+	//Ejecutamos la configuración realizada en H1
+	gpio_WritePin(&userLed01, SET);
 
 	blinkTimer.pTIMx                             = TIM2;
 	blinkTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 1 ms
