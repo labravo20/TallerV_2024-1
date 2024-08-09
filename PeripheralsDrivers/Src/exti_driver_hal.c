@@ -48,8 +48,10 @@ void exti_Config(EXTI_Config_t *extiConfig){
  * al SYCFG
  * */
 static void exti_enable_clock_peripheral(void){
+
 	/* 2.0 Activamos el acceso al SYSCFG */
-	/*Agregue su código acá*/
+	/*Asignamos un SET en la posición correspondiente al SYSCFG dentro de la opción enable clock peripheral*/
+	RCC->APB2ENR |= (RCC_APB2ENR_SYSCFGEN) ;
 }
 
 /*
