@@ -14,7 +14,7 @@
 
 //Definimos pin de prueba
 GPIO_Handler_t userLed    = {0}; //PinA5
-GPIO_Handler_t userLed01    = {0}; //PinH1
+GPIO_Handler_t userLed01  = {0}; //PinH1
 
 Timer_Handler_t blinkTimer = {0};
 
