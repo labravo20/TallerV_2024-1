@@ -34,13 +34,13 @@ void exti_Config(EXTI_Config_t *extiConfig){
 	exti_select_edge(extiConfig);
 
 	/* 5.0 Desactivo primero las interrupciones globales */
-	/*Agregue su código acá*/
+	__disable_irq(); //REVISAR!!!
 
 	/* 6. 0 Manejo de Interrupciones */
 	exti_config_interrupt(extiConfig);
 
 	/* 7.0 Volvemos a activar las interrupciones globales */
-	/*Agregue su código acá*/
+	__enable_irq(); //REVISAR!!!
 }
 
 /*
@@ -627,10 +627,19 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 	if(extiConfig->edgeType == EXTERNAL_INTERRUPT_FALLING_EDGE){
 		/* Falling Trigger selection register*/
-        /*Agregue su código acá*/
+
+		// CÓMO HACER LA ESPECIFICACIÓN DE LA CONDICIÓN PARA EL CANAL ESPECÍFICA, Y LA RELACIÓN CON EL BIT?
+		//Está el numero del pin relacionado con el bit a usar??? --> En caso de ser así... clasificación se hace
+		//con un switch case???
+        //EXTI->FTSR |= (EXTI_FTSR_TR0);
 	}
 	else{
-		/*Agregue su código acá*/
+		/* Rising Trigger selection register*/
+
+		// CÓMO HACER LA ESPECIFICACIÓN DE LA CONDICIÓN PARA EL CANAL ESPECÍFICA, Y LA RELACIÓN CON EL BIT?
+		//Está el numero del pin relacionado con el bit a usar??? --> En caso de ser así configuración se hace
+		//con un switch case???
+		//EXTI->RTSR |= (EXTI_RTSR_TR0);
 	}
 }
 
