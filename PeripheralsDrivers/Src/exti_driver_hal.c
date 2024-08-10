@@ -235,6 +235,346 @@ static void exti_assign_channel(EXTI_Config_t *extiConfig){
 			break;
 		}
 
+		/* Configurando para el todos los pines GPIOX_5*/
+		case 5: {
+
+			/* SYSCFG_EXTICR2 */
+			// Limpiamos primero la posición que deseamos configurar
+			SYSCFG->EXTICR[1] &= ~(0xF << SYSCFG_EXTICR2_EXTI5_Pos);
+
+			// Ahora seleccionamos el valor a cargar en la posición, segun sea la selección
+			// del puerto que vamos a utilizar: GPIOA_0, ó GPIOB_0, ó GPIOC_0, etc
+			if (extiConfig->pGPIOHandler->pGPIOx == GPIOA) {
+				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR2_EXTI5_PA);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOB) {
+				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR2_EXTI5_PB);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOC) {
+				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR2_EXTI5_PC);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOD) {
+				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR2_EXTI5_PD);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOE) {
+				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR2_EXTI5_PE);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOH) {
+				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR2_EXTI5_PH);
+
+			} else {
+				__NOP();
+			}
+
+			break;
+		}
+
+		/* Configurando para el todos los pines GPIOX_6*/
+		case 6: {
+
+			/* SYSCFG_EXTICR2 */
+			// Limpiamos primero la posición que deseamos configurar
+			SYSCFG->EXTICR[2] &= ~(0xF << SYSCFG_EXTICR2_EXTI6_Pos);
+
+			// Ahora seleccionamos el valor a cargar en la posición, segun sea la selección
+			// del puerto que vamos a utilizar: GPIOA_0, ó GPIOB_0, ó GPIOC_0, etc
+			if (extiConfig->pGPIOHandler->pGPIOx == GPIOA) {
+				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR2_EXTI6_PA);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOB) {
+				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR2_EXTI6_PB);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOC) {
+				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR2_EXTI6_PC);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOD) {
+				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR2_EXTI6_PD);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOE) {
+				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR2_EXTI6_PE);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOH) {
+				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR2_EXTI6_PH);
+
+			} else {
+				__NOP();
+			}
+
+			break;
+		}
+
+		/* Configurando para el todos los pines GPIOX_7*/
+		case 7: {
+
+			/* SYSCFG_EXTICR2 */
+			// Limpiamos primero la posición que deseamos configurar
+			SYSCFG->EXTICR[3] &= ~(0xF << SYSCFG_EXTICR2_EXTI7_Pos);
+
+			// Ahora seleccionamos el valor a cargar en la posición, segun sea la selección
+			// del puerto que vamos a utilizar: GPIOA_0, ó GPIOB_0, ó GPIOC_0, etc
+			if (extiConfig->pGPIOHandler->pGPIOx == GPIOA) {
+				SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR2_EXTI7_PA);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOB) {
+				SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR2_EXTI7_PB);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOC) {
+				SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR2_EXTI7_PC);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOD) {
+				SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR2_EXTI7_PD);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOE) {
+				SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR2_EXTI7_PE);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOH) {
+				SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR2_EXTI7_PH);
+
+			} else {
+				__NOP();
+			}
+
+			break;
+		}
+
+		/* Configurando para el todos los pines GPIOX_8*/
+		case 8: {
+
+			/* SYSCFG_EXTICR3 */
+			// Limpiamos primero la posición que deseamos configurar
+			SYSCFG->EXTICR[0] &= ~(0xF << SYSCFG_EXTICR3_EXTI8_Pos);
+
+			// Ahora seleccionamos el valor a cargar en la posición, segun sea la selección
+			// del puerto que vamos a utilizar: GPIOA_0, ó GPIOB_0, ó GPIOC_0, etc
+			if (extiConfig->pGPIOHandler->pGPIOx == GPIOA) {
+				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR3_EXTI8_PA);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOB) {
+				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR3_EXTI8_PB);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOC) {
+				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR3_EXTI8_PC);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOD) {
+				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR3_EXTI8_PD);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOE) {
+				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR3_EXTI8_PE);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOH) {
+				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR3_EXTI8_PH);
+
+			} else {
+				__NOP();
+			}
+
+			break;
+		}
+
+		/* Configurando para el todos los pines GPIOX_9*/
+		case 9: {
+
+			/* SYSCFG_EXTICR3 */
+			// Limpiamos primero la posición que deseamos configurar
+			SYSCFG->EXTICR[1] &= ~(0xF << SYSCFG_EXTICR3_EXTI9_Pos);
+
+			// Ahora seleccionamos el valor a cargar en la posición, segun sea la selección
+			// del puerto que vamos a utilizar: GPIOA_0, ó GPIOB_0, ó GPIOC_0, etc
+			if (extiConfig->pGPIOHandler->pGPIOx == GPIOA) {
+				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR3_EXTI9_PA);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOB) {
+				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR3_EXTI9_PB);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOC) {
+				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR3_EXTI9_PC);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOD) {
+				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR3_EXTI9_PD);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOE) {
+				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR3_EXTI9_PE);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOH) {
+				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR3_EXTI9_PH);
+
+			} else {
+				__NOP();
+			}
+
+			break;
+		}
+
+		/* Configurando para el todos los pines GPIOX_10*/
+		case 10: {
+
+			/* SYSCFG_EXTICR3 */
+			// Limpiamos primero la posición que deseamos configurar
+			SYSCFG->EXTICR[2] &= ~(0xF << SYSCFG_EXTICR3_EXTI10_Pos);
+
+			// Ahora seleccionamos el valor a cargar en la posición, segun sea la selección
+			// del puerto que vamos a utilizar: GPIOA_0, ó GPIOB_0, ó GPIOC_0, etc
+			if (extiConfig->pGPIOHandler->pGPIOx == GPIOA) {
+				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR3_EXTI10_PA);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOB) {
+				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR3_EXTI10_PB);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOC) {
+				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR3_EXTI10_PC);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOD) {
+				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR3_EXTI10_PD);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOE) {
+				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR3_EXTI10_PE);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOH) {
+				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR3_EXTI10_PH);
+
+			} else {
+				__NOP();
+			}
+
+			break;
+		}
+
+		/* Configurando para el todos los pines GPIOX_11*/
+		case 11: {
+
+			/* SYSCFG_EXTICR3 */
+			// Limpiamos primero la posición que deseamos configurar
+			SYSCFG->EXTICR[3] &= ~(0xF << SYSCFG_EXTICR3_EXTI11_Pos);
+
+			// Ahora seleccionamos el valor a cargar en la posición, segun sea la selección
+			// del puerto que vamos a utilizar: GPIOA_0, ó GPIOB_0, ó GPIOC_0, etc
+			if (extiConfig->pGPIOHandler->pGPIOx == GPIOA) {
+				SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR3_EXTI11_PA);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOB) {
+				SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR3_EXTI11_PB);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOC) {
+				SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR3_EXTI11_PC);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOD) {
+				SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR3_EXTI11_PD);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOE) {
+				SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR3_EXTI11_PE);
+
+			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOH) {
+				SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR3_EXTI11_PH);
+
+			} else {
+				__NOP();
+			}
+
+			break;
+		}
+
+		/* Configurando para el todos los pines GPIOX_12 */
+		case 12: {
+
+			/* SYSCFG_EXTICR4 */
+		    // Limpiamos primero la posición que deseamos configurar
+		    SYSCFG->EXTICR[0] &= ~(0xF << SYSCFG_EXTICR4_EXTI12_Pos);
+
+		    // Ahora seleccionamos el valor a cargar en la posición, segun sea la selección
+		    // del puerto que vamos a utilizar: GPIOA_0, ó GPIOB_0, ó GPIOC_0, etc
+		    if (extiConfig->pGPIOHandler->pGPIOx == GPIOA) {
+		    	SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR4_EXTI12_PA);
+
+		    } else if (extiConfig->pGPIOHandler->pGPIOx == GPIOB) {
+			    SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR4_EXTI12_PB);
+
+	    	} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOC) {
+			    SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR4_EXTI12_PC);
+
+		    } else if (extiConfig->pGPIOHandler->pGPIOx == GPIOD) {
+			    SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR4_EXTI12_PD);
+
+		    } else if (extiConfig->pGPIOHandler->pGPIOx == GPIOE) {
+			    SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR4_EXTI12_PE);
+
+		    } else if (extiConfig->pGPIOHandler->pGPIOx == GPIOH) {
+			    SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR4_EXTI12_PH);
+
+		    } else {
+			    __NOP();
+		    }
+
+		    break;
+		}
+
+		/* Configurando para el todos los pines GPIOX_13 */
+		case 13: {
+
+			/* SYSCFG_EXTICR4 */
+		    // Limpiamos primero la posición que deseamos configurar
+		    SYSCFG->EXTICR[1] &= ~(0xF << SYSCFG_EXTICR4_EXTI13_Pos);
+
+		    // Ahora seleccionamos el valor a cargar en la posición, segun sea la selección
+		    // del puerto que vamos a utilizar: GPIOA_0, ó GPIOB_0, ó GPIOC_0, etc
+		    if (extiConfig->pGPIOHandler->pGPIOx == GPIOA) {
+		    	SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR4_EXTI13_PA);
+
+		    } else if (extiConfig->pGPIOHandler->pGPIOx == GPIOB) {
+			    SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR4_EXTI13_PB);
+
+	    	} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOC) {
+			    SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR4_EXTI13_PC);
+
+		    } else if (extiConfig->pGPIOHandler->pGPIOx == GPIOD) {
+			    SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR4_EXTI13_PD);
+
+		    } else if (extiConfig->pGPIOHandler->pGPIOx == GPIOE) {
+			    SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR4_EXTI13_PE);
+
+		    } else if (extiConfig->pGPIOHandler->pGPIOx == GPIOH) {
+			    SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR4_EXTI13_PH);
+
+		    } else {
+			    __NOP();
+		    }
+
+		    break;
+		}
+
+		/* Configurando para el todos los pines GPIOX_14 */
+		case 14: {
+
+			/* SYSCFG_EXTICR4 */
+		    // Limpiamos primero la posición que deseamos configurar
+		    SYSCFG->EXTICR[2] &= ~(0xF << SYSCFG_EXTICR4_EXTI14_Pos);
+
+		    // Ahora seleccionamos el valor a cargar en la posición, segun sea la selección
+		    // del puerto que vamos a utilizar: GPIOA_0, ó GPIOB_0, ó GPIOC_0, etc
+		    if (extiConfig->pGPIOHandler->pGPIOx == GPIOA) {
+		    	SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR4_EXTI14_PA);
+
+		    } else if (extiConfig->pGPIOHandler->pGPIOx == GPIOB) {
+			    SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR4_EXTI14_PB);
+
+	    	} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOC) {
+			    SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR4_EXTI14_PC);
+
+		    } else if (extiConfig->pGPIOHandler->pGPIOx == GPIOD) {
+			    SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR4_EXTI14_PD);
+
+		    } else if (extiConfig->pGPIOHandler->pGPIOx == GPIOE) {
+			    SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR4_EXTI14_PE);
+
+		    } else if (extiConfig->pGPIOHandler->pGPIOx == GPIOH) {
+			    SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR4_EXTI14_PH);
+
+		    } else {
+			    __NOP();
+		    }
+
+		    break;
+		}
+
 		/* Configurando para el todos los pines GPIOX_15 */
 		case 15: {
 
