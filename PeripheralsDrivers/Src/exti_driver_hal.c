@@ -627,19 +627,215 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 	if(extiConfig->edgeType == EXTERNAL_INTERRUPT_FALLING_EDGE){
 		/* Falling Trigger selection register*/
+		//REVISAR!!!!
 
-		// CÓMO HACER LA ESPECIFICACIÓN DE LA CONDICIÓN PARA EL CANAL ESPECÍFICA, Y LA RELACIÓN CON EL BIT?
-		//Está el numero del pin relacionado con el bit a usar??? --> En caso de ser así... clasificación se hace
-		//con un switch case???
-        //EXTI->FTSR |= (EXTI_FTSR_TR0);
+		// Select TRx for falling Trigger event configuration bit of line x
+		// Se está interpretanto el número del pin x en uso cómo la relación con el "bit of line x"
+		switch (extiConfig->pGPIOHandler->pinConfig.GPIO_PinNumber) {
+
+		//Configuramos para el pin 0
+		case 0: {
+			//Falling trigger enabled for input line.
+			EXTI->FTSR |= (EXTI_FTSR_TR0);
+		}
+
+		//Configuramos para el pin 1
+		case 1: {
+			//Falling trigger enabled for input line.
+			EXTI->FTSR |= (EXTI_FTSR_TR1);
+		}
+
+		//Configuramos para el pin 2
+		case 2: {
+			//Falling trigger enabled for input line.
+			EXTI->FTSR |= (EXTI_FTSR_TR2);
+		}
+
+		//Configuramos para el pin 3
+		case 3: {
+			//Falling trigger enabled for input line.
+			EXTI->FTSR |= (EXTI_FTSR_TR3);
+		}
+
+		//Configuramos para el pin 4
+		case 4: {
+			//Falling trigger enabled for input line.
+			EXTI->FTSR |= (EXTI_FTSR_TR4);
+		}
+
+		//Configuramos para el pin 5
+		case 5: {
+			//Falling trigger enabled for input line.
+			EXTI->FTSR |= (EXTI_FTSR_TR5);
+		}
+
+		//Configuramos para el pin 6
+		case 6: {
+			//Falling trigger enabled for input line.
+			EXTI->FTSR |= (EXTI_FTSR_TR6);
+		}
+
+		//Configuramos para el pin 7
+		case 7: {
+			//Falling trigger enabled for input line.
+			EXTI->FTSR |= (EXTI_FTSR_TR7);
+		}
+
+		//Configuramos para el pin 8
+		case 8: {
+			//Falling trigger enabled for input line.
+			EXTI->FTSR |= (EXTI_FTSR_TR8);
+		}
+
+		//Configuramos para el pin 9
+		case 9: {
+			//Falling trigger enabled for input line.
+			EXTI->FTSR |= (EXTI_FTSR_TR9);
+		}
+
+		//Configuramos para el pin 10
+		case 10: {
+			//Falling trigger enabled for input line.
+			EXTI->FTSR |= (EXTI_FTSR_TR10);
+		}
+
+		//Configuramos para el pin 11
+		case 11: {
+			//Falling trigger enabled for input line.
+			EXTI->FTSR |= (EXTI_FTSR_TR11);
+		}
+
+		//Configuramos para el pin 12
+		case 12: {
+			//Falling trigger enabled for input line.
+			EXTI->FTSR |= (EXTI_FTSR_TR12);
+		}
+
+		//Configuramos para el pin 13
+		case 13: {
+			//Falling trigger enabled for input line.
+			EXTI->FTSR |= (EXTI_FTSR_TR13);
+		}
+
+		//Configuramos para el pin 14
+		case 14: {
+			//Falling trigger enabled for input line.
+			EXTI->FTSR |= (EXTI_FTSR_TR14);
+		}
+
+		//Configuramos para el pin 15
+		case 15: {
+			//Falling trigger enabled for input line.
+			EXTI->FTSR |= (EXTI_FTSR_TR15);
+		}
+
+		}
 	}
 	else{
 		/* Rising Trigger selection register*/
+		//REVISAR!!!!
 
-		// CÓMO HACER LA ESPECIFICACIÓN DE LA CONDICIÓN PARA EL CANAL ESPECÍFICA, Y LA RELACIÓN CON EL BIT?
-		//Está el numero del pin relacionado con el bit a usar??? --> En caso de ser así configuración se hace
-		//con un switch case???
-		//EXTI->RTSR |= (EXTI_RTSR_TR0);
+		// Select TRx for rising Trigger event configuration bit of line x
+		// Se está interpretanto el número del pin x en uso cómo la relación con el "bit of line x"
+		switch (extiConfig->pGPIOHandler->pinConfig.GPIO_PinNumber) {
+
+		//Configuramos para el pin 0
+		case 0: {
+			//Rising trigger enabled for input line.
+			EXTI->RTSR |= (EXTI_RTSR_TR0);
+		}
+
+		//Configuramos para el pin 1
+		case 1: {
+			//Rising trigger enabled for input line.
+			EXTI->RTSR |= (EXTI_RTSR_TR1);
+		}
+
+		//Configuramos para el pin 2
+		case 2: {
+			//Rising trigger enabled for input line.
+			EXTI->RTSR |= (EXTI_RTSR_TR2);
+		}
+
+		//Configuramos para el pin 3
+		case 3: {
+			//Rising trigger enabled for input line.
+			EXTI->RTSR |= (EXTI_RTSR_TR3);
+		}
+
+		//Configuramos para el pin 4
+		case 4: {
+			//Rising trigger enabled for input line.
+			EXTI->RTSR |= (EXTI_RTSR_TR4);
+		}
+
+		//Configuramos para el pin 5
+		case 5: {
+			//Rising trigger enabled for input line.
+			EXTI->RTSR |= (EXTI_RTSR_TR5);
+		}
+
+		//Configuramos para el pin 6
+		case 6: {
+			//Rising trigger enabled for input line.
+			EXTI->RTSR |= (EXTI_RTSR_TR6);
+		}
+
+		//Configuramos para el pin 7
+		case 7: {
+			//Rising trigger enabled for input line.
+			EXTI->RTSR |= (EXTI_RTSR_TR7);
+		}
+
+		//Configuramos para el pin 8
+		case 8: {
+			//Rising trigger enabled for input line.
+			EXTI->RTSR |= (EXTI_RTSR_TR8);
+		}
+
+		//Configuramos para el pin 9
+		case 9: {
+			//Rising trigger enabled for input line.
+			EXTI->RTSR |= (EXTI_RTSR_TR9);
+		}
+
+		//Configuramos para el pin 10
+		case 10: {
+			//Rising trigger enabled for input line.
+			EXTI->RTSR |= (EXTI_RTSR_TR10);
+		}
+
+		//Configuramos para el pin 11
+		case 11: {
+			//Rising trigger enabled for input line.
+			EXTI->RTSR |= (EXTI_RTSR_TR11);
+		}
+
+		//Configuramos para el pin 12
+		case 12: {
+			//Rising trigger enabled for input line.
+			EXTI->RTSR |= (EXTI_RTSR_TR12);
+		}
+
+		//Configuramos para el pin 13
+		case 13: {
+			//Rising trigger enabled for input line.
+			EXTI->RTSR |= (EXTI_RTSR_TR13);
+		}
+
+		//Configuramos para el pin 14
+		case 14: {
+			//Rising trigger enabled for input line.
+			EXTI->RTSR |= (EXTI_RTSR_TR14);
+		}
+
+		//Configuramos para el pin 15
+		case 15: {
+			//Rising trigger enabled for input line.
+			EXTI->RTSR |= (EXTI_RTSR_TR15);
+		}
+
+		}
 	}
 }
 
