@@ -21,6 +21,7 @@ Timer_Handler_t blinkTimer = {0};
 /*  Main function  */
 int main(void)
 {
+	//VERIFICACIÓN DE FUNCIONAMIENTO CONFIGURACIÓN DE DRIVERS
 	/* Configuramos el pin A5*/
 	userLed.pGPIOx                         = GPIOA;
 	userLed.pinConfig.GPIO_PinNumber       = PIN_5;
@@ -35,6 +36,10 @@ int main(void)
 	//Ejecutamos la configuración realizada en A5
 	//gpio_WritePin(&userLed, SET);
 
+	/* ========== SOLUCIÓN TAREA 2 ========== */
+
+	/* 1) A continuación se realiza la configuración del led de estado (este está ubicado en
+	 * la "board táctica")*/
 	/* Configuramos el pin H1 --> LED DE ESTADO*/
 	userLed01.pGPIOx                         = GPIOH;
 	userLed01.pinConfig.GPIO_PinNumber       = PIN_1;
@@ -43,11 +48,11 @@ int main(void)
 	userLed01.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
 	userLed01.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
 
-		//Cargamos la configuración en los registros que gobiernan el puerto
-		gpio_Config(&userLed01);
+	//Cargamos la configuración en los registros que gobiernan el puerto
+	gpio_Config(&userLed01);
 
-		//Ejecutamos la configuración realizada en H1
-		//gpio_WritePin(&userLed01, SET);
+	//Ejecutamos la configuración realizada en H1
+	gpio_WritePin(&userLed01, SET);
 
 	blinkTimer.pTIMx                             = TIM2;
 	blinkTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 1 ms

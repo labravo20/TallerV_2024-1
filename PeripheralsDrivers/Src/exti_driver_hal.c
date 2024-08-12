@@ -845,8 +845,108 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
  * */
 static void exti_config_interrupt(EXTI_Config_t *extiConfig){
 	/* 6.0 Activamos la interrupción del canal que estamos configurando */
+
 		// Interrupt Mask register
-		/*Agregue su código acá*/
+	    //Activamos la Interrupt mask register para el canal específico en uso
+	    switch (extiConfig->pGPIOHandler->pinConfig.GPIO_PinNumber) {
+
+	    //Configuramos para el pin 0
+		case 0: {
+			//Interrupt mask on input line
+			EXTI->IMR &= ~(EXTI_IMR_MR0);
+		}
+
+		//Configuramos para el pin 1
+		case 1: {
+			//Interrupt mask on input line
+			EXTI->IMR &= ~(EXTI_IMR_MR1);
+		}
+
+		//Configuramos para el pin 2
+		case 2: {
+			//Interrupt mask on input line
+			EXTI->IMR &= ~(EXTI_IMR_MR2);
+		}
+
+		//Configuramos para el pin 3
+		case 3: {
+			//Interrupt mask on input line
+			EXTI->IMR &= ~(EXTI_IMR_MR3);
+		}
+
+		//Configuramos para el pin 4
+		case 4: {
+			//Interrupt mask on input line
+			EXTI->IMR &= ~(EXTI_IMR_MR4);
+		}
+
+		//Configuramos para el pin 5
+		case 5: {
+			//Interrupt mask on input line
+			EXTI->IMR &= ~(EXTI_IMR_MR5);
+		}
+
+		//Configuramos para el pin 6
+		case 6: {
+			//Interrupt mask on input line
+			EXTI->IMR &= ~(EXTI_IMR_MR6);
+		}
+
+		//Configuramos para el pin 7
+		case 7: {
+			//Interrupt mask on input line
+			EXTI->IMR &= ~(EXTI_IMR_MR7);
+		}
+
+		//Configuramos para el pin 8
+		case 8: {
+			//Interrupt mask on input line
+			EXTI->IMR &= ~(EXTI_IMR_MR8);
+		}
+
+		//Configuramos para el pin 9
+		case 9: {
+			//Interrupt mask on input line
+			EXTI->IMR &= ~(EXTI_IMR_MR9);
+		}
+
+		//Configuramos para el pin 10
+		case 10: {
+			//Interrupt mask on input line
+			EXTI->IMR &= ~(EXTI_IMR_MR10);
+		}
+
+		//Configuramos para el pin 11
+		case 11: {
+			//Interrupt mask on input line
+			EXTI->IMR &= ~(EXTI_IMR_MR11);
+		}
+
+		//Configuramos para el pin 12
+		case 12: {
+			//Interrupt mask on input line
+			EXTI->IMR &= ~(EXTI_IMR_MR12);
+		}
+
+		//Configuramos para el pin 13
+		case 13: {
+			//Interrupt mask on input line
+			EXTI->IMR &= ~(EXTI_IMR_MR13);
+		}
+
+		//Configuramos para el pin 14
+		case 14: {
+			//Interrupt mask on input line
+			EXTI->IMR &= ~(EXTI_IMR_MR14);
+		}
+
+		//Configuramos para el pin 15
+		case 15: {
+			//Interrupt mask on input line
+			EXTI->IMR &= ~(EXTI_IMR_MR15);
+		}
+
+		}
 
 		/* 6.1 Matriculamos la interrupción en el NVIC para el canal correspondiente,
 		 * donde el canal 0 corresponde al EXTI_0, canal 1 al EXTI_1, etc.
