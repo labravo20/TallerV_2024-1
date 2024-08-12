@@ -15,14 +15,15 @@
 //Definimos pin de prueba
 GPIO_Handler_t userLed      = {0}; //PinA5
 GPIO_Handler_t userLed00    = {0}; //PinH1
-GPIO_Handler_t userLed01    = {0}; //PinA6
-GPIO_Handler_t userLed02    = {0}; //PinB6
-GPIO_Handler_t userLed03    = {0}; //PinA9
-GPIO_Handler_t userLed04    = {0}; //PinB10
-GPIO_Handler_t userLed05    = {0}; //PinC10
-GPIO_Handler_t userLed06    = {0}; //PinC12
-GPIO_Handler_t userLed07    = {0}; //PinB7
-GPIO_Handler_t userLed08    = {0}; //PinC2
+GPIO_Handler_t userLed01    = {0}; //PinC12 (led "a")
+GPIO_Handler_t userLed02    = {0}; //PinA12 (led "b")
+GPIO_Handler_t userLed03    = {0}; //PinC6  (led "c")
+GPIO_Handler_t userLed04    = {0}; //PinB13 (led "d")
+GPIO_Handler_t userLed05    = {0}; //PinB10 (led "e")
+GPIO_Handler_t userLed06    = {0}; //PinB7  (led "f")
+GPIO_Handler_t userLed07    = {0}; //PinC10 (led "g")
+GPIO_Handler_t vcc_uni      = {0}; //PinA0
+GPIO_Handler_t vcc_dec      = {0}; //PinB12
 
 Timer_Handler_t blinkTimer = {0};
 
