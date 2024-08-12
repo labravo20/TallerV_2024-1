@@ -62,7 +62,7 @@ int main(void)
 	gpio_Config(&userLed00);
 
 	//Ejecutamos la configuración realizada en H1
-	gpio_WritePin(&userLed00, SET);
+	//gpio_WritePin(&userLed00, SET);
 
 	blinkTimer.pTIMx                             = TIM2;
 	blinkTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 1 ms
@@ -75,6 +75,86 @@ int main(void)
 
 	//Encendemos el Timer
 	timer_SetState(&blinkTimer, TIMER_ON);
+
+	/* A continuación se empieza con la configuración de los pines seleccionados para
+	 * activar los LEDs de la cuenta respectiva en el 7 segmentos */
+
+	/* Configuramos el pin C12 --> LED a*/
+	userLed01.pGPIOx                         = GPIOC;
+	userLed01.pinConfig.GPIO_PinNumber       = PIN_12;
+	userLed01.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+	userLed01.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+	userLed01.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+	userLed01.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+
+	//Cargamos la configuración en los registros que gobiernan el puerto
+	gpio_Config(&userLed01);
+
+	/* Configuramos el pin A12 --> LED b*/
+	userLed02.pGPIOx                         = GPIOA;
+	userLed02.pinConfig.GPIO_PinNumber       = PIN_12;
+	userLed02.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+	userLed02.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+	userLed02.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+	userLed02.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+
+	//Cargamos la configuración en los registros que gobiernan el puerto
+	gpio_Config(&userLed02);
+
+	/* Configuramos el pin C6 --> LED c*/
+	userLed03.pGPIOx                         = GPIOC;
+	userLed03.pinConfig.GPIO_PinNumber       = PIN_6;
+	userLed03.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+	userLed03.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+	userLed03.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+	userLed03.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+
+	//Cargamos la configuración en los registros que gobiernan el puerto
+	gpio_Config(&userLed03);
+
+	/* Configuramos el pin B13 --> LED d*/
+	userLed04.pGPIOx                         = GPIOB;
+	userLed04.pinConfig.GPIO_PinNumber       = PIN_13;
+	userLed04.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+	userLed04.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+	userLed04.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+	userLed04.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+
+	//Cargamos la configuración en los registros que gobiernan el puerto
+	gpio_Config(&userLed04);
+
+	/* Configuramos el pin B10 --> LED e*/
+	userLed05.pGPIOx                         = GPIOB;
+	userLed05.pinConfig.GPIO_PinNumber       = PIN_10;
+	userLed05.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+	userLed05.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+	userLed05.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+	userLed05.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+
+	//Cargamos la configuración en los registros que gobiernan el puerto
+	gpio_Config(&userLed05);
+
+	/* Configuramos el pin B7 --> LED f*/
+	userLed06.pGPIOx                         = GPIOB;
+	userLed06.pinConfig.GPIO_PinNumber       = PIN_7;
+	userLed06.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+	userLed06.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+	userLed06.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+	userLed06.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+
+	//Cargamos la configuración en los registros que gobiernan el puerto
+	gpio_Config(&userLed06);
+
+	/* Configuramos el pin C10 --> LED g*/
+	userLed07.pGPIOx                         = GPIOC;
+	userLed07.pinConfig.GPIO_PinNumber       = PIN_10;
+	userLed07.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+	userLed07.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+	userLed07.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+	userLed07.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+
+	//Cargamos la configuración en los registros que gobiernan el puerto
+	gpio_Config(&userLed07);
 
     /* Loop forever */
 	while(1){
