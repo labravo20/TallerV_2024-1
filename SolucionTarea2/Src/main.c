@@ -177,12 +177,265 @@ int main(void)
 	//A continuación se está probando el correcto funcionamiento del pin C10
 	//gpio_WritePin(&userLed07, SET);
 
+	//Cargamos ahora la configuración respectiva para los pines de alimentación de los vcc
+	//de los transistores que componen el circuito del siete segmentos.
+
+	/* Configuramos el pin A0 --> vcc unidad*/
+	vcc_uni.pGPIOx                         = GPIOA;
+	vcc_uni.pinConfig.GPIO_PinNumber       = PIN_0;
+	vcc_uni.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+	vcc_uni.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+	vcc_uni.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+	vcc_uni.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+
+	//Cargamos la configuración en los registros que gobiernan el puerto
+	gpio_Config(&vcc_uni);
+
+	/* Configuramos el pin B12 --> vcc decimal*/
+	vcc_dec.pGPIOx                         = GPIOB;
+	vcc_dec.pinConfig.GPIO_PinNumber       = PIN_12;
+	vcc_dec.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+	vcc_dec.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+	vcc_dec.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+	vcc_dec.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+
+	//Cargamos la configuración en los registros que gobiernan el puerto
+	gpio_Config(&vcc_dec);
+
+	// Definimos variable para activar contador
+	//uint8_t counter_i = 0;
+
     /* Loop forever */
 	while(1){
 
+		// Definimos ciclo para iniciar contador
+		//for(counter_i > 0; counter_i < 60; counter_i ++){
+
+			//Configuramos un ciclo for para crear delay de aprox un segundo
+
+			//Definimos variable para activar contador del ciclo para el delay
+			//uint32_t counter_j = 0;
+
+			//Valor límite superior del counter es establecido teniendo en cuenta que la velocidad
+			//de operación del MCU es de aprox 16MHz
+			//for(counter_j = 0; counter_j < 1000000; counter_j ++){}
+
+			//Para garantizar que el contador permanezca activo se realiza la siguiente redefinición
+			//de variables
+			//if(counter_i == 60){
+				//Al asignar nuevamente el valor inicial al contador se reinicia el ciclo
+				//counter_i = 0;
+			//}
+
+		//}
 
 	}
 
+}
+
+//Definimos función para modo set o reset de los pines con respecto al número (0 a 9)
+// === Se van a construir varias funciones cada una estudiando el estado del pin individual (7 pines)
+
+//Definiendo función para el Led "a"
+uint32_t counter_a(uint8_t counterSietea){
+
+	//Definimos variable para cargar estado de pin activo o NO activo dependiendo del número específico
+	uint8_t pinLed_a = 0;
+
+	// Definimos a continuación todos los numeros en los cuales se debe ACTIVAR o DESACTIVAR al led "a"
+	if(counterSietea == 1){
+
+		//Desactivamos al led
+		pinLed_a = 0;
+	} else if (counterSietea == 4){
+
+		//Desactivamos al led
+		pinLed_a = 0;
+	} else {
+
+		//Activamos al led
+		pinLed_a = 1;
+	}
+
+	//Retornamos el valor que será usado en la función writePin (activa (1) o desactiva (0) el pin)
+	//dentro del counter
+	return pinLed_a;
+}
+
+//Definiendo función para el Led "b"
+uint32_t counter_b(uint8_t counterSieteb){
+
+	//Definimos variable para cargar estado de pin activo o NO activo dependiendo del número específico
+	uint8_t pinLed_b = 0;
+
+	// Definimos a continuación todos los numeros en los cuales se debe ACTIVAR o DESACTIVAR al led "b"
+	if(counterSieteb == 5){
+
+		//Desactivamos al led
+		pinLed_b = 0;
+	} else if (counterSieteb == 6){
+
+		//Desactivamos al led
+		pinLed_b = 0;
+	} else {
+
+		//Activamos al led
+		pinLed_b = 1;
+	}
+
+	//Retornamos el valor que será usado en la función writePin (activa (1) o desactiva (0) el pin)
+	//dentro del counter
+	return pinLed_b;
+}
+
+//Definiendo función para el Led "c"
+uint32_t counter_c(uint8_t counterSietec){
+
+	//Definimos variable para cargar estado de pin activo o NO activo dependiendo del número específico
+	uint8_t pinLed_c = 0;
+
+	// Definimos a continuación todos los numeros en los cuales se debe ACTIVAR o DESACTIVAR al led "c"
+	if(counterSietec == 2){
+
+		//Desactivamos al led
+		pinLed_c = 0;
+	} else {
+
+		//Activamos al led
+		pinLed_c = 1;
+	}
+
+	//Retornamos el valor que será usado en la función writePin (activa (1) o desactiva (0) el pin)
+	//dentro del counter
+	return pinLed_c;
+}
+
+//Definiendo función para el Led "d"
+uint32_t counter_d(uint8_t counterSieted){
+
+	//Definimos variable para cargar estado de pin activo o NO activo dependiendo del número específico
+	uint8_t pinLed_d = 0;
+
+	// Definimos a continuación todos los numeros en los cuales se debe ACTIVAR o DESACTIVAR al led "d"
+	if(counterSieted == 1){
+
+		//Desactivamos al led
+		pinLed_d = 0;
+	} else if (counterSieted == 4){
+
+		//Desactivamos al led
+		pinLed_d = 0;
+	} else if (counterSieted == 7){
+
+		//Desactivamos al led
+		pinLed_d = 0;
+	} else {
+
+		//Activamos al led
+		pinLed_d = 1;
+	}
+
+	//Retornamos el valor que será usado en la función writePin (activa (1) o desactiva (0) el pin)
+	//dentro del counter
+	return pinLed_d;
+}
+
+//Definiendo función para el Led "e"
+uint32_t counter_e(uint8_t counterSietee){
+
+	//Definimos variable para cargar estado de pin activo o NO activo dependiendo del número específico
+	uint8_t pinLed_e = 0;
+
+	// Definimos a continuación todos los numeros en los cuales se debe ACTIVAR o DESACTIVAR al led "e"
+	if(counterSietee == 0){
+
+		//activamos al led
+		pinLed_e = 1;
+	} else if (counterSietee == 2){
+
+		//activamos al led
+		pinLed_e = 1;
+	} else if (counterSietee == 6){
+
+		//activamos al led
+		pinLed_e = 1;
+	} else if (counterSietee == 8){
+
+		//activamos al led
+		pinLed_e = 1;
+	} else {
+
+		//Desactivamos al led
+		pinLed_e = 0;
+	}
+
+	//Retornamos el valor que será usado en la función writePin (activa (1) o desactiva (0) el pin)
+	//dentro del counter
+	return pinLed_e;
+}
+
+//Definiendo función para el Led "f"
+uint32_t counter_f(uint8_t counterSietef){
+
+	//Definimos variable para cargar estado de pin activo o NO activo dependiendo del número específico
+	uint8_t pinLed_f = 0;
+
+	// Definimos a continuación todos los numeros en los cuales se debe ACTIVAR o DESACTIVAR al led "f"
+	if(counterSietef == 1){
+
+		//Desactivamos al led
+		pinLed_f = 0;
+	} else if (counterSietef == 2){
+
+		//Desactivamos al led
+		pinLed_f = 0;
+	} else if (counterSietef == 3){
+
+		//Desactivamos al led
+		pinLed_f = 0;
+	} else if (counterSietef == 7){
+
+		//Desactivamos al led
+		pinLed_f = 0;
+	} else {
+
+		//Activamos al led
+		pinLed_f = 1;
+	}
+
+	//Retornamos el valor que será usado en la función writePin (activa (1) o desactiva (0) el pin)
+	//dentro del counter
+	return pinLed_f;
+}
+
+//Definiendo función para el Led "g"
+uint32_t counter_g(uint8_t counterSieteg){
+
+	//Definimos variable para cargar estado de pin activo o NO activo dependiendo del número específico
+	uint8_t pinLed_g = 0;
+
+	// Definimos a continuación todos los numeros en los cuales se debe ACTIVAR o DESACTIVAR al led "g"
+	if(counterSieteg == 0){
+
+		//Desactivamos al led
+		pinLed_g = 0;
+	} else if (counterSieteg == 1){
+
+		//Desactivamos al led
+		pinLed_g = 0;
+	} else if (counterSieteg == 7){
+
+		//Desactivamos al led
+		pinLed_g = 0;
+	} else {
+
+		//Activamos al led
+		pinLed_g = 1;
+	}
+
+	//Retornamos el valor que será usado en la función writePin (activa (1) o desactiva (0) el pin)
+	//dentro del counter
+	return pinLed_g;
 }
 
 /*

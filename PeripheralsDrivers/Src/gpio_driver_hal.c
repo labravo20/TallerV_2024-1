@@ -344,3 +344,4 @@ void gpio_LedBinario(GPIO_Handler_t *pPinHandler, uint8_t counter, uint8_t bitNu
 
 
 
+
