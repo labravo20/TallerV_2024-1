@@ -55,6 +55,12 @@ uint8_t state_g = 0;
 uint8_t unidad = 0;
 uint8_t decena = 0;
 
+//Definimos variable para activar vcc de unidad o vcc de decena
+uint8_t posicion = 0;
+
+//Definimos máscara para alternar la posicion unidad o decena
+uint8_t mask     = 1;
+
 //Definición función para configuración inicial
 void initialConfig();
 
@@ -68,11 +74,11 @@ int main(void)
 	while(1){
 
 		//Pasamos a verficiar si el valor del counter requiere la representación de los dos dígitos o no
-			if((counter_i/10) < 1){
+			if((counter_i) < 10){
 
 				//Activamos unicamente vcc de las unidades del site segmentos
-				gpio_WritePin(&vcc_uni, SET);
 				gpio_WritePin(&vcc_dec, RESET);
+				gpio_WritePin(&vcc_uni, SET);
 
 				//Asignamos a cada variable el correspondiente valor de set o reset
 				state_a = counter_a(counter_i);
@@ -92,7 +98,7 @@ int main(void)
 				gpio_WritePin(&userLed06, state_f);
 				gpio_WritePin(&userLed07, state_g);
 
-			} else{
+			} else if((counter_i) >= 10){
 
 				// Construimos relación para identificar el valor de la unidad del número
 				unidad = counter_i%10;
@@ -101,50 +107,56 @@ int main(void)
 
 				// Generamos condicional para representar numero en posición unidad o decena del siete segmentos
 
-				//Activamos AMBOS vcc del siete segmentos para tener en cuenta decenas
-				gpio_WritePin(&vcc_uni, SET);
-				gpio_WritePin(&vcc_dec, RESET);
+				if(posicion == 1){
 
-				//Asignamos a cada variable el correspondiente valor set o reset de la DECENA
-				state_a = counter_a(decena/10);
-				state_b = counter_b(decena/10);
-				state_c = counter_c(decena/10);
-				state_d = counter_d(decena/10);
-				state_e = counter_e(decena/10);
-				state_f = counter_f(decena/10);
-				state_g = counter_g(decena/10);
-
-				//Ejecutamos la configuración de los pines para la DECENA
-				gpio_WritePin(&userLed01, state_a);
-				gpio_WritePin(&userLed02, state_b);
-				gpio_WritePin(&userLed03, state_c);
-				gpio_WritePin(&userLed04, state_d);
-				gpio_WritePin(&userLed05, state_e);
-				gpio_WritePin(&userLed06, state_f);
-				gpio_WritePin(&userLed07, state_g);
-
-				//Activamos AMBOS vcc del siete segmentos para tener en cuenta unidades
-				gpio_WritePin(&vcc_uni, RESET);
-				gpio_WritePin(&vcc_dec, SET);
+					//Activamos vcc del siete segmentos para tener en cuenta decenas
+					gpio_WritePin(&vcc_uni, RESET);
+					gpio_WritePin(&vcc_dec, SET);
 
 
-				//Asignamos a cada variable el correspondiente valor set o reset de la UNIDAD
-				state_a = counter_a(unidad);
-				state_b = counter_b(unidad);
-				state_c = counter_c(unidad);
-				state_d = counter_d(unidad);
-				state_e = counter_e(unidad);
-				state_f = counter_f(unidad);
-				state_g = counter_g(unidad);
+					//Asignamos a cada variable el correspondiente valor set o reset de la DECENA
+					state_a = counter_a(decena/10);
+					state_b = counter_b(decena/10);
+					state_c = counter_c(decena/10);
+					state_d = counter_d(decena/10);
+					state_e = counter_e(decena/10);
+					state_f = counter_f(decena/10);
+					state_g = counter_g(decena/10);
 
-				//Ejecutamos la configuración de los pines para la UNIDAD
-				gpio_WritePin(&userLed01, state_a);
-				gpio_WritePin(&userLed02, state_b);
-				gpio_WritePin(&userLed03, state_c);
-				gpio_WritePin(&userLed04, state_d);
-				gpio_WritePin(&userLed05, state_e);
-				gpio_WritePin(&userLed06, state_f);
-				gpio_WritePin(&userLed07, state_g);
+					//Ejecutamos la configuración de los pines para la DECENA
+					gpio_WritePin(&userLed01, state_a);
+					gpio_WritePin(&userLed02, state_b);
+					gpio_WritePin(&userLed03, state_c);
+					gpio_WritePin(&userLed04, state_d);
+					gpio_WritePin(&userLed05, state_e);
+					gpio_WritePin(&userLed06, state_f);
+					gpio_WritePin(&userLed07, state_g);
+
+				} else{
+
+					//Activamos vcc del siete segmentos para tener en cuenta unidades
+					gpio_WritePin(&vcc_dec, RESET);
+					gpio_WritePin(&vcc_uni, SET);
+
+
+					//Asignamos a cada variable el correspondiente valor set o reset de la UNIDAD
+					state_a = counter_a(unidad);
+					state_b = counter_b(unidad);
+					state_c = counter_c(unidad);
+					state_d = counter_d(unidad);
+					state_e = counter_e(unidad);
+					state_f = counter_f(unidad);
+					state_g = counter_g(unidad);
+
+					//Ejecutamos la configuración de los pines para la UNIDAD
+					gpio_WritePin(&userLed01, state_a);
+					gpio_WritePin(&userLed02, state_b);
+					gpio_WritePin(&userLed03, state_c);
+					gpio_WritePin(&userLed04, state_d);
+					gpio_WritePin(&userLed05, state_e);
+					gpio_WritePin(&userLed06, state_f);
+					gpio_WritePin(&userLed07, state_g);
+				}
 
 			}
 
@@ -280,9 +292,9 @@ void initialConfig(){
 		//A continuación se está probando el correcto funcionamiento del pin B10
 		//gpio_WritePin(&userLed05, SET);
 
-		/* Configuramos el pin B7 --> LED f*/
-		userLed06.pGPIOx                         = GPIOB;
-		userLed06.pinConfig.GPIO_PinNumber       = PIN_7;
+		/* Configuramos el pin C10 --> LED f*/
+		userLed06.pGPIOx                         = GPIOC;
+		userLed06.pinConfig.GPIO_PinNumber       = PIN_10;
 		userLed06.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
 		userLed06.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
 		userLed06.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
@@ -294,9 +306,9 @@ void initialConfig(){
 		//A continuación se está probando el correcto funcionamiento del pin B7
 		//gpio_WritePin(&userLed06, SET);
 
-		/* Configuramos el pin C10 --> LED g*/
-		userLed07.pGPIOx                         = GPIOC;
-		userLed07.pinConfig.GPIO_PinNumber       = PIN_10;
+		/* Configuramos el pin B7 --> LED g*/
+		userLed07.pGPIOx                         = GPIOB;
+		userLed07.pinConfig.GPIO_PinNumber       = PIN_7;
 		userLed07.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
 		userLed07.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
 		userLed07.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
@@ -336,7 +348,7 @@ void initialConfig(){
 		//Configuración Timer3 --> display del siete segmentos
 		displayTimer.pTIMx                             = TIM3;
 		displayTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 1 ms
-		displayTimer.TIMx_Config.TIMx_Period           = 500;     //De la mano con el prescaler...
+		displayTimer.TIMx_Config.TIMx_Period           = 10;     //De la mano con el prescaler...
 		displayTimer.TIMx_Config.TIMx_mode             = TIMER_UP_COUNTER;
 		displayTimer.TIMx_Config.TIMx_InterruptEnable  = TIMER_INT_ENABLE;
 
@@ -349,7 +361,7 @@ void initialConfig(){
 		//Configuración Timer5 --> control del tiempo
 		controlTimer.pTIMx                             = TIM5;
 		controlTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 1 ms
-		controlTimer.TIMx_Config.TIMx_Period           = 600;     //De la mano con el prescaler...
+		controlTimer.TIMx_Config.TIMx_Period           = 1000;     //De la mano con el prescaler...
 		controlTimer.TIMx_Config.TIMx_mode             = TIMER_UP_COUNTER;
 		controlTimer.TIMx_Config.TIMx_InterruptEnable  = TIMER_INT_ENABLE;
 
@@ -373,15 +385,15 @@ uint32_t counter_a(uint8_t counterSietea){
 	if(counterSietea == 1){
 
 		//Desactivamos al led
-		pinLed_a = 0;
+		pinLed_a = 1;
 	} else if (counterSietea == 4){
 
 		//Desactivamos al led
-		pinLed_a = 0;
+		pinLed_a = 1;
 	} else {
 
 		//Activamos al led
-		pinLed_a = 1;
+		pinLed_a = 0;
 	}
 
 	//Retornamos el valor que será usado en la función writePin (activa (1) o desactiva (0) el pin)
@@ -399,15 +411,15 @@ uint32_t counter_b(uint8_t counterSieteb){
 	if(counterSieteb == 5){
 
 		//Desactivamos al led
-		pinLed_b = 0;
+		pinLed_b = 1;
 	} else if (counterSieteb == 6){
 
 		//Desactivamos al led
-		pinLed_b = 0;
+		pinLed_b = 1;
 	} else {
 
 		//Activamos al led
-		pinLed_b = 1;
+		pinLed_b = 0;
 	}
 
 	//Retornamos el valor que será usado en la función writePin (activa (1) o desactiva (0) el pin)
@@ -425,11 +437,11 @@ uint32_t counter_c(uint8_t counterSietec){
 	if(counterSietec == 2){
 
 		//Desactivamos al led
-		pinLed_c = 0;
+		pinLed_c = 1;
 	} else {
 
 		//Activamos al led
-		pinLed_c = 1;
+		pinLed_c = 0;
 	}
 
 	//Retornamos el valor que será usado en la función writePin (activa (1) o desactiva (0) el pin)
@@ -447,19 +459,19 @@ uint32_t counter_d(uint8_t counterSieted){
 	if(counterSieted == 1){
 
 		//Desactivamos al led
-		pinLed_d = 0;
+		pinLed_d = 1;
 	} else if (counterSieted == 4){
 
 		//Desactivamos al led
-		pinLed_d = 0;
+		pinLed_d = 1;
 	} else if (counterSieted == 7){
 
 		//Desactivamos al led
-		pinLed_d = 0;
+		pinLed_d = 1;
 	} else {
 
 		//Activamos al led
-		pinLed_d = 1;
+		pinLed_d = 0;
 	}
 
 	//Retornamos el valor que será usado en la función writePin (activa (1) o desactiva (0) el pin)
@@ -477,23 +489,23 @@ uint32_t counter_e(uint8_t counterSietee){
 	if(counterSietee == 0){
 
 		//activamos al led
-		pinLed_e = 1;
+		pinLed_e = 0;
 	} else if (counterSietee == 2){
 
 		//activamos al led
-		pinLed_e = 1;
+		pinLed_e = 0;
 	} else if (counterSietee == 6){
 
 		//activamos al led
-		pinLed_e = 1;
+		pinLed_e = 0;
 	} else if (counterSietee == 8){
 
 		//activamos al led
-		pinLed_e = 1;
+		pinLed_e = 0;
 	} else {
 
 		//Desactivamos al led
-		pinLed_e = 0;
+		pinLed_e = 1;
 	}
 
 	//Retornamos el valor que será usado en la función writePin (activa (1) o desactiva (0) el pin)
@@ -502,67 +514,67 @@ uint32_t counter_e(uint8_t counterSietee){
 }
 
 //Definiendo función para el Led "f"
-uint32_t counter_f(uint8_t counterSietef){
-
-	//Definimos variable para cargar estado de pin activo o NO activo dependiendo del número específico
-	uint8_t pinLed_f = 0;
-
-	// Definimos a continuación todos los numeros en los cuales se debe ACTIVAR o DESACTIVAR al led "f"
-	if(counterSietef == 1){
-
-		//Desactivamos al led
-		pinLed_f = 0;
-	} else if (counterSietef == 2){
-
-		//Desactivamos al led
-		pinLed_f = 0;
-	} else if (counterSietef == 3){
-
-		//Desactivamos al led
-		pinLed_f = 0;
-	} else if (counterSietef == 7){
-
-		//Desactivamos al led
-		pinLed_f = 0;
-	} else {
-
-		//Activamos al led
-		pinLed_f = 1;
-	}
-
-	//Retornamos el valor que será usado en la función writePin (activa (1) o desactiva (0) el pin)
-	//dentro del counter
-	return pinLed_f;
-}
-
-//Definiendo función para el Led "g"
 uint32_t counter_g(uint8_t counterSieteg){
 
 	//Definimos variable para cargar estado de pin activo o NO activo dependiendo del número específico
 	uint8_t pinLed_g = 0;
 
-	// Definimos a continuación todos los numeros en los cuales se debe ACTIVAR o DESACTIVAR al led "g"
-	if(counterSieteg == 0){
+	// Definimos a continuación todos los numeros en los cuales se debe ACTIVAR o DESACTIVAR al led "f"
+	if(counterSieteg == 1){
 
 		//Desactivamos al led
-		pinLed_g = 0;
-	} else if (counterSieteg == 1){
+		pinLed_g = 1;
+	} else if (counterSieteg == 2){
 
 		//Desactivamos al led
-		pinLed_g = 0;
+		pinLed_g = 1;
+	} else if (counterSieteg == 3){
+
+		//Desactivamos al led
+		pinLed_g = 1;
 	} else if (counterSieteg == 7){
 
 		//Desactivamos al led
-		pinLed_g = 0;
+		pinLed_g = 1;
 	} else {
 
 		//Activamos al led
-		pinLed_g = 1;
+		pinLed_g = 0;
 	}
 
 	//Retornamos el valor que será usado en la función writePin (activa (1) o desactiva (0) el pin)
 	//dentro del counter
 	return pinLed_g;
+}
+
+//Definiendo función para el Led "g"
+uint32_t counter_f(uint8_t counterSietef){
+
+	//Definimos variable para cargar estado de pin activo o NO activo dependiendo del número específico
+	uint8_t pinLed_f = 0;
+
+	// Definimos a continuación todos los numeros en los cuales se debe ACTIVAR o DESACTIVAR al led "g"
+	if(counterSietef == 0){
+
+		//Desactivamos al led
+		pinLed_f = 1;
+	} else if (counterSietef == 1){
+
+		//Desactivamos al led
+		pinLed_f = 1;
+	} else if (counterSietef == 7){
+
+		//Desactivamos al led
+		pinLed_f = 1;
+	} else {
+
+		//Activamos al led
+		pinLed_f = 0;
+	}
+
+	//Retornamos el valor que será usado en la función writePin (activa (1) o desactiva (0) el pin)
+	//dentro del counter
+	return pinLed_f;
 }
 
 /*
@@ -583,9 +595,9 @@ void Timer2_Callback(void){
  * */
 void Timer3_Callback(void){
 
-	//Sumamos el valor del counter para garantizar la cuenta ascentente
-	counter_i = counter_i +1;
-
+	// Cambiamos el valor de la posicion para representar todas las posiciones del numero
+	// === Hacemos uso de la compuerta XOR para garantizar el cambio (0[pos] 1--> 1  and 1[pos] 1-->0 )
+	posicion = posicion^mask;
 }
 /*
  * Overwrite function for control del tiempo
@@ -594,7 +606,6 @@ void Timer5_Callback(void){
 
 	//Sumamos el valor del counter para garantizar la cuenta ascentente
 	counter_i = counter_i +1;
-
 }
 
 /*
