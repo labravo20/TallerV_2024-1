@@ -62,7 +62,7 @@ int main(void)
 	gpio_Config(&userLed00);
 
 	//Ejecutamos la configuración realizada en H1
-	//gpio_WritePin(&userLed00, SET);
+	gpio_WritePin(&userLed00, SET);
 
 	blinkTimer.pTIMx                             = TIM2;
 	blinkTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 1 ms
@@ -90,6 +90,9 @@ int main(void)
 	//Cargamos la configuración en los registros que gobiernan el puerto
 	gpio_Config(&userLed01);
 
+	//A continuación se está probando el correcto funcionamiento del pin C12
+	//gpio_WritePin(&userLed01, SET);
+
 	/* Configuramos el pin A12 --> LED b*/
 	userLed02.pGPIOx                         = GPIOA;
 	userLed02.pinConfig.GPIO_PinNumber       = PIN_12;
@@ -100,6 +103,9 @@ int main(void)
 
 	//Cargamos la configuración en los registros que gobiernan el puerto
 	gpio_Config(&userLed02);
+
+	//A continuación se está probando el correcto funcionamiento del pin A12
+	//gpio_WritePin(&userLed02, SET);
 
 	/* Configuramos el pin C6 --> LED c*/
 	userLed03.pGPIOx                         = GPIOC;
@@ -112,6 +118,9 @@ int main(void)
 	//Cargamos la configuración en los registros que gobiernan el puerto
 	gpio_Config(&userLed03);
 
+	//A continuación se está probando el correcto funcionamiento del pin C6
+	//gpio_WritePin(&userLed03, SET);
+
 	/* Configuramos el pin B13 --> LED d*/
 	userLed04.pGPIOx                         = GPIOB;
 	userLed04.pinConfig.GPIO_PinNumber       = PIN_13;
@@ -122,6 +131,9 @@ int main(void)
 
 	//Cargamos la configuración en los registros que gobiernan el puerto
 	gpio_Config(&userLed04);
+
+	//A continuación se está probando el correcto funcionamiento del pin B13
+	//gpio_WritePin(&userLed04, SET);
 
 	/* Configuramos el pin B10 --> LED e*/
 	userLed05.pGPIOx                         = GPIOB;
@@ -134,6 +146,9 @@ int main(void)
 	//Cargamos la configuración en los registros que gobiernan el puerto
 	gpio_Config(&userLed05);
 
+	//A continuación se está probando el correcto funcionamiento del pin B10
+	//gpio_WritePin(&userLed05, SET);
+
 	/* Configuramos el pin B7 --> LED f*/
 	userLed06.pGPIOx                         = GPIOB;
 	userLed06.pinConfig.GPIO_PinNumber       = PIN_7;
@@ -145,6 +160,9 @@ int main(void)
 	//Cargamos la configuración en los registros que gobiernan el puerto
 	gpio_Config(&userLed06);
 
+	//A continuación se está probando el correcto funcionamiento del pin B7
+	//gpio_WritePin(&userLed06, SET);
+
 	/* Configuramos el pin C10 --> LED g*/
 	userLed07.pGPIOx                         = GPIOC;
 	userLed07.pinConfig.GPIO_PinNumber       = PIN_10;
@@ -155,6 +173,9 @@ int main(void)
 
 	//Cargamos la configuración en los registros que gobiernan el puerto
 	gpio_Config(&userLed07);
+
+	//A continuación se está probando el correcto funcionamiento del pin C10
+	//gpio_WritePin(&userLed07, SET);
 
     /* Loop forever */
 	while(1){
