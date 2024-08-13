@@ -22,8 +22,8 @@ GPIO_Handler_t userLed04    = {0}; //PinB13 (led "d")
 GPIO_Handler_t userLed05    = {0}; //PinB10 (led "e")
 GPIO_Handler_t userLed06    = {0}; //PinB7  (led "f")
 GPIO_Handler_t userLed07    = {0}; //PinC10 (led "g")
-GPIO_Handler_t vcc_uni      = {0}; //PinA0
-GPIO_Handler_t vcc_dec      = {0}; //PinB12
+GPIO_Handler_t vcc_uni      = {0}; //PinB12
+GPIO_Handler_t vcc_dec      = {0}; //PinA0
 
 //Definimos timers a utilizar
 Timer_Handler_t blinkTimer   = {0}; // Timer para el blinking
@@ -32,6 +32,15 @@ Timer_Handler_t controlTimer = {0}; // Timer asociado al control del tiempo
 
 // Definimos variable para activar contador
 uint8_t counter_i = 0;
+
+//Definiendo funciones a usar
+uint32_t counter_a(uint8_t counterSietea);
+uint32_t counter_b(uint8_t counterSieteb);
+uint32_t counter_c(uint8_t counterSietec);
+uint32_t counter_d(uint8_t counterSieted);
+uint32_t counter_e(uint8_t counterSietee);
+uint32_t counter_f(uint8_t counterSietef);
+uint32_t counter_g(uint8_t counterSieteg);
 
 //Definimos variables para cargar valor de set y reset de los LEDs
 uint8_t state_a = 0;
@@ -53,10 +62,96 @@ void initialConfig();
 int main(void)
 {
 	//Llamamos función para realizar configuración inicial
-	void initialConfig();
+	initialConfig();
 
     /* Loop forever */
 	while(1){
+
+		//Pasamos a verficiar si el valor del counter requiere la representación de los dos dígitos o no
+			if((counter_i/10) < 1){
+
+				//Activamos unicamente vcc de las unidades del site segmentos
+				gpio_WritePin(&vcc_uni, SET);
+				gpio_WritePin(&vcc_dec, RESET);
+
+				//Asignamos a cada variable el correspondiente valor de set o reset
+				state_a = counter_a(counter_i);
+				state_b = counter_b(counter_i);
+				state_c = counter_c(counter_i);
+				state_d = counter_d(counter_i);
+				state_e = counter_e(counter_i);
+				state_f = counter_f(counter_i);
+				state_g = counter_g(counter_i);
+
+				//Ejecutamos la configuración de los pines
+				gpio_WritePin(&userLed01, state_a);
+				gpio_WritePin(&userLed02, state_b);
+				gpio_WritePin(&userLed03, state_c);
+				gpio_WritePin(&userLed04, state_d);
+				gpio_WritePin(&userLed05, state_e);
+				gpio_WritePin(&userLed06, state_f);
+				gpio_WritePin(&userLed07, state_g);
+
+			} else{
+
+				// Construimos relación para identificar el valor de la unidad del número
+				unidad = counter_i%10;
+				// Construimos relación para identificar el valor de la decena del número
+				decena = (counter_i) - unidad;
+
+				// Generamos condicional para representar numero en posición unidad o decena del siete segmentos
+
+				//Activamos AMBOS vcc del siete segmentos para tener en cuenta decenas
+				gpio_WritePin(&vcc_uni, SET);
+				gpio_WritePin(&vcc_dec, RESET);
+
+				//Asignamos a cada variable el correspondiente valor set o reset de la DECENA
+				state_a = counter_a(decena/10);
+				state_b = counter_b(decena/10);
+				state_c = counter_c(decena/10);
+				state_d = counter_d(decena/10);
+				state_e = counter_e(decena/10);
+				state_f = counter_f(decena/10);
+				state_g = counter_g(decena/10);
+
+				//Ejecutamos la configuración de los pines para la DECENA
+				gpio_WritePin(&userLed01, state_a);
+				gpio_WritePin(&userLed02, state_b);
+				gpio_WritePin(&userLed03, state_c);
+				gpio_WritePin(&userLed04, state_d);
+				gpio_WritePin(&userLed05, state_e);
+				gpio_WritePin(&userLed06, state_f);
+				gpio_WritePin(&userLed07, state_g);
+
+				//Activamos AMBOS vcc del siete segmentos para tener en cuenta unidades
+				gpio_WritePin(&vcc_uni, RESET);
+				gpio_WritePin(&vcc_dec, SET);
+
+
+				//Asignamos a cada variable el correspondiente valor set o reset de la UNIDAD
+				state_a = counter_a(unidad);
+				state_b = counter_b(unidad);
+				state_c = counter_c(unidad);
+				state_d = counter_d(unidad);
+				state_e = counter_e(unidad);
+				state_f = counter_f(unidad);
+				state_g = counter_g(unidad);
+
+				//Ejecutamos la configuración de los pines para la UNIDAD
+				gpio_WritePin(&userLed01, state_a);
+				gpio_WritePin(&userLed02, state_b);
+				gpio_WritePin(&userLed03, state_c);
+				gpio_WritePin(&userLed04, state_d);
+				gpio_WritePin(&userLed05, state_e);
+				gpio_WritePin(&userLed06, state_f);
+				gpio_WritePin(&userLed07, state_g);
+
+			}
+
+			//Delimitamos que el número máximo hasta el cual se contará es 59
+			if(counter_i == 60){
+				counter_i = 0;
+			}
 
 	}
 
@@ -216,9 +311,9 @@ void initialConfig(){
 		//Cargamos ahora la configuración respectiva para los pines de alimentación de los vcc
 		//de los transistores que componen el circuito del siete segmentos.
 
-		/* Configuramos el pin A0 --> vcc unidad*/
-		vcc_uni.pGPIOx                         = GPIOA;
-		vcc_uni.pinConfig.GPIO_PinNumber       = PIN_0;
+		/* Configuramos el pin B12 --> vcc unidad*/
+		vcc_uni.pGPIOx                         = GPIOB;
+		vcc_uni.pinConfig.GPIO_PinNumber       = PIN_12;
 		vcc_uni.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
 		vcc_uni.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
 		vcc_uni.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
@@ -227,9 +322,9 @@ void initialConfig(){
 		//Cargamos la configuración en los registros que gobiernan el puerto
 		gpio_Config(&vcc_uni);
 
-		/* Configuramos el pin B12 --> vcc decimal*/
-		vcc_dec.pGPIOx                         = GPIOB;
-		vcc_dec.pinConfig.GPIO_PinNumber       = PIN_12;
+		/* Configuramos el pin A0 --> vcc decimal*/
+		vcc_dec.pGPIOx                         = GPIOA;
+		vcc_dec.pinConfig.GPIO_PinNumber       = PIN_0;
 		vcc_dec.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
 		vcc_dec.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
 		vcc_dec.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
@@ -254,7 +349,7 @@ void initialConfig(){
 		//Configuración Timer5 --> control del tiempo
 		controlTimer.pTIMx                             = TIM5;
 		controlTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 1 ms
-		controlTimer.TIMx_Config.TIMx_Period           = 500;     //De la mano con el prescaler...
+		controlTimer.TIMx_Config.TIMx_Period           = 600;     //De la mano con el prescaler...
 		controlTimer.TIMx_Config.TIMx_mode             = TIMER_UP_COUNTER;
 		controlTimer.TIMx_Config.TIMx_InterruptEnable  = TIMER_INT_ENABLE;
 
@@ -488,22 +583,8 @@ void Timer2_Callback(void){
  * */
 void Timer3_Callback(void){
 
-	//Pasamos a verficiar si el valor del counter requiere la representación de los dos dígitos o no
-	if((counter_i/10) < 1){
-
-		//Activamos unicamente vcc de las unidades del site segmentos
-		gpio_WritePin(&vcc_uni, SET);
-		gpio_WritePin(&vcc_dec, RESET);
-
-	} else{
-
-		//Activamos AMBOS vcc del siete segmentos para tener en cuenta decenas y unidades
-		//gpio_WritePin(&vcc_uni, SET);
-		//gpio_WritePin(&vcc_dec, RESET);
-
-	}
-
-	//counter_i += 1;
+	//Sumamos el valor del counter para garantizar la cuenta ascentente
+	counter_i = counter_i +1;
 
 }
 /*
@@ -511,79 +592,9 @@ void Timer3_Callback(void){
  * */
 void Timer5_Callback(void){
 
-	//Llamamos activación de los LEDs dependiento del valor del counter
-	if(counter_i<10){
-
-		//Asignamos a cada variable el correspondiente valor de set o reset
-		state_a = counter_a(counter_i);
-		state_b = counter_b(counter_i);
-		state_c = counter_c(counter_i);
-		state_d = counter_d(counter_i);
-		state_e = counter_e(counter_i);
-		state_f = counter_f(counter_i);
-		state_g = counter_g(counter_i);
-
-		//Ejecutamos la configuración de los pines
-		gpio_WritePin(&userLed01, state_a);
-		gpio_WritePin(&userLed02, state_b);
-		gpio_WritePin(&userLed03, state_c);
-		gpio_WritePin(&userLed04, state_d);
-		gpio_WritePin(&userLed05, state_e);
-		gpio_WritePin(&userLed06, state_f);
-		gpio_WritePin(&userLed07, state_g);
-
-	} else{
-
-		// Construimos relación para identificar el valor de la unidad del número
-		unidad = counter_i%10;
-		// Construimos relación para identificar el valor de la decena del número
-		decena = (counter_i) - unidad;
-
-		//Asignamos a cada variable el correspondiente valor set o reset de la DECENA
-		state_a = counter_a(decena/10);
-		state_b = counter_b(decena/10);
-		state_c = counter_c(decena/10);
-		state_d = counter_d(decena/10);
-		state_e = counter_e(decena/10);
-		state_f = counter_f(decena/10);
-		state_g = counter_g(decena/10);
-
-		//Ejecutamos la configuración de los pines para la DECENA
-		gpio_WritePin(&userLed01, state_a);
-		gpio_WritePin(&userLed02, state_b);
-		gpio_WritePin(&userLed03, state_c);
-		gpio_WritePin(&userLed04, state_d);
-		gpio_WritePin(&userLed05, state_e);
-		gpio_WritePin(&userLed06, state_f);
-		gpio_WritePin(&userLed07, state_g);
-
-		//Asignamos a cada variable el correspondiente valor set o reset de la UNIDAD
-		state_a = counter_a(unidad);
-		state_b = counter_b(unidad);
-		state_c = counter_c(unidad);
-		state_d = counter_d(unidad);
-		state_e = counter_e(unidad);
-		state_f = counter_f(unidad);
-		state_g = counter_g(unidad);
-
-		//Ejecutamos la configuración de los pines para la UNIDAD
-		gpio_WritePin(&userLed01, state_a);
-		gpio_WritePin(&userLed02, state_b);
-		gpio_WritePin(&userLed03, state_c);
-		gpio_WritePin(&userLed04, state_d);
-		gpio_WritePin(&userLed05, state_e);
-		gpio_WritePin(&userLed06, state_f);
-		gpio_WritePin(&userLed07, state_g);
-
-	}
-
 	//Sumamos el valor del counter para garantizar la cuenta ascentente
 	counter_i = counter_i +1;
 
-	//Delimitamos que el número máximo hasta el cual se contará es 59
-	if(counter_i == 60){
-		counter_i = 0;
-	}
 }
 
 /*
