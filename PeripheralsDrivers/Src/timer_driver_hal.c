@@ -253,6 +253,30 @@ void timer_SetState(Timer_Handler_t *pTimerHandler, uint8_t newState){
 __attribute__((weak)) void Timer2_Callback(void){
 	__NOP();
 }
+/**/
+__attribute__((weak)) void Timer3_Callback(void){
+	__NOP();
+}
+/**/
+__attribute__((weak)) void Timer4_Callback(void){
+	__NOP();
+}
+/**/
+__attribute__((weak)) void Timer5_Callback(void){
+	__NOP();
+}
+/**/
+__attribute__((weak)) void Timer9_Callback(void){
+	__NOP();
+}
+/**/
+__attribute__((weak)) void Timer10_Callback(void){
+	__NOP();
+}
+/**/
+__attribute__((weak)) void Timer11_Callback(void){
+	__NOP();
+}
 
 /*Esta es la función a la que apunta el sistema en el vector de interrupciones.
  * Se debe utilizar usando exactamente el mismo nombre definido en el vector de interrupción.
@@ -267,3 +291,58 @@ void TIM2_IRQHandler(void){
 	Timer2_Callback();
 
 }
+
+void TIM3_IRQHandler(void){
+	/* Limpiamos la bandera que indica que la interrupción se ha generado */
+	TIM3->SR &= ~TIM_SR_UIF;
+
+	/* Llamamos a la función que se debe encargar de hacer algo con esta interrupción */
+	Timer3_Callback();
+
+}
+
+void TIM4_IRQHandler(void){
+	/* Limpiamos la bandera que indica que la interrupción se ha generado */
+	TIM4->SR &= ~TIM_SR_UIF;
+
+	/* Llamamos a la función que se debe encargar de hacer algo con esta interrupción */
+	Timer4_Callback();
+
+}
+
+void TIM5_IRQHandler(void){
+	/* Limpiamos la bandera que indica que la interrupción se ha generado */
+	TIM5->SR &= ~TIM_SR_UIF;
+
+	/* Llamamos a la función que se debe encargar de hacer algo con esta interrupción */
+	Timer5_Callback();
+
+}
+
+void TIM9_IRQHandler(void){
+	/* Limpiamos la bandera que indica que la interrupción se ha generado */
+	TIM9->SR &= ~TIM_SR_UIF;
+
+	/* Llamamos a la función que se debe encargar de hacer algo con esta interrupción */
+	Timer9_Callback();
+
+}
+
+void TIM10_IRQHandler(void){
+	/* Limpiamos la bandera que indica que la interrupción se ha generado */
+	TIM10->SR &= ~TIM_SR_UIF;
+
+	/* Llamamos a la función que se debe encargar de hacer algo con esta interrupción */
+	Timer10_Callback();
+
+}
+
+void TIM11_IRQHandler(void){
+	/* Limpiamos la bandera que indica que la interrupción se ha generado */
+	TIM11->SR &= ~TIM_SR_UIF;
+
+	/* Llamamos a la función que se debe encargar de hacer algo con esta interrupción */
+	Timer11_Callback();
+
+}
+
