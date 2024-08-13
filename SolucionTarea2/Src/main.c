@@ -13,8 +13,8 @@
 #include "timer_driver_hal.h"
 
 //Definimos pines a utilizar
-GPIO_Handler_t userLed      = {0}; //PinA5 ()
-GPIO_Handler_t userLed00    = {0}; //PinH1
+GPIO_Handler_t userLed      = {0}; //PinA5 (Led para verificación de correcto funcionamiento)
+GPIO_Handler_t userLed00    = {0}; //PinH1 (Led de estado)
 GPIO_Handler_t userLed01    = {0}; //PinC12 (led "a")
 GPIO_Handler_t userLed02    = {0}; //PinA12 (led "b")
 GPIO_Handler_t userLed03    = {0}; //PinC6  (led "c")
@@ -25,7 +25,13 @@ GPIO_Handler_t userLed07    = {0}; //PinC10 (led "g")
 GPIO_Handler_t vcc_uni      = {0}; //PinA0
 GPIO_Handler_t vcc_dec      = {0}; //PinB12
 
-Timer_Handler_t blinkTimer = {0};
+//Definimos timers a utilizar
+Timer_Handler_t blinkTimer   = {0}; // Timer para el blinking
+Timer_Handler_t displayTimer = {0}; // Timer asociado al display del siete segmentos
+Timer_Handler_t controlTimer = {0}; // Timer asociado al control del tiempo
+
+// Definimos variable para activar contador
+uint8_t counter_i = 0;
 
 //Definición función para configuración inicial
 void initialConfig();
@@ -80,6 +86,7 @@ void initialConfig(){
 		//Ejecutamos la configuración realizada en H1
 		gpio_WritePin(&userLed00, SET);
 
+		//Configuración Timer2 --> blinking
 		blinkTimer.pTIMx                             = TIM2;
 		blinkTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 1 ms
 		blinkTimer.TIMx_Config.TIMx_Period           = 250;     //De la mano con el prescaler...
@@ -218,8 +225,31 @@ void initialConfig(){
 		//Cargamos la configuración en los registros que gobiernan el puerto
 		gpio_Config(&vcc_dec);
 
-		// Definimos variable para activar contador
-		//uint8_t counter_i = 0;
+		//Configuración Timer3 --> display del siete segmentos
+		displayTimer.pTIMx                             = TIM3;
+		displayTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 1 ms
+		displayTimer.TIMx_Config.TIMx_Period           = 250;     //De la mano con el prescaler...
+		displayTimer.TIMx_Config.TIMx_mode             = TIMER_UP_COUNTER;
+		displayTimer.TIMx_Config.TIMx_InterruptEnable  = TIMER_INT_ENABLE;
+
+		/* Configuramos el Timer */
+		timer_Config(&displayTimer);
+
+		//Encendemos el Timer
+		timer_SetState(&displayTimer, TIMER_ON);
+
+		//Configuración Timer5 --> control del tiempo
+		controlTimer.pTIMx                             = TIM5;
+		controlTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 1 ms
+		controlTimer.TIMx_Config.TIMx_Period           = 500;     //De la mano con el prescaler...
+		controlTimer.TIMx_Config.TIMx_mode             = TIMER_UP_COUNTER;
+		controlTimer.TIMx_Config.TIMx_InterruptEnable  = TIMER_INT_ENABLE;
+
+		/* Configuramos el Timer */
+		timer_Config(&controlTimer);
+
+		//Encendemos el Timer
+		timer_SetState(&controlTimer, TIMER_ON);
 }
 
 //Definimos función para modo set o reset de los pines con respecto al número (0 a 9)
@@ -439,6 +469,18 @@ uint32_t counter_g(uint8_t counterSieteg){
  * */
 void Timer2_Callback(void){
 	gpio_TooglePin(&userLed00);
+}
+/*
+ * Overwrite function for display del siete segmentos
+ * */
+void Timer3_Callback(void){
+
+}
+/*
+ * Overwrite function for control del tiempo
+ * */
+void Timer5_Callback(void){
+
 }
 
 /*
