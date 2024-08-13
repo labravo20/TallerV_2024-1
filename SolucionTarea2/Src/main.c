@@ -20,8 +20,8 @@ GPIO_Handler_t userLed02    = {0}; //PinA12 (led "b")
 GPIO_Handler_t userLed03    = {0}; //PinC6  (led "c")
 GPIO_Handler_t userLed04    = {0}; //PinB13 (led "d")
 GPIO_Handler_t userLed05    = {0}; //PinB10 (led "e")
-GPIO_Handler_t userLed06    = {0}; //PinB7  (led "f")
-GPIO_Handler_t userLed07    = {0}; //PinC10 (led "g")
+GPIO_Handler_t userLed06    = {0}; //PinB7  (led "g")
+GPIO_Handler_t userLed07    = {0}; //PinC10 (led "f")
 GPIO_Handler_t vcc_uni      = {0}; //PinB12
 GPIO_Handler_t vcc_dec      = {0}; //PinA0
 
@@ -513,6 +513,7 @@ uint32_t counter_e(uint8_t counterSietee){
 	return pinLed_e;
 }
 
+//NOTA IMPORTANTE: En referencia usada de siete segmentos g <--> f se intercambian (respecto a los convencionales mostrados en la guia)
 //Definiendo función para el Led "f"
 uint32_t counter_g(uint8_t counterSieteg){
 
