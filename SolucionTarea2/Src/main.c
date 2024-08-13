@@ -33,6 +33,19 @@ Timer_Handler_t controlTimer = {0}; // Timer asociado al control del tiempo
 // Definimos variable para activar contador
 uint8_t counter_i = 0;
 
+//Definimos variables para cargar valor de set y reset de los LEDs
+uint8_t state_a = 0;
+uint8_t state_b = 0;
+uint8_t state_c = 0;
+uint8_t state_d = 0;
+uint8_t state_e = 0;
+uint8_t state_f = 0;
+uint8_t state_g = 0;
+
+//Definimos varible para cargar valor de la unidad y la decena del numero a representar
+uint8_t unidad = 0;
+uint8_t decena = 0;
+
 //Definición función para configuración inicial
 void initialConfig();
 
@@ -228,7 +241,7 @@ void initialConfig(){
 		//Configuración Timer3 --> display del siete segmentos
 		displayTimer.pTIMx                             = TIM3;
 		displayTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 1 ms
-		displayTimer.TIMx_Config.TIMx_Period           = 250;     //De la mano con el prescaler...
+		displayTimer.TIMx_Config.TIMx_Period           = 500;     //De la mano con el prescaler...
 		displayTimer.TIMx_Config.TIMx_mode             = TIMER_UP_COUNTER;
 		displayTimer.TIMx_Config.TIMx_InterruptEnable  = TIMER_INT_ENABLE;
 
@@ -475,12 +488,102 @@ void Timer2_Callback(void){
  * */
 void Timer3_Callback(void){
 
+	//Pasamos a verficiar si el valor del counter requiere la representación de los dos dígitos o no
+	if((counter_i/10) < 1){
+
+		//Activamos unicamente vcc de las unidades del site segmentos
+		gpio_WritePin(&vcc_uni, SET);
+		gpio_WritePin(&vcc_dec, RESET);
+
+	} else{
+
+		//Activamos AMBOS vcc del siete segmentos para tener en cuenta decenas y unidades
+		//gpio_WritePin(&vcc_uni, SET);
+		//gpio_WritePin(&vcc_dec, RESET);
+
+	}
+
+	//counter_i += 1;
+
 }
 /*
  * Overwrite function for control del tiempo
  * */
 void Timer5_Callback(void){
 
+	//Llamamos activación de los LEDs dependiento del valor del counter
+	if(counter_i<10){
+
+		//Asignamos a cada variable el correspondiente valor de set o reset
+		state_a = counter_a(counter_i);
+		state_b = counter_b(counter_i);
+		state_c = counter_c(counter_i);
+		state_d = counter_d(counter_i);
+		state_e = counter_e(counter_i);
+		state_f = counter_f(counter_i);
+		state_g = counter_g(counter_i);
+
+		//Ejecutamos la configuración de los pines
+		gpio_WritePin(&userLed01, state_a);
+		gpio_WritePin(&userLed02, state_b);
+		gpio_WritePin(&userLed03, state_c);
+		gpio_WritePin(&userLed04, state_d);
+		gpio_WritePin(&userLed05, state_e);
+		gpio_WritePin(&userLed06, state_f);
+		gpio_WritePin(&userLed07, state_g);
+
+	} else{
+
+		// Construimos relación para identificar el valor de la unidad del número
+		unidad = counter_i%10;
+		// Construimos relación para identificar el valor de la decena del número
+		decena = (counter_i) - unidad;
+
+		//Asignamos a cada variable el correspondiente valor set o reset de la DECENA
+		state_a = counter_a(decena/10);
+		state_b = counter_b(decena/10);
+		state_c = counter_c(decena/10);
+		state_d = counter_d(decena/10);
+		state_e = counter_e(decena/10);
+		state_f = counter_f(decena/10);
+		state_g = counter_g(decena/10);
+
+		//Ejecutamos la configuración de los pines para la DECENA
+		gpio_WritePin(&userLed01, state_a);
+		gpio_WritePin(&userLed02, state_b);
+		gpio_WritePin(&userLed03, state_c);
+		gpio_WritePin(&userLed04, state_d);
+		gpio_WritePin(&userLed05, state_e);
+		gpio_WritePin(&userLed06, state_f);
+		gpio_WritePin(&userLed07, state_g);
+
+		//Asignamos a cada variable el correspondiente valor set o reset de la UNIDAD
+		state_a = counter_a(unidad);
+		state_b = counter_b(unidad);
+		state_c = counter_c(unidad);
+		state_d = counter_d(unidad);
+		state_e = counter_e(unidad);
+		state_f = counter_f(unidad);
+		state_g = counter_g(unidad);
+
+		//Ejecutamos la configuración de los pines para la UNIDAD
+		gpio_WritePin(&userLed01, state_a);
+		gpio_WritePin(&userLed02, state_b);
+		gpio_WritePin(&userLed03, state_c);
+		gpio_WritePin(&userLed04, state_d);
+		gpio_WritePin(&userLed05, state_e);
+		gpio_WritePin(&userLed06, state_f);
+		gpio_WritePin(&userLed07, state_g);
+
+	}
+
+	//Sumamos el valor del counter para garantizar la cuenta ascentente
+	counter_i = counter_i +1;
+
+	//Delimitamos que el número máximo hasta el cual se contará es 59
+	if(counter_i == 60){
+		counter_i = 0;
+	}
 }
 
 /*
