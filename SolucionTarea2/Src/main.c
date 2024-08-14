@@ -373,7 +373,10 @@ void initialConfig(){
 }
 
 //Definimos función para modo set o reset de los pines con respecto al número (0 a 9)
-// === Se van a construir varias funciones cada una estudiando el estado del pin individual (7 pines)
+// == NOTA importante: Debido a que el siete segmentos a utilizar es de ánodo común
+// == entonces necesitamos generar conexión a tierra, en lugar de alimentación, para
+// == lograr la activación de los mismos, es decir que en este caso SET = 0 y RESET = 1
+// ==== Se van a construir varias funciones cada una estudiando el estado del pin individual (7 pines)
 
 //Definiendo función para el Led "a"
 uint32_t counter_a(uint8_t counterSietea){
