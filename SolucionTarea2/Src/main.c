@@ -77,6 +77,10 @@ int main(void)
 			if((counter_i) < 10){
 
 				//Activamos unicamente vcc de las unidades del site segmentos
+				// == NOTA importante: Debido a que el siete segmentos a utilizar es de ánodo común
+				// == entonces necesitamos generar conexión a tierra, en lugar de alimentación, para
+				// == lograr la activación de los mismos pines, es decir que en este caso
+				// == ponemos SET para desactivar y RESET para activar.
 				gpio_WritePin(&vcc_dec, SET);
 				gpio_WritePin(&vcc_uni, RESET);
 
@@ -110,6 +114,10 @@ int main(void)
 				if(posicion == 1){
 
 					//Activamos vcc del siete segmentos para tener en cuenta decenas
+					// == NOTA importante: Debido a que el siete segmentos a utilizar es de ánodo común
+					// == entonces necesitamos generar conexión a tierra, en lugar de alimentación, para
+					// == lograr la activación de los mismos pines, es decir que en este caso
+					// == ponemos SET para desactivar y RESET para activar
 					gpio_WritePin(&vcc_uni, SET);
 					gpio_WritePin(&vcc_dec, RESET);
 
@@ -135,6 +143,10 @@ int main(void)
 				} else{
 
 					//Activamos vcc del siete segmentos para tener en cuenta unidades
+					// == NOTA importante: Debido a que el siete segmentos a utilizar es de ánodo común
+					// == entonces necesitamos generar conexión a tierra, en lugar de alimentación, para
+					// == lograr la activación de los mismos pines, es decir que en este caso
+					// == ponemos SET para desactivar y RESET para activar
 					gpio_WritePin(&vcc_dec, SET);
 					gpio_WritePin(&vcc_uni, RESET);
 
@@ -375,7 +387,7 @@ void initialConfig(){
 //Definimos función para modo set o reset de los pines con respecto al número (0 a 9)
 // == NOTA importante: Debido a que el siete segmentos a utilizar es de ánodo común
 // == entonces necesitamos generar conexión a tierra, en lugar de alimentación, para
-// == lograr la activación de los mismos, es decir que en este caso SET = 0 y RESET = 1
+// == lograr la activación de los mismos pines, es decir que en este caso SET = 0 y RESET = 1
 // ==== Se van a construir varias funciones cada una estudiando el estado del pin individual (7 pines)
 
 //Definiendo función para el Led "a"
