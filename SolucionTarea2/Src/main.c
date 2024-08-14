@@ -69,6 +69,7 @@ int main(void)
 
 				// Generamos condicional para representar numero en posición unidad o decena del siete segmentos
 
+				//Condición para representar decena:
 				if(posicion == 1){
 
 					//Activamos vcc del siete segmentos para tener en cuenta decenas
@@ -117,6 +118,7 @@ int main(void)
 
 				// Generamos condicional para representar numero en posición unidad o decena del siete segmentos
 
+				// Condición para representar decena:
 				if(posicion == 1){
 
 					//Activamos vcc del siete segmentos para tener en cuenta decenas
@@ -160,6 +162,7 @@ int main(void)
 
 			//Delimitamos que el número máximo hasta el cual se contará es 59
 			if(counter_i == 60){
+				//Reiniciamos el contador para repetir el ciclo de cuenta
 				counter_i = 0;
 			}
 
@@ -343,10 +346,12 @@ void initialConfig(){
 		//Cargamos la configuración en los registros que gobiernan el puerto
 		gpio_Config(&vcc_dec);
 
+		//A continuación se está realizando la configuración de los timers a usar
+
 		//Configuración Timer3 --> display del siete segmentos
 		displayTimer.pTIMx                             = TIM3;
-		displayTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 1 ms
-		displayTimer.TIMx_Config.TIMx_Period           = 10;     //De la mano con el prescaler...
+		displayTimer.TIMx_Config.TIMx_Prescaler        = 16000;
+		displayTimer.TIMx_Config.TIMx_Period           = 10;
 		displayTimer.TIMx_Config.TIMx_mode             = TIMER_UP_COUNTER;
 		displayTimer.TIMx_Config.TIMx_InterruptEnable  = TIMER_INT_ENABLE;
 
@@ -358,7 +363,7 @@ void initialConfig(){
 
 		//Configuración Timer5 --> control del tiempo
 		controlTimer.pTIMx                             = TIM5;
-		controlTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 1 ms
+		controlTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 1 s
 		controlTimer.TIMx_Config.TIMx_Period           = 1000;     //De la mano con el prescaler...
 		controlTimer.TIMx_Config.TIMx_mode             = TIMER_UP_COUNTER;
 		controlTimer.TIMx_Config.TIMx_InterruptEnable  = TIMER_INT_ENABLE;
