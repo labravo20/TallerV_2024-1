@@ -22,8 +22,8 @@ GPIO_Handler_t userLed04    = {0}; //PinB13 (led "d")
 GPIO_Handler_t userLed05    = {0}; //PinB10 (led "e")
 GPIO_Handler_t userLed06    = {0}; //PinB7  (led "g")
 GPIO_Handler_t userLed07    = {0}; //PinC10 (led "f")
-GPIO_Handler_t vcc_uni      = {0}; //PinB12
-GPIO_Handler_t vcc_dec      = {0}; //PinA0
+GPIO_Handler_t vcc_dec      = {0}; //PinB12
+GPIO_Handler_t vcc_uni      = {0}; //PinA0
 
 //Definimos timers a utilizar
 Timer_Handler_t blinkTimer   = {0}; // Timer para el blinking
@@ -77,8 +77,8 @@ int main(void)
 			if((counter_i) < 10){
 
 				//Activamos unicamente vcc de las unidades del site segmentos
-				gpio_WritePin(&vcc_dec, RESET);
-				gpio_WritePin(&vcc_uni, SET);
+				gpio_WritePin(&vcc_dec, SET);
+				gpio_WritePin(&vcc_uni, RESET);
 
 				//Asignamos a cada variable el correspondiente valor de set o reset
 				state_a = counter_a(counter_i);
@@ -110,8 +110,8 @@ int main(void)
 				if(posicion == 1){
 
 					//Activamos vcc del siete segmentos para tener en cuenta decenas
-					gpio_WritePin(&vcc_uni, RESET);
-					gpio_WritePin(&vcc_dec, SET);
+					gpio_WritePin(&vcc_uni, SET);
+					gpio_WritePin(&vcc_dec, RESET);
 
 
 					//Asignamos a cada variable el correspondiente valor set o reset de la DECENA
@@ -135,8 +135,8 @@ int main(void)
 				} else{
 
 					//Activamos vcc del siete segmentos para tener en cuenta unidades
-					gpio_WritePin(&vcc_dec, RESET);
-					gpio_WritePin(&vcc_uni, SET);
+					gpio_WritePin(&vcc_dec, SET);
+					gpio_WritePin(&vcc_uni, RESET);
 
 
 					//Asignamos a cada variable el correspondiente valor set o reset de la UNIDAD
@@ -323,9 +323,9 @@ void initialConfig(){
 		//Cargamos ahora la configuración respectiva para los pines de alimentación de los vcc
 		//de los transistores que componen el circuito del siete segmentos.
 
-		/* Configuramos el pin B12 --> vcc unidad*/
-		vcc_uni.pGPIOx                         = GPIOB;
-		vcc_uni.pinConfig.GPIO_PinNumber       = PIN_12;
+		/* Configuramos el pin A0 --> vcc unidad*/
+		vcc_uni.pGPIOx                         = GPIOA;
+		vcc_uni.pinConfig.GPIO_PinNumber       = PIN_0;
 		vcc_uni.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
 		vcc_uni.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
 		vcc_uni.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
@@ -334,9 +334,9 @@ void initialConfig(){
 		//Cargamos la configuración en los registros que gobiernan el puerto
 		gpio_Config(&vcc_uni);
 
-		/* Configuramos el pin A0 --> vcc decimal*/
-		vcc_dec.pGPIOx                         = GPIOA;
-		vcc_dec.pinConfig.GPIO_PinNumber       = PIN_0;
+		/* Configuramos el pin B12 --> vcc decimal*/
+		vcc_dec.pGPIOx                         = GPIOB;
+		vcc_dec.pinConfig.GPIO_PinNumber       = PIN_12;
 		vcc_dec.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
 		vcc_dec.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
 		vcc_dec.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
