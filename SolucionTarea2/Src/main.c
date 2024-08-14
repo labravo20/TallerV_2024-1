@@ -42,15 +42,6 @@ uint32_t counter_e(uint8_t counterSietee);
 uint32_t counter_f(uint8_t counterSietef);
 uint32_t counter_g(uint8_t counterSieteg);
 
-//Definimos variables para cargar valor de set y reset de los LEDs
-uint8_t state_a = 0;
-uint8_t state_b = 0;
-uint8_t state_c = 0;
-uint8_t state_d = 0;
-uint8_t state_e = 0;
-uint8_t state_f = 0;
-uint8_t state_g = 0;
-
 //Definimos varible para cargar valor de la unidad y la decena del numero a representar
 uint8_t unidad = 0;
 uint8_t decena = 0;
@@ -76,31 +67,46 @@ int main(void)
 		//Pasamos a verficiar si el valor del counter requiere la representación de los dos dígitos o no
 			if((counter_i) < 10){
 
-				//Activamos unicamente vcc de las unidades del site segmentos
-				// == NOTA importante: Debido a que el siete segmentos a utilizar es de ánodo común
-				// == entonces necesitamos generar conexión a tierra, en lugar de alimentación, para
-				// == lograr la activación de los mismos pines, es decir que en este caso
-				// == ponemos SET para desactivar y RESET para activar.
-				gpio_WritePin(&vcc_dec, SET);
-				gpio_WritePin(&vcc_uni, RESET);
+				// Generamos condicional para representar numero en posición unidad o decena del siete segmentos
 
-				//Asignamos a cada variable el correspondiente valor de set o reset
-				state_a = counter_a(counter_i);
-				state_b = counter_b(counter_i);
-				state_c = counter_c(counter_i);
-				state_d = counter_d(counter_i);
-				state_e = counter_e(counter_i);
-				state_f = counter_f(counter_i);
-				state_g = counter_g(counter_i);
+				if(posicion == 1){
 
-				//Ejecutamos la configuración de los pines
-				gpio_WritePin(&userLed01, state_a);
-				gpio_WritePin(&userLed02, state_b);
-				gpio_WritePin(&userLed03, state_c);
-				gpio_WritePin(&userLed04, state_d);
-				gpio_WritePin(&userLed05, state_e);
-				gpio_WritePin(&userLed06, state_f);
-				gpio_WritePin(&userLed07, state_g);
+					//Activamos vcc del siete segmentos para tener en cuenta decenas
+					// == NOTA importante: Debido a que el siete segmentos a utilizar es de ánodo común
+					// == entonces necesitamos generar conexión a tierra, en lugar de alimentación, para
+					// == lograr la activación de los mismos pines, es decir que en este caso
+					// == ponemos SET para desactivar y RESET para activar
+					gpio_WritePin(&vcc_uni, SET);
+					gpio_WritePin(&vcc_dec, RESET);
+
+					//Ejecutamos la configuración de los pines para la DECENA
+					gpio_WritePin(&userLed01, counter_a(0));
+					gpio_WritePin(&userLed02, counter_b(0));
+					gpio_WritePin(&userLed03, counter_c(0));
+					gpio_WritePin(&userLed04, counter_d(0));
+					gpio_WritePin(&userLed05, counter_e(0));
+					gpio_WritePin(&userLed06, counter_f(0));
+					gpio_WritePin(&userLed07, counter_g(0));
+
+				} else{
+
+					//Activamos vcc del siete segmentos para tener en cuenta unidades
+					// == NOTA importante: Debido a que el siete segmentos a utilizar es de ánodo común
+					// == entonces necesitamos generar conexión a tierra, en lugar de alimentación, para
+					// == lograr la activación de los mismos pines, es decir que en este caso
+					// == ponemos SET para desactivar y RESET para activar
+					gpio_WritePin(&vcc_dec, SET);
+					gpio_WritePin(&vcc_uni, RESET);
+
+					//Ejecutamos la configuración de los pines para la UNIDAD
+					gpio_WritePin(&userLed01, counter_a(counter_i));
+					gpio_WritePin(&userLed02, counter_b(counter_i));
+					gpio_WritePin(&userLed03, counter_c(counter_i));
+					gpio_WritePin(&userLed04, counter_d(counter_i));
+					gpio_WritePin(&userLed05, counter_e(counter_i));
+					gpio_WritePin(&userLed06, counter_f(counter_i));
+					gpio_WritePin(&userLed07, counter_g(counter_i));
+				}
 
 			} else if((counter_i) >= 10){
 
@@ -121,24 +127,14 @@ int main(void)
 					gpio_WritePin(&vcc_uni, SET);
 					gpio_WritePin(&vcc_dec, RESET);
 
-
-					//Asignamos a cada variable el correspondiente valor set o reset de la DECENA
-					state_a = counter_a(decena/10);
-					state_b = counter_b(decena/10);
-					state_c = counter_c(decena/10);
-					state_d = counter_d(decena/10);
-					state_e = counter_e(decena/10);
-					state_f = counter_f(decena/10);
-					state_g = counter_g(decena/10);
-
 					//Ejecutamos la configuración de los pines para la DECENA
-					gpio_WritePin(&userLed01, state_a);
-					gpio_WritePin(&userLed02, state_b);
-					gpio_WritePin(&userLed03, state_c);
-					gpio_WritePin(&userLed04, state_d);
-					gpio_WritePin(&userLed05, state_e);
-					gpio_WritePin(&userLed06, state_f);
-					gpio_WritePin(&userLed07, state_g);
+					gpio_WritePin(&userLed01, counter_a(decena/10));
+					gpio_WritePin(&userLed02, counter_b(decena/10));
+					gpio_WritePin(&userLed03, counter_c(decena/10));
+					gpio_WritePin(&userLed04, counter_d(decena/10));
+					gpio_WritePin(&userLed05, counter_e(decena/10));
+					gpio_WritePin(&userLed06, counter_f(decena/10));
+					gpio_WritePin(&userLed07, counter_g(decena/10));
 
 				} else{
 
@@ -150,24 +146,14 @@ int main(void)
 					gpio_WritePin(&vcc_dec, SET);
 					gpio_WritePin(&vcc_uni, RESET);
 
-
-					//Asignamos a cada variable el correspondiente valor set o reset de la UNIDAD
-					state_a = counter_a(unidad);
-					state_b = counter_b(unidad);
-					state_c = counter_c(unidad);
-					state_d = counter_d(unidad);
-					state_e = counter_e(unidad);
-					state_f = counter_f(unidad);
-					state_g = counter_g(unidad);
-
 					//Ejecutamos la configuración de los pines para la UNIDAD
-					gpio_WritePin(&userLed01, state_a);
-					gpio_WritePin(&userLed02, state_b);
-					gpio_WritePin(&userLed03, state_c);
-					gpio_WritePin(&userLed04, state_d);
-					gpio_WritePin(&userLed05, state_e);
-					gpio_WritePin(&userLed06, state_f);
-					gpio_WritePin(&userLed07, state_g);
+					gpio_WritePin(&userLed01, counter_a(unidad));
+					gpio_WritePin(&userLed02, counter_b(unidad));
+					gpio_WritePin(&userLed03, counter_c(unidad));
+					gpio_WritePin(&userLed04, counter_d(unidad));
+					gpio_WritePin(&userLed05, counter_e(unidad));
+					gpio_WritePin(&userLed06, counter_f(unidad));
+					gpio_WritePin(&userLed07, counter_g(unidad));
 				}
 
 			}
