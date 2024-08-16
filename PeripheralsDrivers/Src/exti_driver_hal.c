@@ -962,7 +962,208 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 		}
 	}
+	//REVISAR!!!
+	else if(extiConfig->edgeType == EXTERNAL_INTERRUPT_RISING_AND_FALLING_EDGE){
+			/* Rising and falling Trigger selection register*/
 
+			// Select TRx for rising and falling Trigger event configuration bit of line x
+			// Se está interpretanto el número del pin x en uso cómo la relación con el "bit of line x"
+			switch (extiConfig->pGPIOHandler->pinConfig.GPIO_PinNumber) {
+
+			//Configuramos para el pin 0
+			case 0: {
+
+				// Limpiamos primero las posiciones que deseamos configurar
+				EXTI->RTSR &= ~(EXTI_RTSR_TR0);
+				EXTI->FTSR &= ~(EXTI_FTSR_TR0);
+
+				//Rising and falling trigger enabled for input line.
+				EXTI->RTSR |= (EXTI_RTSR_TR0);
+				EXTI->FTSR |= (EXTI_FTSR_TR0);
+			}
+
+			//Configuramos para el pin 1
+			case 1: {
+
+				// Limpiamos primero las posiciones que deseamos configurar
+				EXTI->RTSR &= ~(EXTI_RTSR_TR1);
+				EXTI->FTSR &= ~(EXTI_FTSR_TR1);
+
+				//Rising and falling trigger enabled for input line.
+				EXTI->RTSR |= (EXTI_RTSR_TR1);
+				EXTI->FTSR |= (EXTI_FTSR_TR1);
+			}
+
+			//Configuramos para el pin 2
+			case 2: {
+
+				// Limpiamos primero las posiciones que deseamos configurar
+				EXTI->RTSR &= ~(EXTI_RTSR_TR2);
+				EXTI->FTSR &= ~(EXTI_FTSR_TR2);
+
+				//Rising and falling trigger enabled for input line.
+				EXTI->RTSR |= (EXTI_RTSR_TR2);
+				EXTI->FTSR |= (EXTI_FTSR_TR2);
+			}
+
+			//Configuramos para el pin 3
+			case 3: {
+
+				// Limpiamos primero las posiciones que deseamos configurar
+				EXTI->RTSR &= ~(EXTI_RTSR_TR3);
+				EXTI->FTSR &= ~(EXTI_FTSR_TR3);
+
+				//Rising and falling trigger enabled for input line.
+				EXTI->RTSR |= (EXTI_RTSR_TR3);
+				EXTI->FTSR |= (EXTI_FTSR_TR3);
+			}
+
+			//Configuramos para el pin 4
+			case 4: {
+
+				// Limpiamos primero las posiciones que deseamos configurar
+				EXTI->RTSR &= ~(EXTI_RTSR_TR4);
+				EXTI->FTSR &= ~(EXTI_FTSR_TR4);
+
+				//Rising and falling trigger enabled for input line.
+				EXTI->RTSR |= (EXTI_RTSR_TR4);
+				EXTI->FTSR |= (EXTI_FTSR_TR4);
+			}
+
+			//Configuramos para el pin 5
+			case 5: {
+
+				// Limpiamos primero las posiciones que deseamos configurar
+				EXTI->RTSR &= ~(EXTI_RTSR_TR5);
+				EXTI->FTSR &= ~(EXTI_FTSR_TR5);
+
+				//Rising and falling trigger enabled for input line.
+				EXTI->RTSR |= (EXTI_RTSR_TR5);
+				EXTI->FTSR |= (EXTI_FTSR_TR5);
+			}
+
+			//Configuramos para el pin 6
+			case 6: {
+
+				// Limpiamos primero las posiciones que deseamos configurar
+				EXTI->RTSR &= ~(EXTI_RTSR_TR6);
+				EXTI->FTSR &= ~(EXTI_FTSR_TR6);
+
+				//Rising and falling trigger enabled for input line.
+				EXTI->RTSR |= (EXTI_RTSR_TR6);
+				EXTI->FTSR |= (EXTI_FTSR_TR6);
+			}
+
+			//Configuramos para el pin 7
+			case 7: {
+
+				// Limpiamos primero las posiciones que deseamos configurar
+				EXTI->RTSR &= ~(EXTI_RTSR_TR7);
+				EXTI->FTSR &= ~(EXTI_FTSR_TR7);
+
+				//Rising and falling trigger enabled for input line.
+				EXTI->RTSR |= (EXTI_RTSR_TR7);
+				EXTI->FTSR |= (EXTI_FTSR_TR7);
+			}
+
+			//Configuramos para el pin 8
+			case 8: {
+
+				// Limpiamos primero las posiciones que deseamos configurar
+				EXTI->RTSR &= ~(EXTI_RTSR_TR8);
+				EXTI->FTSR &= ~(EXTI_FTSR_TR8);
+
+				//Rising and falling trigger enabled for input line.
+				EXTI->RTSR |= (EXTI_RTSR_TR8);
+				EXTI->FTSR |= (EXTI_FTSR_TR8);
+			}
+
+			//Configuramos para el pin 9
+			case 9: {
+
+				// Limpiamos primero las posiciones que deseamos configurar
+				EXTI->RTSR &= ~(EXTI_RTSR_TR9);
+				EXTI->FTSR &= ~(EXTI_FTSR_TR9);
+
+				//Rising and falling trigger enabled for input line.
+				EXTI->RTSR |= (EXTI_RTSR_TR9);
+				EXTI->FTSR |= (EXTI_FTSR_TR9);
+			}
+
+			//Configuramos para el pin 10
+			case 10: {
+
+				// Limpiamos primero las posiciones que deseamos configurar
+				EXTI->RTSR &= ~(EXTI_RTSR_TR10);
+				EXTI->FTSR &= ~(EXTI_FTSR_TR10);
+
+				//Rising and falling trigger enabled for input line.
+				EXTI->RTSR |= (EXTI_RTSR_TR10);
+				EXTI->FTSR |= (EXTI_FTSR_TR10);
+			}
+
+			//Configuramos para el pin 11
+			case 11: {
+
+				// Limpiamos primero las posiciones que deseamos configurar
+				EXTI->RTSR &= ~(EXTI_RTSR_TR11);
+				EXTI->FTSR &= ~(EXTI_FTSR_TR11);
+
+				//Rising and falling trigger enabled for input line.
+				EXTI->RTSR |= (EXTI_RTSR_TR11);
+				EXTI->FTSR |= (EXTI_FTSR_TR11);
+			}
+
+			//Configuramos para el pin 12
+			case 12: {
+
+				// Limpiamos primero las posiciones que deseamos configurar
+				EXTI->RTSR &= ~(EXTI_RTSR_TR12);
+				EXTI->FTSR &= ~(EXTI_FTSR_TR12);
+
+				//Rising and falling trigger enabled for input line.
+				EXTI->RTSR |= (EXTI_RTSR_TR12);
+				EXTI->FTSR |= (EXTI_FTSR_TR12);
+			}
+
+			//Configuramos para el pin 13
+			case 13: {
+
+				// Limpiamos primero las posiciones que deseamos configurar
+				EXTI->RTSR &= ~(EXTI_RTSR_TR13);
+				EXTI->FTSR &= ~(EXTI_FTSR_TR13);
+
+				//Rising and falling trigger enabled for input line.
+				EXTI->RTSR |= (EXTI_RTSR_TR13);
+				EXTI->FTSR |= (EXTI_FTSR_TR13);
+			}
+
+			//Configuramos para el pin 14
+			case 14: {
+
+				// Limpiamos primero las posiciones que deseamos configurar
+				EXTI->RTSR &= ~(EXTI_RTSR_TR14);
+				EXTI->FTSR &= ~(EXTI_FTSR_TR14);
+
+				//Rising and falling trigger enabled for input line.
+				EXTI->RTSR |= (EXTI_RTSR_TR14);
+				EXTI->FTSR |= (EXTI_FTSR_TR14);
+			}
+
+			//Configuramos para el pin 15
+			case 15: {
+
+				// Limpiamos primero las posiciones que deseamos configurar
+				EXTI->RTSR &= ~(EXTI_RTSR_TR15);
+				EXTI->FTSR &= ~(EXTI_FTSR_TR15);
+
+				//Rising and falling trigger enabled for input line.
+				EXTI->RTSR |= (EXTI_RTSR_TR15);
+				EXTI->FTSR |= (EXTI_FTSR_TR15);
+			}
+
+			}
+		}
 }
 
 /*
