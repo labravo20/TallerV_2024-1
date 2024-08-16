@@ -34,13 +34,13 @@ void exti_Config(EXTI_Config_t *extiConfig){
 	exti_select_edge(extiConfig);
 
 	/* 5.0 Desactivo primero las interrupciones globales */
-	__disable_irq(); //REVISAR!!!
+	__disable_irq();
 
 	/* 6. 0 Manejo de Interrupciones */
 	exti_config_interrupt(extiConfig);
 
 	/* 7.0 Volvemos a activar las interrupciones globales */
-	__enable_irq(); //REVISAR!!!
+	__enable_irq();
 }
 
 /*
@@ -104,27 +104,27 @@ static void exti_assign_channel(EXTI_Config_t *extiConfig){
 
 			/* SYSCFG_EXTICR1 */
 			// Limpiamos primero la posición que deseamos configurar
-			SYSCFG->EXTICR[1] &= ~(0xF << SYSCFG_EXTICR1_EXTI1_Pos);
+			SYSCFG->EXTICR[0] &= ~(0xF << SYSCFG_EXTICR1_EXTI1_Pos);
 
 			// Ahora seleccionamos el valor a cargar en la posición, segun sea la selección
 			// del puerto que vamos a utilizar: GPIOA_0, ó GPIOB_0, ó GPIOC_0, etc
 			if (extiConfig->pGPIOHandler->pGPIOx == GPIOA) {
-				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR1_EXTI1_PA);
+				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR1_EXTI1_PA);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOB) {
-				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR1_EXTI1_PB);
+				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR1_EXTI1_PB);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOC) {
-				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR1_EXTI1_PC);
+				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR1_EXTI1_PC);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOD) {
-				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR1_EXTI1_PD);
+				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR1_EXTI1_PD);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOE) {
-				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR1_EXTI1_PE);
+				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR1_EXTI1_PE);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOH) {
-				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR1_EXTI1_PH);
+				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR1_EXTI1_PH);
 
 			} else {
 				__NOP();
@@ -138,27 +138,27 @@ static void exti_assign_channel(EXTI_Config_t *extiConfig){
 
 			/* SYSCFG_EXTICR1 */
 			// Limpiamos primero la posición que deseamos configurar
-			SYSCFG->EXTICR[2] &= ~(0xF << SYSCFG_EXTICR1_EXTI2_Pos);
+			SYSCFG->EXTICR[0] &= ~(0xF << SYSCFG_EXTICR1_EXTI2_Pos);
 
 			// Ahora seleccionamos el valor a cargar en la posición, segun sea la selección
 			// del puerto que vamos a utilizar: GPIOA_0, ó GPIOB_0, ó GPIOC_0, etc
 			if (extiConfig->pGPIOHandler->pGPIOx == GPIOA) {
-				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR1_EXTI2_PA);
+				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR1_EXTI2_PA);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOB) {
-				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR1_EXTI2_PB);
+				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR1_EXTI2_PB);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOC) {
-				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR1_EXTI2_PC);
+				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR1_EXTI2_PC);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOD) {
-				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR1_EXTI2_PD);
+				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR1_EXTI2_PD);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOE) {
-				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR1_EXTI2_PE);
+				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR1_EXTI2_PE);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOH) {
-				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR1_EXTI2_PH);
+				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR1_EXTI2_PH);
 
 			} else {
 				__NOP();
@@ -172,27 +172,27 @@ static void exti_assign_channel(EXTI_Config_t *extiConfig){
 
 			/* SYSCFG_EXTICR1 */
 			// Limpiamos primero la posición que deseamos configurar
-			SYSCFG->EXTICR[3] &= ~(0xF << SYSCFG_EXTICR1_EXTI3_Pos);
+			SYSCFG->EXTICR[0] &= ~(0xF << SYSCFG_EXTICR1_EXTI3_Pos);
 
 			// Ahora seleccionamos el valor a cargar en la posición, segun sea la selección
 			// del puerto que vamos a utilizar: GPIOA_0, ó GPIOB_0, ó GPIOC_0, etc
 			if (extiConfig->pGPIOHandler->pGPIOx == GPIOA) {
-				SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR1_EXTI3_PA);
+				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR1_EXTI3_PA);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOB) {
-				SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR1_EXTI3_PB);
+				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR1_EXTI3_PB);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOC) {
-				SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR1_EXTI3_PC);
+				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR1_EXTI3_PC);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOD) {
-				SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR1_EXTI3_PD);
+				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR1_EXTI3_PD);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOE) {
-				SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR1_EXTI3_PE);
+				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR1_EXTI3_PE);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOH) {
-				SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR1_EXTI3_PH);
+				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR1_EXTI3_PH);
 
 			} else {
 				__NOP();
@@ -206,27 +206,27 @@ static void exti_assign_channel(EXTI_Config_t *extiConfig){
 
 			/* SYSCFG_EXTICR2 */
 			// Limpiamos primero la posición que deseamos configurar
-			SYSCFG->EXTICR[0] &= ~(0xF << SYSCFG_EXTICR2_EXTI4_Pos);
+			SYSCFG->EXTICR[1] &= ~(0xF << SYSCFG_EXTICR2_EXTI4_Pos);
 
 			// Ahora seleccionamos el valor a cargar en la posición, segun sea la selección
 			// del puerto que vamos a utilizar: GPIOA_0, ó GPIOB_0, ó GPIOC_0, etc
 			if (extiConfig->pGPIOHandler->pGPIOx == GPIOA) {
-				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR2_EXTI4_PA);
+				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR2_EXTI4_PA);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOB) {
-				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR2_EXTI4_PB);
+				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR2_EXTI4_PB);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOC) {
-				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR2_EXTI4_PC);
+				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR2_EXTI4_PC);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOD) {
-				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR2_EXTI4_PD);
+				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR2_EXTI4_PD);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOE) {
-				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR2_EXTI4_PE);
+				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR2_EXTI4_PE);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOH) {
-				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR2_EXTI4_PH);
+				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR2_EXTI4_PH);
 
 			} else {
 				__NOP();
@@ -274,27 +274,27 @@ static void exti_assign_channel(EXTI_Config_t *extiConfig){
 
 			/* SYSCFG_EXTICR2 */
 			// Limpiamos primero la posición que deseamos configurar
-			SYSCFG->EXTICR[2] &= ~(0xF << SYSCFG_EXTICR2_EXTI6_Pos);
+			SYSCFG->EXTICR[1] &= ~(0xF << SYSCFG_EXTICR2_EXTI6_Pos);
 
 			// Ahora seleccionamos el valor a cargar en la posición, segun sea la selección
 			// del puerto que vamos a utilizar: GPIOA_0, ó GPIOB_0, ó GPIOC_0, etc
 			if (extiConfig->pGPIOHandler->pGPIOx == GPIOA) {
-				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR2_EXTI6_PA);
+				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR2_EXTI6_PA);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOB) {
-				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR2_EXTI6_PB);
+				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR2_EXTI6_PB);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOC) {
-				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR2_EXTI6_PC);
+				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR2_EXTI6_PC);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOD) {
-				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR2_EXTI6_PD);
+				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR2_EXTI6_PD);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOE) {
-				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR2_EXTI6_PE);
+				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR2_EXTI6_PE);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOH) {
-				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR2_EXTI6_PH);
+				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR2_EXTI6_PH);
 
 			} else {
 				__NOP();
@@ -308,27 +308,27 @@ static void exti_assign_channel(EXTI_Config_t *extiConfig){
 
 			/* SYSCFG_EXTICR2 */
 			// Limpiamos primero la posición que deseamos configurar
-			SYSCFG->EXTICR[3] &= ~(0xF << SYSCFG_EXTICR2_EXTI7_Pos);
+			SYSCFG->EXTICR[1] &= ~(0xF << SYSCFG_EXTICR2_EXTI7_Pos);
 
 			// Ahora seleccionamos el valor a cargar en la posición, segun sea la selección
 			// del puerto que vamos a utilizar: GPIOA_0, ó GPIOB_0, ó GPIOC_0, etc
 			if (extiConfig->pGPIOHandler->pGPIOx == GPIOA) {
-				SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR2_EXTI7_PA);
+				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR2_EXTI7_PA);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOB) {
-				SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR2_EXTI7_PB);
+				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR2_EXTI7_PB);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOC) {
-				SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR2_EXTI7_PC);
+				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR2_EXTI7_PC);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOD) {
-				SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR2_EXTI7_PD);
+				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR2_EXTI7_PD);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOE) {
-				SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR2_EXTI7_PE);
+				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR2_EXTI7_PE);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOH) {
-				SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR2_EXTI7_PH);
+				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR2_EXTI7_PH);
 
 			} else {
 				__NOP();
@@ -342,27 +342,27 @@ static void exti_assign_channel(EXTI_Config_t *extiConfig){
 
 			/* SYSCFG_EXTICR3 */
 			// Limpiamos primero la posición que deseamos configurar
-			SYSCFG->EXTICR[0] &= ~(0xF << SYSCFG_EXTICR3_EXTI8_Pos);
+			SYSCFG->EXTICR[2] &= ~(0xF << SYSCFG_EXTICR3_EXTI8_Pos);
 
 			// Ahora seleccionamos el valor a cargar en la posición, segun sea la selección
 			// del puerto que vamos a utilizar: GPIOA_0, ó GPIOB_0, ó GPIOC_0, etc
 			if (extiConfig->pGPIOHandler->pGPIOx == GPIOA) {
-				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR3_EXTI8_PA);
+				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR3_EXTI8_PA);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOB) {
-				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR3_EXTI8_PB);
+				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR3_EXTI8_PB);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOC) {
-				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR3_EXTI8_PC);
+				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR3_EXTI8_PC);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOD) {
-				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR3_EXTI8_PD);
+				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR3_EXTI8_PD);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOE) {
-				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR3_EXTI8_PE);
+				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR3_EXTI8_PE);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOH) {
-				SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR3_EXTI8_PH);
+				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR3_EXTI8_PH);
 
 			} else {
 				__NOP();
@@ -376,27 +376,27 @@ static void exti_assign_channel(EXTI_Config_t *extiConfig){
 
 			/* SYSCFG_EXTICR3 */
 			// Limpiamos primero la posición que deseamos configurar
-			SYSCFG->EXTICR[1] &= ~(0xF << SYSCFG_EXTICR3_EXTI9_Pos);
+			SYSCFG->EXTICR[2] &= ~(0xF << SYSCFG_EXTICR3_EXTI9_Pos);
 
 			// Ahora seleccionamos el valor a cargar en la posición, segun sea la selección
 			// del puerto que vamos a utilizar: GPIOA_0, ó GPIOB_0, ó GPIOC_0, etc
 			if (extiConfig->pGPIOHandler->pGPIOx == GPIOA) {
-				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR3_EXTI9_PA);
+				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR3_EXTI9_PA);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOB) {
-				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR3_EXTI9_PB);
+				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR3_EXTI9_PB);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOC) {
-				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR3_EXTI9_PC);
+				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR3_EXTI9_PC);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOD) {
-				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR3_EXTI9_PD);
+				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR3_EXTI9_PD);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOE) {
-				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR3_EXTI9_PE);
+				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR3_EXTI9_PE);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOH) {
-				SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR3_EXTI9_PH);
+				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR3_EXTI9_PH);
 
 			} else {
 				__NOP();
@@ -444,27 +444,27 @@ static void exti_assign_channel(EXTI_Config_t *extiConfig){
 
 			/* SYSCFG_EXTICR3 */
 			// Limpiamos primero la posición que deseamos configurar
-			SYSCFG->EXTICR[3] &= ~(0xF << SYSCFG_EXTICR3_EXTI11_Pos);
+			SYSCFG->EXTICR[2] &= ~(0xF << SYSCFG_EXTICR3_EXTI11_Pos);
 
 			// Ahora seleccionamos el valor a cargar en la posición, segun sea la selección
 			// del puerto que vamos a utilizar: GPIOA_0, ó GPIOB_0, ó GPIOC_0, etc
 			if (extiConfig->pGPIOHandler->pGPIOx == GPIOA) {
-				SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR3_EXTI11_PA);
+				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR3_EXTI11_PA);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOB) {
-				SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR3_EXTI11_PB);
+				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR3_EXTI11_PB);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOC) {
-				SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR3_EXTI11_PC);
+				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR3_EXTI11_PC);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOD) {
-				SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR3_EXTI11_PD);
+				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR3_EXTI11_PD);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOE) {
-				SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR3_EXTI11_PE);
+				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR3_EXTI11_PE);
 
 			} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOH) {
-				SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR3_EXTI11_PH);
+				SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR3_EXTI11_PH);
 
 			} else {
 				__NOP();
@@ -478,27 +478,27 @@ static void exti_assign_channel(EXTI_Config_t *extiConfig){
 
 			/* SYSCFG_EXTICR4 */
 		    // Limpiamos primero la posición que deseamos configurar
-		    SYSCFG->EXTICR[0] &= ~(0xF << SYSCFG_EXTICR4_EXTI12_Pos);
+		    SYSCFG->EXTICR[3] &= ~(0xF << SYSCFG_EXTICR4_EXTI12_Pos);
 
 		    // Ahora seleccionamos el valor a cargar en la posición, segun sea la selección
 		    // del puerto que vamos a utilizar: GPIOA_0, ó GPIOB_0, ó GPIOC_0, etc
 		    if (extiConfig->pGPIOHandler->pGPIOx == GPIOA) {
-		    	SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR4_EXTI12_PA);
+		    	SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR4_EXTI12_PA);
 
 		    } else if (extiConfig->pGPIOHandler->pGPIOx == GPIOB) {
-			    SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR4_EXTI12_PB);
+			    SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR4_EXTI12_PB);
 
 	    	} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOC) {
-			    SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR4_EXTI12_PC);
+			    SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR4_EXTI12_PC);
 
 		    } else if (extiConfig->pGPIOHandler->pGPIOx == GPIOD) {
-			    SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR4_EXTI12_PD);
+			    SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR4_EXTI12_PD);
 
 		    } else if (extiConfig->pGPIOHandler->pGPIOx == GPIOE) {
-			    SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR4_EXTI12_PE);
+			    SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR4_EXTI12_PE);
 
 		    } else if (extiConfig->pGPIOHandler->pGPIOx == GPIOH) {
-			    SYSCFG->EXTICR[0] |= (SYSCFG_EXTICR4_EXTI12_PH);
+			    SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR4_EXTI12_PH);
 
 		    } else {
 			    __NOP();
@@ -512,27 +512,27 @@ static void exti_assign_channel(EXTI_Config_t *extiConfig){
 
 			/* SYSCFG_EXTICR4 */
 		    // Limpiamos primero la posición que deseamos configurar
-		    SYSCFG->EXTICR[1] &= ~(0xF << SYSCFG_EXTICR4_EXTI13_Pos);
+		    SYSCFG->EXTICR[3] &= ~(0xF << SYSCFG_EXTICR4_EXTI13_Pos);
 
 		    // Ahora seleccionamos el valor a cargar en la posición, segun sea la selección
 		    // del puerto que vamos a utilizar: GPIOA_0, ó GPIOB_0, ó GPIOC_0, etc
 		    if (extiConfig->pGPIOHandler->pGPIOx == GPIOA) {
-		    	SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR4_EXTI13_PA);
+		    	SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR4_EXTI13_PA);
 
 		    } else if (extiConfig->pGPIOHandler->pGPIOx == GPIOB) {
-			    SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR4_EXTI13_PB);
+			    SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR4_EXTI13_PB);
 
 	    	} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOC) {
-			    SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR4_EXTI13_PC);
+			    SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR4_EXTI13_PC);
 
 		    } else if (extiConfig->pGPIOHandler->pGPIOx == GPIOD) {
-			    SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR4_EXTI13_PD);
+			    SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR4_EXTI13_PD);
 
 		    } else if (extiConfig->pGPIOHandler->pGPIOx == GPIOE) {
-			    SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR4_EXTI13_PE);
+			    SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR4_EXTI13_PE);
 
 		    } else if (extiConfig->pGPIOHandler->pGPIOx == GPIOH) {
-			    SYSCFG->EXTICR[1] |= (SYSCFG_EXTICR4_EXTI13_PH);
+			    SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR4_EXTI13_PH);
 
 		    } else {
 			    __NOP();
@@ -546,27 +546,27 @@ static void exti_assign_channel(EXTI_Config_t *extiConfig){
 
 			/* SYSCFG_EXTICR4 */
 		    // Limpiamos primero la posición que deseamos configurar
-		    SYSCFG->EXTICR[2] &= ~(0xF << SYSCFG_EXTICR4_EXTI14_Pos);
+		    SYSCFG->EXTICR[3] &= ~(0xF << SYSCFG_EXTICR4_EXTI14_Pos);
 
 		    // Ahora seleccionamos el valor a cargar en la posición, segun sea la selección
 		    // del puerto que vamos a utilizar: GPIOA_0, ó GPIOB_0, ó GPIOC_0, etc
 		    if (extiConfig->pGPIOHandler->pGPIOx == GPIOA) {
-		    	SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR4_EXTI14_PA);
+		    	SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR4_EXTI14_PA);
 
 		    } else if (extiConfig->pGPIOHandler->pGPIOx == GPIOB) {
-			    SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR4_EXTI14_PB);
+			    SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR4_EXTI14_PB);
 
 	    	} else if (extiConfig->pGPIOHandler->pGPIOx == GPIOC) {
-			    SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR4_EXTI14_PC);
+			    SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR4_EXTI14_PC);
 
 		    } else if (extiConfig->pGPIOHandler->pGPIOx == GPIOD) {
-			    SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR4_EXTI14_PD);
+			    SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR4_EXTI14_PD);
 
 		    } else if (extiConfig->pGPIOHandler->pGPIOx == GPIOE) {
-			    SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR4_EXTI14_PE);
+			    SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR4_EXTI14_PE);
 
 		    } else if (extiConfig->pGPIOHandler->pGPIOx == GPIOH) {
-			    SYSCFG->EXTICR[2] |= (SYSCFG_EXTICR4_EXTI14_PH);
+			    SYSCFG->EXTICR[3] |= (SYSCFG_EXTICR4_EXTI14_PH);
 
 		    } else {
 			    __NOP();
@@ -627,7 +627,6 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 	if(extiConfig->edgeType == EXTERNAL_INTERRUPT_FALLING_EDGE){
 		/* Falling Trigger selection register*/
-		//REVISAR!!!!
 
 		// Select TRx for falling Trigger event configuration bit of line x
 		// Se está interpretanto el número del pin x en uso cómo la relación con el "bit of line x"
@@ -635,105 +634,167 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 		//Configuramos para el pin 0
 		case 0: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->FTSR &= ~(EXTI_FTSR_TR0);
+
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR0);
 		}
 
 		//Configuramos para el pin 1
 		case 1: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->FTSR &= ~(EXTI_FTSR_TR1);
+
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR1);
 		}
 
 		//Configuramos para el pin 2
 		case 2: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->FTSR &= ~(EXTI_FTSR_TR2);
+
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR2);
 		}
 
 		//Configuramos para el pin 3
 		case 3: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->FTSR &= ~(EXTI_FTSR_TR3);
+
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR3);
 		}
 
 		//Configuramos para el pin 4
 		case 4: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->FTSR &= ~(EXTI_FTSR_TR4);
+
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR4);
 		}
 
 		//Configuramos para el pin 5
 		case 5: {
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->FTSR &= ~(EXTI_FTSR_TR5);
+
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR5);
 		}
 
 		//Configuramos para el pin 6
 		case 6: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->FTSR &= ~(EXTI_FTSR_TR6);
+
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR6);
 		}
 
 		//Configuramos para el pin 7
 		case 7: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->FTSR &= ~(EXTI_FTSR_TR7);
+
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR7);
 		}
 
 		//Configuramos para el pin 8
 		case 8: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->FTSR &= ~(EXTI_FTSR_TR8);
+
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR8);
 		}
 
 		//Configuramos para el pin 9
 		case 9: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->FTSR &= ~(EXTI_FTSR_TR9);
+
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR9);
 		}
 
 		//Configuramos para el pin 10
 		case 10: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->FTSR &= ~(EXTI_FTSR_TR10);
+
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR10);
 		}
 
 		//Configuramos para el pin 11
 		case 11: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->FTSR &= ~(EXTI_FTSR_TR11);
+
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR11);
 		}
 
 		//Configuramos para el pin 12
 		case 12: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->FTSR &= ~(EXTI_FTSR_TR12);
+
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR12);
 		}
 
 		//Configuramos para el pin 13
 		case 13: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->FTSR &= ~(EXTI_FTSR_TR13);
+
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR13);
 		}
 
 		//Configuramos para el pin 14
 		case 14: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->FTSR &= ~(EXTI_FTSR_TR14);
+
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR14);
 		}
 
 		//Configuramos para el pin 15
 		case 15: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->FTSR &= ~(EXTI_FTSR_TR15);
+
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR15);
 		}
 
 		}
 	}
-	else{
+	else if(extiConfig->edgeType == EXTERNAL_INTERRUPT_RISING_EDGE){
 		/* Rising Trigger selection register*/
-		//REVISAR!!!!
 
 		// Select TRx for rising Trigger event configuration bit of line x
 		// Se está interpretanto el número del pin x en uso cómo la relación con el "bit of line x"
@@ -741,102 +802,167 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 		//Configuramos para el pin 0
 		case 0: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->RTSR &= ~(EXTI_RTSR_TR0);
+
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR0);
 		}
 
 		//Configuramos para el pin 1
 		case 1: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->RTSR &= ~(EXTI_RTSR_TR1);
+
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR1);
 		}
 
 		//Configuramos para el pin 2
 		case 2: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->RTSR &= ~(EXTI_RTSR_TR2);
+
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR2);
 		}
 
 		//Configuramos para el pin 3
 		case 3: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->RTSR &= ~(EXTI_RTSR_TR3);
+
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR3);
 		}
 
 		//Configuramos para el pin 4
 		case 4: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->RTSR &= ~(EXTI_RTSR_TR4);
+
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR4);
 		}
 
 		//Configuramos para el pin 5
 		case 5: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->RTSR &= ~(EXTI_RTSR_TR5);
+
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR5);
 		}
 
 		//Configuramos para el pin 6
 		case 6: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->RTSR &= ~(EXTI_RTSR_TR6);
+
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR6);
 		}
 
 		//Configuramos para el pin 7
 		case 7: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->RTSR &= ~(EXTI_RTSR_TR7);
+
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR7);
 		}
 
 		//Configuramos para el pin 8
 		case 8: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->RTSR &= ~(EXTI_RTSR_TR8);
+
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR8);
 		}
 
 		//Configuramos para el pin 9
 		case 9: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->RTSR &= ~(EXTI_RTSR_TR9);
+
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR9);
 		}
 
 		//Configuramos para el pin 10
 		case 10: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->RTSR &= ~(EXTI_RTSR_TR10);
+
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR10);
 		}
 
 		//Configuramos para el pin 11
 		case 11: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->RTSR &= ~(EXTI_RTSR_TR11);
+
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR11);
 		}
 
 		//Configuramos para el pin 12
 		case 12: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->RTSR &= ~(EXTI_RTSR_TR12);
+
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR12);
 		}
 
 		//Configuramos para el pin 13
 		case 13: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->RTSR &= ~(EXTI_RTSR_TR13);
+
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR13);
 		}
 
 		//Configuramos para el pin 14
 		case 14: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->RTSR &= ~(EXTI_RTSR_TR14);
+
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR14);
 		}
 
 		//Configuramos para el pin 15
 		case 15: {
+
+			// Limpiamos primero la posición que deseamos configurar
+			EXTI->RTSR &= ~(EXTI_RTSR_TR15);
+
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR15);
 		}
 
 		}
 	}
+
 }
 
 /*
