@@ -68,55 +68,14 @@ int main(void)
     /* Loop forever */
 	while(1){
 
-		//Pasamos a verficiar si el valor del counter requiere la representación de los dos dígitos o no
-			if((counter_i) < 10){
+			if(banderaDisplayTimer == 1){
 
-				// Generamos condicional para representar numero en posición unidad o decena del siete segmentos
-
-				//Condición para representar decena:
-				if(posicion == 1){
-
-					//Activamos vcc del siete segmentos para tener en cuenta decenas
-					// == NOTA importante: Debido a que el siete segmentos a utilizar es de ánodo común
-					// == entonces necesitamos generar conexión a tierra, en lugar de alimentación, para
-					// == lograr la activación de los mismos pines, es decir que en este caso
-					// == ponemos SET para desactivar y RESET para activar
-					gpio_WritePin(&vcc_unidad, SET);
-					gpio_WritePin(&vcc_decena, RESET);
-
-					//Ejecutamos la configuración de los pines para la DECENA
-					gpio_WritePin(&segmentoLed_a, counter_a(0));
-					gpio_WritePin(&segmentoLed_b, counter_b(0));
-					gpio_WritePin(&segmentoLed_c, counter_c(0));
-					gpio_WritePin(&segmentoLed_d, counter_d(0));
-					gpio_WritePin(&segmentoLed_e, counter_e(0));
-					gpio_WritePin(&segmentoLed_f, counter_f(0));
-					gpio_WritePin(&segmentoLed_g, counter_g(0));
-
-				} else{
-
-					//Activamos vcc del siete segmentos para tener en cuenta unidades
-					// == NOTA importante: Debido a que el siete segmentos a utilizar es de ánodo común
-					// == entonces necesitamos generar conexión a tierra, en lugar de alimentación, para
-					// == lograr la activación de los mismos pines, es decir que en este caso
-					// == ponemos SET para desactivar y RESET para activar
-					gpio_WritePin(&vcc_decena, SET);
-					gpio_WritePin(&vcc_unidad, RESET);
-
-					//Ejecutamos la configuración de los pines para la UNIDAD
-					gpio_WritePin(&segmentoLed_a, counter_a(counter_i));
-					gpio_WritePin(&segmentoLed_b, counter_b(counter_i));
-					gpio_WritePin(&segmentoLed_c, counter_c(counter_i));
-					gpio_WritePin(&segmentoLed_d, counter_d(counter_i));
-					gpio_WritePin(&segmentoLed_e, counter_e(counter_i));
-					gpio_WritePin(&segmentoLed_f, counter_f(counter_i));
-					gpio_WritePin(&segmentoLed_g, counter_g(counter_i));
-				}
-
-			} else if((counter_i) >= 10){
+				//Bajamos la bandera de la interrupción de Display Timer
+				banderaDisplayTimer = 0;
 
 				// Construimos relación para identificar el valor de la unidad del número
 				unidad = counter_i%10;
+
 				// Construimos relación para identificar el valor de la decena del número
 				decena = (counter_i) - unidad;
 
@@ -180,7 +139,6 @@ int main(void)
 					counter_i = 0;
 				}
 			}
-
 	}
 
 }
@@ -616,6 +574,9 @@ void Timer2_Callback(void){
  * Overwrite function for display del siete segmentos
  * */
 void Timer3_Callback(void){
+
+	//Subimos la bandera de la interrupción de Display Timer
+	banderaDisplayTimer = 1;
 
 	// Cambiamos el valor de la posicion para representar todas las posiciones del numero
 	// === Hacemos uso de la compuerta XOR para garantizar el cambio (0[pos] 1--> 1  and 1[pos] 1-->0 )
