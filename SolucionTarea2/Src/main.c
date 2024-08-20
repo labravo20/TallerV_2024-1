@@ -129,6 +129,10 @@ int main(void)
 					gpio_WritePin(&vcc_unidad, RESET);
 				}
 
+				// Cambiamos el valor de la posicion para representar todas las posiciones del numero
+				// === Hacemos uso de la compuerta XOR para garantizar el cambio (0[pos] 1--> 1  and 1[pos] 1-->0 )
+				posicion = posicion^maskChangeDisplay;
+
 			}
 
 			//Evaluamos si la bandera de la interrupción responsable del control del tiempo
@@ -585,10 +589,6 @@ void Timer3_Callback(void){
 
 	//Subimos la bandera de la interrupción de Display Timer
 	banderaDisplayTimer = 1;
-
-	// Cambiamos el valor de la posicion para representar todas las posiciones del numero
-	// === Hacemos uso de la compuerta XOR para garantizar el cambio (0[pos] 1--> 1  and 1[pos] 1-->0 )
-	posicion = posicion^maskChangeDisplay;
 }
 /*
  * Overwrite function for control del tiempo
