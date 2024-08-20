@@ -13,17 +13,17 @@
 #include "timer_driver_hal.h"
 
 //Definimos pines a utilizar
-GPIO_Handler_t userLed      = {0}; //PinA5 (Led para verificación de correcto funcionamiento)
-GPIO_Handler_t userLed00    = {0}; //PinH1 (Led de estado)
-GPIO_Handler_t userLed01    = {0}; //PinC12 (led "a")
-GPIO_Handler_t userLed02    = {0}; //PinA12 (led "b")
-GPIO_Handler_t userLed03    = {0}; //PinC6  (led "c")
-GPIO_Handler_t userLed04    = {0}; //PinB13 (led "d")
-GPIO_Handler_t userLed05    = {0}; //PinB10 (led "e")
-GPIO_Handler_t userLed06    = {0}; //PinB7  (led "g")
-GPIO_Handler_t userLed07    = {0}; //PinC10 (led "f")
-GPIO_Handler_t vcc_dec      = {0}; //PinB12
-GPIO_Handler_t vcc_uni      = {0}; //PinA0
+GPIO_Handler_t verificationLed    = {0}; //PinA5 (Led para verificación de correcto funcionamiento)
+GPIO_Handler_t stateLed           = {0}; //PinH1 (Led de estado)
+GPIO_Handler_t segmentoLed_a      = {0}; //PinC12 (led "a")
+GPIO_Handler_t segmentoLed_b      = {0}; //PinA12 (led "b")
+GPIO_Handler_t segmentoLed_c      = {0}; //PinC6  (led "c")
+GPIO_Handler_t segmentoLed_d      = {0}; //PinB13 (led "d")
+GPIO_Handler_t segmentoLed_e      = {0}; //PinB10 (led "e")
+GPIO_Handler_t segmentoLed_f      = {0}; //PinC10 (led "f")
+GPIO_Handler_t segmentoLed_g      = {0}; //PinB7  (led "g")
+GPIO_Handler_t vcc_decena         = {0}; //PinB12
+GPIO_Handler_t vcc_unidad         = {0}; //PinA0
 
 //Definimos timers a utilizar
 Timer_Handler_t blinkTimer   = {0}; // Timer para el blinking
@@ -50,7 +50,11 @@ uint8_t decena = 0;
 uint8_t posicion = 0;
 
 //Definimos máscara para alternar la posicion unidad o decena
-uint8_t mask     = 1;
+uint8_t maskChangeDisplay     = 1;
+
+//Definimos variables para asignar el estado de la bandera correspondiente a cada interrupción
+uint8_t banderaDisplayTimer   = 0;
+uint8_t banderaControlTimer   = 0;
 
 //Definición función para configuración inicial
 void initialConfig();
@@ -77,17 +81,17 @@ int main(void)
 					// == entonces necesitamos generar conexión a tierra, en lugar de alimentación, para
 					// == lograr la activación de los mismos pines, es decir que en este caso
 					// == ponemos SET para desactivar y RESET para activar
-					gpio_WritePin(&vcc_uni, SET);
-					gpio_WritePin(&vcc_dec, RESET);
+					gpio_WritePin(&vcc_unidad, SET);
+					gpio_WritePin(&vcc_decena, RESET);
 
 					//Ejecutamos la configuración de los pines para la DECENA
-					gpio_WritePin(&userLed01, counter_a(0));
-					gpio_WritePin(&userLed02, counter_b(0));
-					gpio_WritePin(&userLed03, counter_c(0));
-					gpio_WritePin(&userLed04, counter_d(0));
-					gpio_WritePin(&userLed05, counter_e(0));
-					gpio_WritePin(&userLed06, counter_f(0));
-					gpio_WritePin(&userLed07, counter_g(0));
+					gpio_WritePin(&segmentoLed_a, counter_a(0));
+					gpio_WritePin(&segmentoLed_b, counter_b(0));
+					gpio_WritePin(&segmentoLed_c, counter_c(0));
+					gpio_WritePin(&segmentoLed_d, counter_d(0));
+					gpio_WritePin(&segmentoLed_e, counter_e(0));
+					gpio_WritePin(&segmentoLed_f, counter_f(0));
+					gpio_WritePin(&segmentoLed_g, counter_g(0));
 
 				} else{
 
@@ -96,17 +100,17 @@ int main(void)
 					// == entonces necesitamos generar conexión a tierra, en lugar de alimentación, para
 					// == lograr la activación de los mismos pines, es decir que en este caso
 					// == ponemos SET para desactivar y RESET para activar
-					gpio_WritePin(&vcc_dec, SET);
-					gpio_WritePin(&vcc_uni, RESET);
+					gpio_WritePin(&vcc_decena, SET);
+					gpio_WritePin(&vcc_unidad, RESET);
 
 					//Ejecutamos la configuración de los pines para la UNIDAD
-					gpio_WritePin(&userLed01, counter_a(counter_i));
-					gpio_WritePin(&userLed02, counter_b(counter_i));
-					gpio_WritePin(&userLed03, counter_c(counter_i));
-					gpio_WritePin(&userLed04, counter_d(counter_i));
-					gpio_WritePin(&userLed05, counter_e(counter_i));
-					gpio_WritePin(&userLed06, counter_f(counter_i));
-					gpio_WritePin(&userLed07, counter_g(counter_i));
+					gpio_WritePin(&segmentoLed_a, counter_a(counter_i));
+					gpio_WritePin(&segmentoLed_b, counter_b(counter_i));
+					gpio_WritePin(&segmentoLed_c, counter_c(counter_i));
+					gpio_WritePin(&segmentoLed_d, counter_d(counter_i));
+					gpio_WritePin(&segmentoLed_e, counter_e(counter_i));
+					gpio_WritePin(&segmentoLed_f, counter_f(counter_i));
+					gpio_WritePin(&segmentoLed_g, counter_g(counter_i));
 				}
 
 			} else if((counter_i) >= 10){
@@ -126,17 +130,17 @@ int main(void)
 					// == entonces necesitamos generar conexión a tierra, en lugar de alimentación, para
 					// == lograr la activación de los mismos pines, es decir que en este caso
 					// == ponemos SET para desactivar y RESET para activar
-					gpio_WritePin(&vcc_uni, SET);
-					gpio_WritePin(&vcc_dec, RESET);
+					gpio_WritePin(&vcc_unidad, SET);
+					gpio_WritePin(&vcc_decena, RESET);
 
 					//Ejecutamos la configuración de los pines para la DECENA
-					gpio_WritePin(&userLed01, counter_a(decena/10));
-					gpio_WritePin(&userLed02, counter_b(decena/10));
-					gpio_WritePin(&userLed03, counter_c(decena/10));
-					gpio_WritePin(&userLed04, counter_d(decena/10));
-					gpio_WritePin(&userLed05, counter_e(decena/10));
-					gpio_WritePin(&userLed06, counter_f(decena/10));
-					gpio_WritePin(&userLed07, counter_g(decena/10));
+					gpio_WritePin(&segmentoLed_a, counter_a(decena/10));
+					gpio_WritePin(&segmentoLed_b, counter_b(decena/10));
+					gpio_WritePin(&segmentoLed_c, counter_c(decena/10));
+					gpio_WritePin(&segmentoLed_d, counter_d(decena/10));
+					gpio_WritePin(&segmentoLed_e, counter_e(decena/10));
+					gpio_WritePin(&segmentoLed_f, counter_f(decena/10));
+					gpio_WritePin(&segmentoLed_g, counter_g(decena/10));
 
 				} else{
 
@@ -145,25 +149,36 @@ int main(void)
 					// == entonces necesitamos generar conexión a tierra, en lugar de alimentación, para
 					// == lograr la activación de los mismos pines, es decir que en este caso
 					// == ponemos SET para desactivar y RESET para activar
-					gpio_WritePin(&vcc_dec, SET);
-					gpio_WritePin(&vcc_uni, RESET);
+					gpio_WritePin(&vcc_decena, SET);
+					gpio_WritePin(&vcc_unidad, RESET);
 
 					//Ejecutamos la configuración de los pines para la UNIDAD
-					gpio_WritePin(&userLed01, counter_a(unidad));
-					gpio_WritePin(&userLed02, counter_b(unidad));
-					gpio_WritePin(&userLed03, counter_c(unidad));
-					gpio_WritePin(&userLed04, counter_d(unidad));
-					gpio_WritePin(&userLed05, counter_e(unidad));
-					gpio_WritePin(&userLed06, counter_f(unidad));
-					gpio_WritePin(&userLed07, counter_g(unidad));
+					gpio_WritePin(&segmentoLed_a, counter_a(unidad));
+					gpio_WritePin(&segmentoLed_b, counter_b(unidad));
+					gpio_WritePin(&segmentoLed_c, counter_c(unidad));
+					gpio_WritePin(&segmentoLed_d, counter_d(unidad));
+					gpio_WritePin(&segmentoLed_e, counter_e(unidad));
+					gpio_WritePin(&segmentoLed_f, counter_f(unidad));
+					gpio_WritePin(&segmentoLed_g, counter_g(unidad));
 				}
 
 			}
 
-			//Delimitamos que el número máximo hasta el cual se contará es 59
-			if(counter_i == 60){
-				//Reiniciamos el contador para repetir el ciclo de cuenta
-				counter_i = 0;
+			//Evaluamos si la bandera de la interrupción responsable del control del tiempo
+			//está levantada
+			if(banderaControlTimer == 1){
+
+				//Bajamos la bandera de la interrupción de Control Timer
+				banderaControlTimer = 0;
+
+				//Sumamos el valor del counter para garantizar la cuenta ascentente
+				counter_i = counter_i +1;
+
+				//Delimitamos que el número máximo hasta el cual se contará es 59
+				if(counter_i == 60){
+					//Reiniciamos el contador para repetir el ciclo de cuenta
+					counter_i = 0;
+				}
 			}
 
 	}
@@ -175,18 +190,18 @@ void initialConfig(){
 
 	    //VERIFICACIÓN DE FUNCIONAMIENTO CONFIGURACIÓN DE DRIVERS
 		/* Configuramos el pin A5*/
-		userLed.pGPIOx                         = GPIOA;
-		userLed.pinConfig.GPIO_PinNumber       = PIN_5;
-		userLed.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
-		userLed.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
-		userLed.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
-		userLed.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+		verificationLed.pGPIOx                         = GPIOA;
+		verificationLed.pinConfig.GPIO_PinNumber       = PIN_5;
+		verificationLed.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+		verificationLed.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+		verificationLed.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+		verificationLed.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
 
 		//Cargamos la configuración en los registros que gobiernan el puerto
-		gpio_Config(&userLed);
+		gpio_Config(&verificationLed);
 
 		//Ejecutamos la configuración realizada en A5
-		//gpio_WritePin(&userLed, SET);
+		//gpio_WritePin(&verificationLed, SET);
 
 		/* ========== SOLUCIÓN TAREA 2 ========== */
 
@@ -194,18 +209,18 @@ void initialConfig(){
 		 * la "board táctica")*/
 
 		/* Configuramos el pin H1 --> LED DE ESTADO*/
-		userLed00.pGPIOx                         = GPIOH;
-		userLed00.pinConfig.GPIO_PinNumber       = PIN_1;
-		userLed00.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
-		userLed00.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
-		userLed00.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
-		userLed00.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+		stateLed.pGPIOx                         = GPIOH;
+		stateLed.pinConfig.GPIO_PinNumber       = PIN_1;
+		stateLed.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+		stateLed.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+		stateLed.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+		stateLed.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
 
 		//Cargamos la configuración en los registros que gobiernan el puerto
-		gpio_Config(&userLed00);
+		gpio_Config(&stateLed);
 
 		//Ejecutamos la configuración realizada en H1
-		gpio_WritePin(&userLed00, SET);
+		gpio_WritePin(&stateLed, SET);
 
 		//Configuración Timer2 --> blinking
 		blinkTimer.pTIMx                             = TIM2;
@@ -224,127 +239,127 @@ void initialConfig(){
 		 * activar los LEDs de la cuenta respectiva en el 7 segmentos */
 
 		/* Configuramos el pin C12 --> LED a*/
-		userLed01.pGPIOx                         = GPIOC;
-		userLed01.pinConfig.GPIO_PinNumber       = PIN_12;
-		userLed01.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
-		userLed01.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
-		userLed01.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
-		userLed01.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+		segmentoLed_a.pGPIOx                         = GPIOC;
+		segmentoLed_a.pinConfig.GPIO_PinNumber       = PIN_12;
+		segmentoLed_a.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+		segmentoLed_a.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+		segmentoLed_a.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+		segmentoLed_a.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
 
 		//Cargamos la configuración en los registros que gobiernan el puerto
-		gpio_Config(&userLed01);
+		gpio_Config(&segmentoLed_a);
 
 		//A continuación se está probando el correcto funcionamiento del pin C12
-		//gpio_WritePin(&userLed01, SET);
+		//gpio_WritePin(&segmentoLed_a, SET);
 
 		/* Configuramos el pin A12 --> LED b*/
-		userLed02.pGPIOx                         = GPIOA;
-		userLed02.pinConfig.GPIO_PinNumber       = PIN_12;
-		userLed02.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
-		userLed02.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
-		userLed02.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
-		userLed02.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+		segmentoLed_b.pGPIOx                         = GPIOA;
+		segmentoLed_b.pinConfig.GPIO_PinNumber       = PIN_12;
+		segmentoLed_b.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+		segmentoLed_b.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+		segmentoLed_b.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+		segmentoLed_b.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
 
 		//Cargamos la configuración en los registros que gobiernan el puerto
-		gpio_Config(&userLed02);
+		gpio_Config(&segmentoLed_b);
 
 		//A continuación se está probando el correcto funcionamiento del pin A12
-		//gpio_WritePin(&userLed02, SET);
+		//gpio_WritePin(&segmentoLed_b, SET);
 
 		/* Configuramos el pin C6 --> LED c*/
-		userLed03.pGPIOx                         = GPIOC;
-		userLed03.pinConfig.GPIO_PinNumber       = PIN_6;
-		userLed03.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
-		userLed03.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
-		userLed03.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
-		userLed03.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+		segmentoLed_c.pGPIOx                         = GPIOC;
+		segmentoLed_c.pinConfig.GPIO_PinNumber       = PIN_6;
+		segmentoLed_c.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+		segmentoLed_c.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+		segmentoLed_c.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+		segmentoLed_c.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
 
 		//Cargamos la configuración en los registros que gobiernan el puerto
-		gpio_Config(&userLed03);
+		gpio_Config(&segmentoLed_c);
 
 		//A continuación se está probando el correcto funcionamiento del pin C6
-		//gpio_WritePin(&userLed03, SET);
+		//gpio_WritePin(&segmentoLed_c, SET);
 
 		/* Configuramos el pin B13 --> LED d*/
-		userLed04.pGPIOx                         = GPIOB;
-		userLed04.pinConfig.GPIO_PinNumber       = PIN_13;
-		userLed04.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
-		userLed04.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
-		userLed04.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
-		userLed04.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+		segmentoLed_d.pGPIOx                         = GPIOB;
+		segmentoLed_d.pinConfig.GPIO_PinNumber       = PIN_13;
+		segmentoLed_d.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+		segmentoLed_d.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+		segmentoLed_d.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+		segmentoLed_d.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
 
 		//Cargamos la configuración en los registros que gobiernan el puerto
-		gpio_Config(&userLed04);
+		gpio_Config(&segmentoLed_d);
 
 		//A continuación se está probando el correcto funcionamiento del pin B13
-		//gpio_WritePin(&userLed04, SET);
+		//gpio_WritePin(&segmentoLed_d, SET);
 
 		/* Configuramos el pin B10 --> LED e*/
-		userLed05.pGPIOx                         = GPIOB;
-		userLed05.pinConfig.GPIO_PinNumber       = PIN_10;
-		userLed05.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
-		userLed05.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
-		userLed05.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
-		userLed05.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+		segmentoLed_e.pGPIOx                         = GPIOB;
+		segmentoLed_e.pinConfig.GPIO_PinNumber       = PIN_10;
+		segmentoLed_e.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+		segmentoLed_e.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+		segmentoLed_e.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+		segmentoLed_e.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
 
 		//Cargamos la configuración en los registros que gobiernan el puerto
-		gpio_Config(&userLed05);
+		gpio_Config(&segmentoLed_e);
 
 		//A continuación se está probando el correcto funcionamiento del pin B10
-		//gpio_WritePin(&userLed05, SET);
+		//gpio_WritePin(&segmentoLed_e, SET);
 
 		/* Configuramos el pin C10 --> LED f*/
-		userLed06.pGPIOx                         = GPIOC;
-		userLed06.pinConfig.GPIO_PinNumber       = PIN_10;
-		userLed06.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
-		userLed06.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
-		userLed06.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
-		userLed06.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+		segmentoLed_f.pGPIOx                         = GPIOC;
+		segmentoLed_f.pinConfig.GPIO_PinNumber       = PIN_10;
+		segmentoLed_f.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+		segmentoLed_f.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+		segmentoLed_f.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+		segmentoLed_f.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
 
 		//Cargamos la configuración en los registros que gobiernan el puerto
-		gpio_Config(&userLed06);
+		gpio_Config(&segmentoLed_f);
 
 		//A continuación se está probando el correcto funcionamiento del pin B7
-		//gpio_WritePin(&userLed06, SET);
+		//gpio_WritePin(&segmentoLed_f, SET);
 
 		/* Configuramos el pin B7 --> LED g*/
-		userLed07.pGPIOx                         = GPIOB;
-		userLed07.pinConfig.GPIO_PinNumber       = PIN_7;
-		userLed07.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
-		userLed07.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
-		userLed07.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
-		userLed07.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+		segmentoLed_g.pGPIOx                         = GPIOB;
+		segmentoLed_g.pinConfig.GPIO_PinNumber       = PIN_7;
+		segmentoLed_g.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+		segmentoLed_g.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+		segmentoLed_g.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+		segmentoLed_g.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
 
 		//Cargamos la configuración en los registros que gobiernan el puerto
-		gpio_Config(&userLed07);
+		gpio_Config(&segmentoLed_g);
 
 		//A continuación se está probando el correcto funcionamiento del pin C10
-		//gpio_WritePin(&userLed07, SET);
+		//gpio_WritePin(&segmentoLed_g, SET);
 
 		//Cargamos ahora la configuración respectiva para los pines de alimentación de los vcc
 		//de los transistores que componen el circuito del siete segmentos.
 
 		/* Configuramos el pin A0 --> vcc unidad*/
-		vcc_uni.pGPIOx                         = GPIOA;
-		vcc_uni.pinConfig.GPIO_PinNumber       = PIN_0;
-		vcc_uni.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
-		vcc_uni.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
-		vcc_uni.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
-		vcc_uni.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+		vcc_unidad.pGPIOx                         = GPIOA;
+		vcc_unidad.pinConfig.GPIO_PinNumber       = PIN_0;
+		vcc_unidad.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+		vcc_unidad.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+		vcc_unidad.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+		vcc_unidad.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
 
 		//Cargamos la configuración en los registros que gobiernan el puerto
-		gpio_Config(&vcc_uni);
+		gpio_Config(&vcc_unidad);
 
 		/* Configuramos el pin B12 --> vcc decimal*/
-		vcc_dec.pGPIOx                         = GPIOB;
-		vcc_dec.pinConfig.GPIO_PinNumber       = PIN_12;
-		vcc_dec.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
-		vcc_dec.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
-		vcc_dec.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
-		vcc_dec.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+		vcc_decena.pGPIOx                         = GPIOB;
+		vcc_decena.pinConfig.GPIO_PinNumber       = PIN_12;
+		vcc_decena.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+		vcc_decena.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+		vcc_decena.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+		vcc_decena.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
 
 		//Cargamos la configuración en los registros que gobiernan el puerto
-		gpio_Config(&vcc_dec);
+		gpio_Config(&vcc_decena);
 
 		//A continuación se está realizando la configuración de los timers a usar
 
@@ -588,14 +603,14 @@ uint32_t counter_f(uint8_t counterSietef){
  * Overwrite function for A5
  * */
 //void Timer2_Callback(void){
-	//gpio_TooglePin(&userLed);
+	//gpio_TooglePin(&verificationLed);
 //}
 
 /*
  * Overwrite function for H1
  * */
 void Timer2_Callback(void){
-	gpio_TooglePin(&userLed00);
+	gpio_TooglePin(&stateLed);
 }
 /*
  * Overwrite function for display del siete segmentos
@@ -604,15 +619,15 @@ void Timer3_Callback(void){
 
 	// Cambiamos el valor de la posicion para representar todas las posiciones del numero
 	// === Hacemos uso de la compuerta XOR para garantizar el cambio (0[pos] 1--> 1  and 1[pos] 1-->0 )
-	posicion = posicion^mask;
+	posicion = posicion^maskChangeDisplay;
 }
 /*
  * Overwrite function for control del tiempo
  * */
 void Timer5_Callback(void){
 
-	//Sumamos el valor del counter para garantizar la cuenta ascentente
-	counter_i = counter_i +1;
+	//Subimos la bandera de la interrupción de Control Timer
+	banderaControlTimer = 1;
 }
 
 /*
