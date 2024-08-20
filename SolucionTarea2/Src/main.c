@@ -84,13 +84,14 @@ int main(void)
 				// Condición para representar decena:
 				if(posicion == 1){
 
-					//Activamos vcc del siete segmentos para tener en cuenta decenas
+					//Desactivamos vcc del siete segmentos para decena y unidad
+					// *****Esto para evitar aparición de fantasmas
 					// == NOTA importante: Debido a que el siete segmentos a utilizar es de ánodo común
 					// == entonces necesitamos generar conexión a tierra, en lugar de alimentación, para
 					// == lograr la activación de los mismos pines, es decir que en este caso
 					// == ponemos SET para desactivar y RESET para activar
 					gpio_WritePin(&vcc_unidad, SET);
-					gpio_WritePin(&vcc_decena, RESET);
+					gpio_WritePin(&vcc_decena, SET);
 
 					//Ejecutamos la configuración de los pines para la DECENA
 					gpio_WritePin(&segmentoLed_a, counter_a(decena/10));
@@ -101,15 +102,19 @@ int main(void)
 					gpio_WritePin(&segmentoLed_f, counter_f(decena/10));
 					gpio_WritePin(&segmentoLed_g, counter_g(decena/10));
 
+					//Activamos vcc del siete segmentos correspondiente a las decenas
+					gpio_WritePin(&vcc_decena, RESET);
+
 				} else{
 
-					//Activamos vcc del siete segmentos para tener en cuenta unidades
+					//Desactivamos vcc del siete segmentos para unidad y decena
+					// *****Esto para evitar aparición de fantasmas
 					// == NOTA importante: Debido a que el siete segmentos a utilizar es de ánodo común
 					// == entonces necesitamos generar conexión a tierra, en lugar de alimentación, para
 					// == lograr la activación de los mismos pines, es decir que en este caso
 					// == ponemos SET para desactivar y RESET para activar
 					gpio_WritePin(&vcc_decena, SET);
-					gpio_WritePin(&vcc_unidad, RESET);
+					gpio_WritePin(&vcc_unidad, SET);
 
 					//Ejecutamos la configuración de los pines para la UNIDAD
 					gpio_WritePin(&segmentoLed_a, counter_a(unidad));
@@ -119,6 +124,9 @@ int main(void)
 					gpio_WritePin(&segmentoLed_e, counter_e(unidad));
 					gpio_WritePin(&segmentoLed_f, counter_f(unidad));
 					gpio_WritePin(&segmentoLed_g, counter_g(unidad));
+
+					//Activamos vcc del siete segmentos correspondiente a las decenas
+					gpio_WritePin(&vcc_unidad, RESET);
 				}
 
 			}
