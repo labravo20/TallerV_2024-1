@@ -1180,97 +1180,97 @@ static void exti_config_interrupt(EXTI_Config_t *extiConfig){
 	    //Configuramos para el pin 0
 		case 0: {
 			//Interrupt mask on input line
-			EXTI->IMR &= ~(EXTI_IMR_MR0);
+			EXTI->IMR |= (EXTI_IMR_MR0);
 		}
 
 		//Configuramos para el pin 1
 		case 1: {
 			//Interrupt mask on input line
-			EXTI->IMR &= ~(EXTI_IMR_MR1);
+			EXTI->IMR |= (EXTI_IMR_MR1);
 		}
 
 		//Configuramos para el pin 2
 		case 2: {
 			//Interrupt mask on input line
-			EXTI->IMR &= ~(EXTI_IMR_MR2);
+			EXTI->IMR |= (EXTI_IMR_MR2);
 		}
 
 		//Configuramos para el pin 3
 		case 3: {
 			//Interrupt mask on input line
-			EXTI->IMR &= ~(EXTI_IMR_MR3);
+			EXTI->IMR |= (EXTI_IMR_MR3);
 		}
 
 		//Configuramos para el pin 4
 		case 4: {
 			//Interrupt mask on input line
-			EXTI->IMR &= ~(EXTI_IMR_MR4);
+			EXTI->IMR |= (EXTI_IMR_MR4);
 		}
 
 		//Configuramos para el pin 5
 		case 5: {
 			//Interrupt mask on input line
-			EXTI->IMR &= ~(EXTI_IMR_MR5);
+			EXTI->IMR |= (EXTI_IMR_MR5);
 		}
 
 		//Configuramos para el pin 6
 		case 6: {
 			//Interrupt mask on input line
-			EXTI->IMR &= ~(EXTI_IMR_MR6);
+			EXTI->IMR |= (EXTI_IMR_MR6);
 		}
 
 		//Configuramos para el pin 7
 		case 7: {
 			//Interrupt mask on input line
-			EXTI->IMR &= ~(EXTI_IMR_MR7);
+			EXTI->IMR |= (EXTI_IMR_MR7);
 		}
 
 		//Configuramos para el pin 8
 		case 8: {
 			//Interrupt mask on input line
-			EXTI->IMR &= ~(EXTI_IMR_MR8);
+			EXTI->IMR |= (EXTI_IMR_MR8);
 		}
 
 		//Configuramos para el pin 9
 		case 9: {
 			//Interrupt mask on input line
-			EXTI->IMR &= ~(EXTI_IMR_MR9);
+			EXTI->IMR |= (EXTI_IMR_MR9);
 		}
 
 		//Configuramos para el pin 10
 		case 10: {
 			//Interrupt mask on input line
-			EXTI->IMR &= ~(EXTI_IMR_MR10);
+			EXTI->IMR |= (EXTI_IMR_MR10);
 		}
 
 		//Configuramos para el pin 11
 		case 11: {
 			//Interrupt mask on input line
-			EXTI->IMR &= ~(EXTI_IMR_MR11);
+			EXTI->IMR |= (EXTI_IMR_MR11);
 		}
 
 		//Configuramos para el pin 12
 		case 12: {
 			//Interrupt mask on input line
-			EXTI->IMR &= ~(EXTI_IMR_MR12);
+			EXTI->IMR |= (EXTI_IMR_MR12);
 		}
 
 		//Configuramos para el pin 13
 		case 13: {
 			//Interrupt mask on input line
-			EXTI->IMR &= ~(EXTI_IMR_MR13);
+			EXTI->IMR |= (EXTI_IMR_MR13);
 		}
 
 		//Configuramos para el pin 14
 		case 14: {
 			//Interrupt mask on input line
-			EXTI->IMR &= ~(EXTI_IMR_MR14);
+			EXTI->IMR |= (EXTI_IMR_MR14);
 		}
 
 		//Configuramos para el pin 15
 		case 15: {
 			//Interrupt mask on input line
-			EXTI->IMR &= ~(EXTI_IMR_MR15);
+			EXTI->IMR |= (EXTI_IMR_MR15);
 		}
 
 		}
