@@ -18,23 +18,27 @@ GPIO_Handler_t userLed       = {0};//Pin A5
 GPIO_Handler_t userLed1      = {0};//Pin C6
 GPIO_Handler_t userLed2      = {0};//Pin A7
 GPIO_Handler_t userLed3      = {0};//Pin C8
-GPIO_Handler_t userSwitch    = {0};//Pin A10
-GPIO_Handler_t userData      = {0};//Pin B5
-GPIO_Handler_t userSWenc     = {0};//Pin B3
-GPIO_Handler_t userCKenc     = {0};//Pin B13
+
+//GPIO_Handler_t userSwitch    = {0};//Pin A0 //Indica cambio en dirección de encendido/apagado
+
+GPIO_Handler_t userCKenc     = {0};//Pin B3  //EXTI clock --> interrupción
+GPIO_Handler_t userData      = {0};//Pin B5  //Data encoder (conociendo clock ya se conoce esta)
+//GPIO_Handler_t userSWenc     = {0};//Pin A10 //EXTI switch --> interrupción
 
 //Definimos los timers que se emplean
 Timer_Handler_t blinkTimer   = {0}; //Timer para el blinky pin A5
 
 //Definición lineas EXTI que vamos a utilizar
-EXTI_Config_t swExti    = {0}; //EXTI linea 3 para el sw del encoder
+//EXTI_Config_t swExti    = {0};  //EXTI linea 3 para el sw del encoder
 EXTI_Config_t ckExti    = {0}; //EXTI linea 13 para el ck del encoder
 
 //Variables auxiliares que ayudarán en el código
-uint8_t dir0      = {0};
-uint8_t dir1      = {0};
-uint8_t dirR      = {0};
-uint8_t numero    = {0};
+uint8_t dir0            = {0};
+uint8_t dir1            = {0};
+//uint8_t dirR          = {0};
+uint8_t numero          = {0};
+uint8_t banderaExti13   = {0};
+uint8_t banderaExti3    = {0};
 
 //Llamamos las funciones definidas al final del código
 void suma(uint8_t *conteo);
@@ -56,6 +60,91 @@ int main(void)
     /* Loop forever */
 	while(1){
 
+		//Verificamos si la bandera de la interrupción está levantada
+		if(banderaExti13 ==1){
+
+			//Bajamos la bandera
+			banderaExti13 = 0;
+
+			//Establecemos cuál será la dirección de encendido/apagado
+
+			//1.0 Almacenamos la informacion recibida por los datos de la señal clock y la señal data
+			dir0 = gpio_ReadPin(&userCKenc);
+			dir1 = gpio_ReadPin(&userData);
+
+			//2.0 Definimos condiciones para diferenciación entre suma y resta
+			if(dir0 != dir1){
+
+				//ENCENDEMOS LED QUE INDICA DIRECCIÓN ASOCIADA A RESTA
+				//gpio_WritePin(&userLed1, SET);
+
+				if(numero == 0){
+					numero = 3;
+					resta(&numero);
+				} else{
+					resta(&numero);
+				}
+
+			} else{
+
+				//gpio_WritePin(&userLed1, RESET);
+
+				if(numero == 3){
+					numero = 0;
+					suma(&numero);
+				} else{
+					suma(&numero);
+				}
+			}
+
+			//Establecemos representación del número en los LEDs
+			switch(numero){
+
+			case 0:{
+
+				gpio_WritePin(&userLed1, RESET);
+				gpio_WritePin(&userLed2, RESET);
+				gpio_WritePin(&userLed3, RESET);
+
+				break;
+			}
+			case 1:{
+
+				gpio_WritePin(&userLed1, SET);
+				gpio_WritePin(&userLed2, RESET);
+				gpio_WritePin(&userLed3, RESET);
+
+				break;
+			}
+			case 2:{
+
+				gpio_WritePin(&userLed1, SET);
+				gpio_WritePin(&userLed2, SET);
+				gpio_WritePin(&userLed3, RESET);
+
+				break;
+			}
+			case 3:{
+
+				gpio_WritePin(&userLed1, SET);
+				gpio_WritePin(&userLed2, SET);
+				gpio_WritePin(&userLed3, SET);
+
+				break;
+			}
+
+			}
+
+		}
+
+		//Verificamos si la bandera de la interrupción está levantada
+		//if(banderaExti3 ==1){
+
+			//Bajamos la bandera
+			//banderaExti3 = 0;
+
+			//Preguntar comportamiento específico del switch del encoder
+		//}
 	}
 }
 
@@ -108,15 +197,15 @@ void initSys(void){
 	gpio_Config(&userLed3);
 
 	/*Configuramos el pinA10  --> A0*/
-	userSwitch.pGPIOx                         = GPIOA;
-	userSwitch.pinConfig.GPIO_PinNumber       = PIN_0;
-	userSwitch.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
-	userSwitch.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
-	userSwitch.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
-	userSwitch.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+	//userSwitch.pGPIOx                         = GPIOA;
+	//userSwitch.pinConfig.GPIO_PinNumber       = PIN_0;
+	//userSwitch.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+	//userSwitch.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+	//userSwitch.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+	//userSwitch.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
 
 	//Cargamos la configuración en los registros que gobiernan el puerto
-	gpio_Config(&userSwitch);
+	//gpio_Config(&userSwitch);
 
 	/*Configuramos el pinB5*/
 	userData.pGPIOx                         = GPIOB;
@@ -127,19 +216,19 @@ void initSys(void){
 	gpio_Config(&userData);
 
 	/*Configuramos el pinB3  --> A10*/
-	userSWenc.pGPIOx                         = GPIOA;
-	userSWenc.pinConfig.GPIO_PinNumber       = PIN_10;
-	userSWenc.pinConfig.GPIO_PinMode         = GPIO_MODE_IN;
+	//userSWenc.pGPIOx                         = GPIOA;
+	//userSWenc.pinConfig.GPIO_PinNumber       = PIN_10;
+	//userSWenc.pinConfig.GPIO_PinMode         = GPIO_MODE_IN;
 
 	//Cargamos la configuración en los registros que gobiernan el puerto
-	gpio_Config(&userSWenc);
+	//gpio_Config(&userSWenc);
 
-	/*Configuramos el EXTI sw que será en la linea 3*/
-	swExti.pGPIOHandler = &userSWenc;
-	swExti.edgeType     = EXTERNAL_INTERRUPT_RISING_EDGE;
+	/*Configuramos el EXTI sw que será en la linea 3--> Switch*/
+	//swExti.pGPIOHandler = &userSWenc;
+	//swExti.edgeType     = EXTERNAL_INTERRUPT_RISING_EDGE;
 
 	//Cargamos la configuración de la interrupción externa (EXTI)
-	exti_Config(&swExti);
+	//exti_Config(&swExti);
 
 	/*Configuramos el pinB13  --> B3*/
 	userCKenc.pGPIOx                         = GPIOB;
@@ -182,16 +271,17 @@ void Timer4_Callback(void){
 	gpio_TooglePin(&userLed);
 }
 
-void callback_ExtInt10(void){
-
-}
-
 void callback_ExtInt3(void){
 
-	//Almacenamos la informacion recibida por los datos
-	dir0 = gpio_ReadPin(&userCKenc);
-	dir1 = gpio_ReadPin(&userData);
+	//Activamos bandera de la interrupción
+	banderaExti13 = 1;
 }
+
+//void callback_ExtInt3(void){
+
+	//Activamos bandera de la interrupción
+	//banderaExti3 = 1;
+//}
 
 //Función que suma 1 a la variable que indiquemos como parámetro
 void suma(uint8_t *conteo){
