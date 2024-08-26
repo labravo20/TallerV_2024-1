@@ -355,7 +355,16 @@ uint8_t usart_getRxData(void){
  */
 void USART2_IRQHandler(void){
 	// Evaluamos si la interrupción que se dio es por RX
-    // Escriba acá su código
+    if(USART2 -> SR & USART_SR_RXNE){
+
+    	//Bajamos la bandera
+    	USART2 -> SR &= ~(USART_SR_RXNE);
+
+    	auxRxData = (uint8_t) USART2 -> DR;
+
+    	//Llamamos a la función callback
+    	usart2_RxCallback();
+    }
 }
 
 /* Handler de la interrupción del USART
@@ -363,7 +372,16 @@ void USART2_IRQHandler(void){
  */
 void USART6_IRQHandler(void){
 	// Evaluamos si la interrupción que se dio es por RX
-    // Escriba acá su código
+	if(USART6 -> SR & USART_SR_RXNE){
+
+		//Bajamos la bandera
+		USART6 -> SR &= ~(USART_SR_RXNE);
+
+		auxRxData = (uint8_t) USART6 -> DR;
+
+		//Llamamos a la función callback
+	    usart6_RxCallback();
+	}
 }
 
 /* Handler de la interrupción del USART
@@ -371,7 +389,16 @@ void USART6_IRQHandler(void){
  */
 void USART1_IRQHandler(void){
 	// Evaluamos si la interrupción que se dio es por RX
-    // Escriba acá su código
+	if(USART1 -> SR & USART_SR_RXNE){
+
+		//Bajamos la bandera
+		USART1 -> SR &= ~(USART_SR_RXNE);
+
+		auxRxData = (uint8_t) USART1 -> DR;
+
+		//Llamamos a la función callback
+	    usart1_RxCallback();
+	}
 }
 
 
