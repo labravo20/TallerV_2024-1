@@ -15,39 +15,58 @@
 #include "exti_driver_hal.h"
 #include "usart_driver_hal.h"
 
-//Definimos pin de prueba
-GPIO_Handler_t userLed        = {0}; //PinA5
-GPIO_Handler_t stateLed       = {0}; //PinH1
-GPIO_Handler_t functionLed    = {0}; //
+USART_Handler_t   usart2    = {0};
+GPIO_Handler_t    usart2t   = {0};
 
-//Blinky timer
-Timer_Handler_t blinkTimer = {0};
+Timer_Handler_t  blinkTimer = {0};
+GPIO_Handler_t   userLed    = {0};
+GPIO_Handler_t   userLed1   = {0};
 
-//Comunicación RS-232 con el PC, ya habilitada en la board del Nucleo
-//Utiliza la conexión USB
-USART_Handler_t   commSerial   = {0};
-GPIO_Handler_t    pinTx        = {0};
-GPIO_Handler_t    pinRx        = {0};
-uint8_t           sendMsg      =  0 ;
-char bufferData[64]            = {0};
+EXTI_Config_t   imprimir    = {0};
+GPIO_Handler_t  user13      = {0};
 
+//USART_Handler_t usart2rx  = {0};
+GPIO_Handler_t   usart2trx  = {0};
+
+char bufferMsg[128]         = {0};
+
+uint8_t bandera             = {0};
+uint8_t sendMsg             = {0};
+uint8_t receivedChar        = {0};
 
 //Definición de las cabeceras de las funciones del main
-void initialSystem(void);
+void initSys(void);
 
 
 /*  Main function  */
 int main(void)
 {
 	//Inicialización de los elementos del sistema
-	initialSystem();
+	initSys();
+
+	//Mandamos un "Hola mundo" indicando que la configuración está cargada
 
     /* Loop forever */
 	while(1){
 
-		if(sendMsg){
-			sendMsg = 0;
-			usart_writeMsg(&commSerial, "Hola Mundo!!\n\r");
+		if(receivedChar){
+
+			if(receivedChar == 'P'){
+				usart_writeMsg(&usart2, "Testing, Testing!!\n\r");
+			}
+			if(receivedChar == 's'){
+				usart_writeMsg(&usart2, "Hola\n\r");
+			}
+			if(receivedChar == 'C'){
+				usart_writeMsg(&usart2, "Led on\n\r");
+				gpio_WritePin(&userLed1, SET);
+			}
+			if(receivedChar == 'S'){
+				usart_writeMsg(&usart2, "Led off\n\r");
+				gpio_WritePin(&userLed1, RESET);
+			}
+
+			receivedChar = 0;
 		}
 
 	}
@@ -55,7 +74,7 @@ int main(void)
 }
 
 //Definimos función para configuración inicial
-void initialSystem(void){
+void initSys(void){
 
 	/* Configuramos el pin A5*/
 	userLed.pGPIOx                         = GPIOA;
@@ -68,27 +87,21 @@ void initialSystem(void){
 	//Cargamos la configuración en los registros que gobiernan el puerto
 	gpio_Config(&userLed);
 
-	//Ejecutamos la configuración realizada en A5
-	gpio_WritePin(&userLed, SET);
-
-	/* Configuramos el pin H1 --> LED DE ESTADO*/
-	stateLed.pGPIOx                         = GPIOH;
-	stateLed.pinConfig.GPIO_PinNumber       = PIN_1;
-	stateLed.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
-	stateLed.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
-	stateLed.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
-	stateLed.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+	/* Configuramos el pin A9*/
+	userLed1.pGPIOx                         = GPIOA;
+	userLed1.pinConfig.GPIO_PinNumber       = PIN_9;
+	userLed1.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+	userLed1.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+	userLed1.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+	userLed1.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
 
 	//Cargamos la configuración en los registros que gobiernan el puerto
-	gpio_Config(&stateLed);
-
-	//Ejecutamos la configuración realizada en H1
-	gpio_WritePin(&stateLed, SET);
+	gpio_Config(&userLed1);
 
 	/* Configuramos el timer del blinky*/
 	blinkTimer.pTIMx                             = TIM2;
 	blinkTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 1 ms
-	blinkTimer.TIMx_Config.TIMx_Period           = 500;     //De la mano con el prescaler, genera int ada 500 ms
+	blinkTimer.TIMx_Config.TIMx_Period           = 250;     //De la mano con el prescaler, genera int ada 500 ms
 	blinkTimer.TIMx_Config.TIMx_mode             = TIMER_UP_COUNTER;
 	blinkTimer.TIMx_Config.TIMx_InterruptEnable  = TIMER_INT_ENABLE;
 
@@ -100,39 +113,65 @@ void initialSystem(void){
 
 	/* Configuramos los pines del puerto serial*/
 
-	/* Pin sobre los que funciona el USART2 (TX)*/
-	pinTx.pGPIOx                          = GPIOA;
-	pinTx.pinConfig.GPIO_PinNumber        = PIN_2;
-	pinTx.pinConfig.GPIO_PinMode          = GPIO_MODE_ALTFN;
-	pinTx.pinConfig.GPIO_PinAltFunMode    = AF7;
-	pinTx.pinConfig.GPIO_PinPuPdControl   = GPIO_PUPDR_NOTHING;
-	pinTx.pinConfig.GPIO_PinOutputSpeed   = GPIO_OSPEED_FAST;
-
-	//Cargamos la configuración en los registros que gobiernan el puerto
-	gpio_Config(&pinTx);
-
 	/* Pin sobre los que funciona el USART2 (RX)*/
-	pinRx.pGPIOx                          = GPIOA;
-	pinRx.pinConfig.GPIO_PinNumber        = PIN_3;
-	pinRx.pinConfig.GPIO_PinMode          = GPIO_MODE_ALTFN;
-	pinRx.pinConfig.GPIO_PinAltFunMode    = AF7;
-	pinRx.pinConfig.GPIO_PinPuPdControl   = GPIO_PUPDR_NOTHING;
-	pinRx.pinConfig.GPIO_PinOutputSpeed   = GPIO_OSPEED_FAST;
+	usart2t.pGPIOx                          = GPIOA;
+	usart2t.pinConfig.GPIO_PinNumber        = PIN_2;
+	usart2t.pinConfig.GPIO_PinMode          = GPIO_MODE_ALTFN;
+	usart2t.pinConfig.GPIO_PinOutputType    = GPIO_OTYPE_PUSHPULL;
+	usart2t.pinConfig.GPIO_PinOutputSpeed   = GPIO_OSPEED_MEDIUM;
+	usart2t.pinConfig.GPIO_PinPuPdControl   = GPIO_PUPDR_NOTHING;
+	usart2t.pinConfig.GPIO_PinAltFunMode    = AF7;
 
 	//Cargamos la configuración en los registros que gobiernan el puerto
-	gpio_Config(&pinRx);
+	gpio_Config(&usart2t);
 
 	/* Configuramos el puerto serial USART2 */
-	commSerial.ptrUSARTx                  = USART2;
-	commSerial.USART_Config.baudrate      = USART_BAUDRATE_115200;
-	commSerial.USART_Config.datasize      = USART_DATASIZE_8BIT;
-	commSerial.USART_Config.parity        = USART_PARITY_NONE;
-	commSerial.USART_Config.stopbits      = USART_STOPBIT_1;
-	commSerial.USART_Config.mode          = USART_MODE_TX;
-	commSerial.USART_Config.enableIntRX   = USART_RX_INTERRUP_DISABLE;
+	usart2.ptrUSARTx                  = USART2;
+	usart2.USART_Config.baudrate      = USART_BAUDRATE_230400;
+	usart2.USART_Config.datasize      = USART_DATASIZE_8BIT;
+	usart2.USART_Config.parity        = USART_PARITY_NONE;
+	usart2.USART_Config.stopbits      = USART_STOPBIT_1;
+	usart2.USART_Config.mode          = USART_MODE_RXTX;
+	usart2.USART_Config.enableIntRX   = USART_RX_INTERRUP_ENABLE;
+	usart2.USART_Config.enableIntTX   = USART_TX_INTERRUP_DISABLE;
 
 	//Cargamos la configuración en los registros que gobiernan el puerto
-	usart_WriteChar(&commSerial, '\0');
+	usart_Config(&usart2);
+
+	bufferMsg[0] = 'H';
+	bufferMsg[1] = 'o';
+	bufferMsg[2] = 'l';
+	bufferMsg[3] = 'a';
+	bufferMsg[4] = '\n';
+	bufferMsg[5] = 0;
+
+	usart_writeMsg(&usart2, bufferMsg);
+
+	/* Pin sobre los que funciona el USART3 (RX)*/
+	usart2trx.pGPIOx                          = GPIOA;
+	usart2trx.pinConfig.GPIO_PinNumber        = PIN_3;
+	usart2trx.pinConfig.GPIO_PinMode          = GPIO_MODE_ALTFN;
+	usart2trx.pinConfig.GPIO_PinOutputType    = GPIO_OTYPE_PUSHPULL;
+	usart2trx.pinConfig.GPIO_PinOutputSpeed   = GPIO_OSPEED_MEDIUM;
+	usart2trx.pinConfig.GPIO_PinPuPdControl   = GPIO_PUPDR_NOTHING;
+	usart2trx.pinConfig.GPIO_PinAltFunMode    = AF7;
+
+	//Cargamos la configuración en los registros que gobiernan el puerto
+	gpio_Config(&usart2trx);
+
+
+	user13.pGPIOx                          = GPIOC;
+	user13.pinConfig.GPIO_PinNumber        = PIN_13;
+	user13.pinConfig.GPIO_PinMode          = GPIO_MODE_IN;
+
+	//Cargamos la configuración en los registros que gobiernan el puerto
+	gpio_Config(&user13);
+
+	imprimir.pGPIOHandler      = &user13;
+	imprimir.edgeType          = EXTERNAL_INTERRUPT_FALLING_EDGE;
+
+	exti_Config(&imprimir);
+
 }
 
 /*
@@ -146,8 +185,16 @@ void initialSystem(void){
  * Overwrite function for H1
  * */
 void Timer2_Callback(void){
-	gpio_TooglePin(&stateLed);
+	gpio_TooglePin(&userLed);
 	sendMsg = 1;
+}
+
+void callback_ExtInt13(void){
+	bandera = 1;
+}
+
+void usart2_RxCallback(void){
+	receivedChar = 1;
 }
 
 /*
