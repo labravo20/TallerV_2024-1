@@ -369,6 +369,9 @@ void USART2_IRQHandler(void){
 	// Evaluamos si la interrupción que se dio es por RX
     if(USART2 -> SR & USART_SR_RXNE){
 
+    	//Lectura (igualarlo a la variabe) --> Al leerlo se baja la bandera
+    	auxRxData = USART2->DR;
+
     	//Llamamos a la función callback
     	usart2_RxCallback();
     }
@@ -381,6 +384,9 @@ void USART6_IRQHandler(void){
 	// Evaluamos si la interrupción que se dio es por RX
 	if(USART6 -> SR & USART_SR_RXNE){
 
+		//Lectura (igualarlo a la variabe) --> Al leerlo se baja la bandera
+		auxRxData = USART6->DR;
+
 		//Llamamos a la función callback
 	    usart6_RxCallback();
 	}
@@ -392,6 +398,9 @@ void USART6_IRQHandler(void){
 void USART1_IRQHandler(void){
 	// Evaluamos si la interrupción que se dio es por RX
 	if(USART1 -> SR & USART_SR_RXNE){
+
+		//Lectura (igualarlo a la variabe) --> Al leerlo se baja la bandera
+		auxRxData = USART1->DR;
 
 		//Llamamos a la función callback
 	    usart1_RxCallback();

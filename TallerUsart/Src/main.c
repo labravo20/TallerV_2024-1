@@ -7,15 +7,18 @@
  */
 
 #include <stdint.h>
+#include <string.h>
 #include "stm32f4xx.h"
 #include "stm32_assert.h"
 #include "gpio_driver_hal.h"
 #include "timer_driver_hal.h"
+#include "exti_driver_hal.h"
 #include "usart_driver_hal.h"
 
 //Definimos pin de prueba
-GPIO_Handler_t userLed    = {0}; //PinA5
-GPIO_Handler_t stateLed    = {0}; //PinH1
+GPIO_Handler_t userLed        = {0}; //PinA5
+GPIO_Handler_t stateLed       = {0}; //PinH1
+GPIO_Handler_t functionLed    = {0}; //
 
 //Blinky timer
 Timer_Handler_t blinkTimer = {0};
