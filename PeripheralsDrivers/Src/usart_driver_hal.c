@@ -135,23 +135,23 @@ static void usart_config_parity(USART_Handler_t *ptrUsartHandler){
  * SI HAY parity, el tamaño debe ser 9 bit.
  */
 static void usart_config_datasize(USART_Handler_t *ptrUsartHandler){
-	// Verificamos cual es el tamaño de dato que deseamos
-	if(ptrUsartHandler->USART_Config.datasize == USART_DATASIZE_8BIT){
+	// Verificamos si está trabajando o no con paridad.
+	if(ptrUsartHandler->USART_Config.parity == USART_PARITY_NONE){
 
-		// Verificamos si se esta trabajando o no con paridad
-		if(ptrUsartHandler->USART_Config.parity == USART_PARITY_NONE){
+		// Verificamos cual es el tamaño del dato que deseamos
+		if(ptrUsartHandler->USART_Config.datasize == USART_DATASIZE_8BIT){
 			// Deseamos trabajar con datos de 8 bits
 			//Desactivamos bit correspondiente a M (debe activarse para usar paridad)
-			ptrUsartHandler->ptrUSARTx->CR1 &= ~USART_CR1_M;
+			ptrUsartHandler->ptrUSARTx->CR1 &= ~(USART_CR1_M);
 		}
 		else{
-			// Si la paridad esta activa, debemos incluir un bit adicional
+			// Deseamos trabajar con datos de 9 bits
 			//Activamos bit correspondiente a M (debe activarse para usar paridad)
 			ptrUsartHandler->ptrUSARTx->CR1 |= USART_CR1_M;
 		}
 
 	}else{
-		// Deseamos trabajar con datos de 9 bits
+		// Deseamos trabajar con paridad
 		//Activamos bit correspondiente a M (debe activarse para usar paridad)
 		ptrUsartHandler->ptrUSARTx->CR1 |= USART_CR1_M;
 	}
@@ -334,7 +334,8 @@ int usart_WriteChar(USART_Handler_t *ptrUsartHandler, int dataToSend ){
 		__NOP();
 	}
 
-	// Escriba acá su código
+	// Cuando el TDR está listo para transmisión de datos se procede a almacenar la indormación del DR
+	ptrUsartHandler->ptrUSARTx->DR = dataToSend;
 
 	return dataToSend;
 }
@@ -343,6 +344,17 @@ int usart_WriteChar(USART_Handler_t *ptrUsartHandler, int dataToSend ){
  *
  */
 void usart_writeMsg(USART_Handler_t *ptrUsartHandler, char *msgToSend ){
+
+	//Evaluamos que el caracter a enviar sea diferente al caracter NULO
+	//Si lo anterior se cumple se almacena en el Data Register
+	while(*msgToSend != '\0'){
+
+		//Almacenamos la información en el DR
+		usart_WriteChar(ptrUsartHandler, *msgToSend); //CONFIRMAR
+
+		//Modificamos valor puntero para que pase a evaluar la totalidad del string
+		msgToSend++;
+	}
 
 }
 
@@ -357,11 +369,6 @@ void USART2_IRQHandler(void){
 	// Evaluamos si la interrupción que se dio es por RX
     if(USART2 -> SR & USART_SR_RXNE){
 
-    	//Bajamos la bandera
-    	USART2 -> SR &= ~(USART_SR_RXNE);
-
-    	auxRxData = (uint8_t) USART2 -> DR;
-
     	//Llamamos a la función callback
     	usart2_RxCallback();
     }
@@ -374,11 +381,6 @@ void USART6_IRQHandler(void){
 	// Evaluamos si la interrupción que se dio es por RX
 	if(USART6 -> SR & USART_SR_RXNE){
 
-		//Bajamos la bandera
-		USART6 -> SR &= ~(USART_SR_RXNE);
-
-		auxRxData = (uint8_t) USART6 -> DR;
-
 		//Llamamos a la función callback
 	    usart6_RxCallback();
 	}
@@ -390,11 +392,6 @@ void USART6_IRQHandler(void){
 void USART1_IRQHandler(void){
 	// Evaluamos si la interrupción que se dio es por RX
 	if(USART1 -> SR & USART_SR_RXNE){
-
-		//Bajamos la bandera
-		USART1 -> SR &= ~(USART_SR_RXNE);
-
-		auxRxData = (uint8_t) USART1 -> DR;
 
 		//Llamamos a la función callback
 	    usart1_RxCallback();
