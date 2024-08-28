@@ -52,7 +52,7 @@ int main(void)
 		if(receivedChar){
 
 			if(receivedChar == 'P'){
-				usart_writeMsg(&usart2, "Testing, Testing!!\n\r");
+				usart_writeMsg(&usart2, "Hi!\n\r");
 			}
 			if(receivedChar == 's'){
 				usart_writeMsg(&usart2, "Hola\n\r");
@@ -194,7 +194,11 @@ void callback_ExtInt13(void){
 }
 
 void usart2_RxCallback(void){
-	receivedChar = 1;
+
+	//Importante!!!
+	// Asignamos es valor de la función que llama usrt_getRxData, puesto que esta toma el
+	//valor que está cargado en el DR
+	receivedChar = usart_getRxData();
 }
 
 /*
