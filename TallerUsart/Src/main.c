@@ -19,6 +19,7 @@ USART_Handler_t   usart2    = {0};
 GPIO_Handler_t    usart2t   = {0};
 
 Timer_Handler_t  blinkTimer = {0};
+Timer_Handler_t  refreshTimer = {0};
 GPIO_Handler_t   userLed    = {0};
 GPIO_Handler_t   userLed1   = {0};
 
@@ -29,13 +30,20 @@ GPIO_Handler_t  user13      = {0};
 GPIO_Handler_t   usart2trx  = {0};
 
 char bufferMsg[128]         = {0};
+char bufferMsgVar[128]         = {0};
 
 uint8_t bandera             = {0};
 uint8_t sendMsg             = {0};
 uint8_t receivedChar        = {0};
+uint8_t posicionSave        = {0};
+uint8_t msgListo            = {0};
+
+uint8_t commandBuffer    = {0};
+uint8_t conteo   ={0};
 
 //Definición de las cabeceras de las funciones del main
 void initSys(void);
+void analyzeCommand(char *buffer);
 
 
 /*  Main function  */
@@ -44,34 +52,56 @@ int main(void)
 	//Inicialización de los elementos del sistema
 	initSys();
 
-	//Mandamos un "Hola mundo" indicando que la configuración está cargada
-
     /* Loop forever */
 	while(1){
 
+		if(sendMsg){
+			usart_writeMsg(&usart2, "Escribe un comando\n\r");
+			sprintf(bufferMsgVar, "Se ha realizado un blinky %d\n\r",conteo);
+			usart_writeMsg(&usart2, bufferMsgVar);
+			sendMsg = 0;
+		}
+
 		if(receivedChar){
 
-			if(receivedChar == 'P'){
-				usart_writeMsg(&usart2, "Hi!\n\r");
-			}
-			if(receivedChar == 's'){
-				usart_writeMsg(&usart2, "Hola\n\r");
-			}
-			if(receivedChar == 'C'){
-				usart_writeMsg(&usart2, "Led on\n\r");
-				gpio_WritePin(&userLed1, SET);
-			}
-			if(receivedChar == 'S'){
-				usart_writeMsg(&usart2, "Led off\n\r");
-				gpio_WritePin(&userLed1, RESET);
+			//Se define ' ' como el caracter necesario para activar la bandera de la función
+			//a continuación.
+			if(receivedChar == ' '){
+				msgListo = 1;
 			}
 
+			else{
+				//En caso de no tratarse del caracter ' ' el string se guardará en bufferMsg
+				bufferMsg[posicionSave] = receivedChar;
+				posicionSave++;
+			}
 			receivedChar = 0;
 		}
 
-	}
+		//if(msgListo){
 
-}
+			//if(strcmp(bufferMsg, "help1")==0){
+				//usart_writeMsg(&usart2, "Testing, Testing!!!\n\r");
+			//}
+			//msgListo = 0;
+	   //}
+
+		if(msgListo){
+
+			analyzeCommand(bufferMsg);
+
+			//Para limpiar:
+			for (uint8_t i=0; i <sizeof(bufferMsg); i++){
+				bufferMsg[i] = 0;
+			}
+
+			posicionSave= 0;
+			msgListo = 0;
+		}
+
+	} //Cerrando cicli while
+
+}// Cerrando función main
 
 //Definimos función para configuración inicial
 void initSys(void){
@@ -110,6 +140,19 @@ void initSys(void){
 
 	//Encendemos el Timer
 	timer_SetState(&blinkTimer, TIMER_ON);
+
+	/* Configuramos el timer del refresco*/
+		refreshTimer.pTIMx                             = TIM3;
+		refreshTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 1 ms
+		refreshTimer.TIMx_Config.TIMx_Period           = 1000;     //De la mano con el prescaler, genera int ada 500 ms
+		refreshTimer.TIMx_Config.TIMx_mode             = TIMER_UP_COUNTER;
+		refreshTimer.TIMx_Config.TIMx_InterruptEnable  = TIMER_INT_ENABLE;
+
+		/* Configuramos el Timer */
+		timer_Config(&refreshTimer);
+
+		//Encendemos el Timer
+		timer_SetState(&refreshTimer, TIMER_ON);
 
 	/* Configuramos los pines del puerto serial*/
 
@@ -174,6 +217,25 @@ void initSys(void){
 
 }
 
+void analyzeCommand(char *buffer){
+
+	if(strcmp(buffer, "MENU") == 0){
+		usart_writeMsg(&usart2,"1. Escribir HELP para desplegar manual de instrucciones\n\r"  );
+		usart_writeMsg(&usart2,"2. Escribir RESET para reiniciar el sistema\n\r");
+	}
+	else if(strcmp(buffer, "HELP")==0){
+
+		usart_writeMsg(&usart2, "Se ha desplegado el manual de inscripciones\n\r");
+	}
+	else if(strcmp(buffer, "RESET")==0){
+
+		usart_writeMsg(&usart2, "Se ha reiniciado el sistema\n\r");
+	}
+	else{
+		usart_writeMsg(&usart2, "Error el script recibido, reintentar\n\r");
+	}
+}
+
 /*
  * Overwrite function for A5
  * */
@@ -186,6 +248,10 @@ void initSys(void){
  * */
 void Timer2_Callback(void){
 	gpio_TooglePin(&userLed);
+	conteo++;
+}
+
+void Timer3_Callback(void){
 	sendMsg = 1;
 }
 
