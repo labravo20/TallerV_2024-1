@@ -22,8 +22,10 @@ GPIO_Handler_t segmentoLed_d      = {0}; //PinC11 (led "d")
 GPIO_Handler_t segmentoLed_e      = {0}; //PinC10 (led "e")
 GPIO_Handler_t segmentoLed_f      = {0}; //PinB12 (led "f")
 GPIO_Handler_t segmentoLed_g      = {0}; //PinB7  (led "g")
-GPIO_Handler_t vcc_decena         = {0}; //PinB6
 GPIO_Handler_t vcc_unidad         = {0}; //PinC2
+GPIO_Handler_t vcc_decena         = {0}; //PinB6
+GPIO_Handler_t vcc_centena        = {0}; //PinC7
+GPIO_Handler_t vcc_mil            = {0}; //PinA10
 
 //Definimos timers a utilizar
 Timer_Handler_t blinkTimer   = {0}; // Timer para el blinking
@@ -31,7 +33,7 @@ Timer_Handler_t displayTimer = {0}; // Timer asociado al display del siete segme
 Timer_Handler_t controlTimer = {0}; // Timer asociado al control del tiempo
 
 // Definimos variable para activar contador
-uint8_t counter_i = 0;
+uint16_t counter_i = 400;
 
 //Definiendo funciones a usar
 uint32_t counter_a(uint8_t counterSietea);
@@ -42,9 +44,11 @@ uint32_t counter_e(uint8_t counterSietee);
 uint32_t counter_f(uint8_t counterSietef);
 uint32_t counter_g(uint8_t counterSieteg);
 
-//Definimos varible para cargar valor de la unidad y la decena del numero a representar
-uint8_t unidad = 0;
-uint8_t decena = 0;
+//Definimos varible para cargar valor del numero a representar
+uint16_t unidad  = 0;
+uint16_t decena  = 0;
+uint16_t centena = 0;
+uint16_t mil     = 0;
 
 //Definimos variable para activar vcc de unidad o vcc de decena
 uint8_t posicion = 0;
@@ -79,11 +83,17 @@ int main(void)
 				//Bajamos la bandera de la interrupción de Display Timer
 				banderaDisplayTimer = 0;
 
-				// Construimos relación para identificar el valor de la unidad del número
-				unidad = counter_i%10;
+				// Construimos relación para identificar el valor de mil del número
+				mil = counter_i - (counter_i%1000);
+
+				// Construimos relación para identificar el valor de centena del número
+				centena = (counter_i%1000) - ((counter_i%1000)%100);
 
 				// Construimos relación para identificar el valor de la decena del número
-				decena = (counter_i) - unidad;
+				decena = ((counter_i%1000)%100) - (((counter_i%1000)%100)%10);
+
+				// Construimos relación para identificar el valor de la unidad del número
+				unidad = (((counter_i%1000)%100)%10);
 
 				// Generamos condicional para representar numero en posición unidad o decena del siete segmentos
 				//La dinámica de funcionemiento hace uso del cambio de una variable al
@@ -92,7 +102,7 @@ int main(void)
 				//que condicionarán los estados de representación para DECENA, UNIDAD y TOTAL APAGADO
 
 				// Condición para representar decena:
-				if(posicion == 1){
+				if(posicion == 2){
 
 					//Desactivamos vcc del siete segmentos para decena y unidad
 					// *****Esto para evitar aparición de fantasmas
@@ -104,6 +114,8 @@ int main(void)
 					//DESACTIVACIÓN DE VCC:
 					gpio_WritePin(&vcc_unidad, SET);
 					gpio_WritePin(&vcc_decena, SET);
+					gpio_WritePin(&vcc_centena, SET);
+					gpio_WritePin(&vcc_mil, SET);
 
 					//Ejecutamos la configuración de los pines para la DECENA
 					gpio_WritePin(&segmentoLed_a, counter_a(decena/10));
@@ -117,15 +129,15 @@ int main(void)
 					//Activamos vcc del siete segmentos correspondiente a las decenas
 					gpio_WritePin(&vcc_decena, RESET);
 
-					apagadoLed = 1; //Con este valor se garantiza que la posicion, despues de
+					apagadoLed = 2; //Con este valor se garantiza que la posicion, despues de
 					                //pasar por el apagado y el posterior cambio de valor con
 					                //el uso de la máscara, será 0...y el código representará unidades
 
-					posicion = 3;  //Con este valor se garantiza que al usar el cambio
+					posicion = 0;  //Con este valor se garantiza que al usar el cambio
 					               //de valor con la máscara el código entre al condicional
 					               //de apagado (posicion será igual a 2)
 
-				} else if (posicion == 2){ //Condición para desactivar todos los LEDs
+				} else if (posicion == 1){ //Condición para desactivar todos los LEDs
 
 					//Apagamos TODOS los leds que puedan estar encendidos en el momento
 					//**** Esto para evitar la aparición de fantasmas
@@ -134,8 +146,80 @@ int main(void)
 
 					posicion = apagadoLed; //La alternación de apagadoLed permitirá la entrada
 					                       //del código tanto al caso de unidad como decena
-					apagadoLed = 1; //Agregar esta condición ayuda en ajuste para entrada
+					//apagadoLed = 1; //Agregar esta condición ayuda en ajuste para entrada
 					                //del código a las unidades.
+
+				} else if (posicion == 3){
+
+					//Desactivamos vcc del siete segmentos para decena y unidad, y adicionalmente apagamos los leds directamente
+					// *****Esto para evitar aparición de fantasmas
+					// == NOTA importante: Debido a que el siete segmentos a utilizar es de ánodo común
+					// == entonces necesitamos generar conexión a tierra, en lugar de alimentación, para
+					// == lograr la activación de los mismos pines, es decir que en este caso
+					// == ponemos SET para desactivar y RESET para activar
+
+					//DESACTIVACIÓN DE LOS LEDS DIRECTAMENTE:
+					//apagadoTotalLeds();
+
+					//DESACTIVACIÓN DE VCC:
+					gpio_WritePin(&vcc_unidad, SET);
+					gpio_WritePin(&vcc_decena, SET);
+					gpio_WritePin(&vcc_centena, SET);
+					gpio_WritePin(&vcc_mil, SET);
+
+					//Ejecutamos la configuración de los pines para la CENTENA
+					gpio_WritePin(&segmentoLed_a, counter_a(centena/100));
+					gpio_WritePin(&segmentoLed_b, counter_b(centena/100));
+					gpio_WritePin(&segmentoLed_c, counter_c(centena/100));
+					gpio_WritePin(&segmentoLed_d, counter_d(centena/100));
+					gpio_WritePin(&segmentoLed_e, counter_e(centena/100));
+					gpio_WritePin(&segmentoLed_f, counter_f(centena/100));
+					gpio_WritePin(&segmentoLed_g, counter_g(centena/100));
+
+					//Activamos vcc del siete segmentos correspondiente a las decenas
+					gpio_WritePin(&vcc_centena, RESET);
+
+					apagadoLed = 5; //Agregar esta condición ayuda en ajuste para entrada
+	                                //del código a las decenas
+					posicion = 0; //Con este valor se garantiza que al usar el cambio
+		                          //de valor con la máscara el código entre al condicional
+		                          //de apagado (posicion será igual a 2)
+
+				} else if (posicion == 4){
+
+					//Desactivamos vcc del siete segmentos para decena y unidad, y adicionalmente apagamos los leds directamente
+					// *****Esto para evitar aparición de fantasmas
+					// == NOTA importante: Debido a que el siete segmentos a utilizar es de ánodo común
+					// == entonces necesitamos generar conexión a tierra, en lugar de alimentación, para
+					// == lograr la activación de los mismos pines, es decir que en este caso
+					// == ponemos SET para desactivar y RESET para activar
+
+					//DESACTIVACIÓN DE LOS LEDS DIRECTAMENTE:
+					//apagadoTotalLeds();
+
+					//DESACTIVACIÓN DE VCC:
+					gpio_WritePin(&vcc_unidad, SET);
+					gpio_WritePin(&vcc_decena, SET);
+					gpio_WritePin(&vcc_centena, SET);
+					gpio_WritePin(&vcc_mil, SET);
+
+					//Ejecutamos la configuración de los pines para la MIL
+					gpio_WritePin(&segmentoLed_a, counter_a(mil/1000));
+					gpio_WritePin(&segmentoLed_b, counter_b(mil/1000));
+					gpio_WritePin(&segmentoLed_c, counter_c(mil/1000));
+					gpio_WritePin(&segmentoLed_d, counter_d(mil/1000));
+					gpio_WritePin(&segmentoLed_e, counter_e(mil/1000));
+					gpio_WritePin(&segmentoLed_f, counter_f(mil/1000));
+					gpio_WritePin(&segmentoLed_g, counter_g(mil/1000));
+
+					//Activamos vcc del siete segmentos correspondiente a las decenas
+					gpio_WritePin(&vcc_mil, RESET);
+
+					apagadoLed = 1; //Agregar esta condición ayuda en ajuste para entrada
+	                                //del código a las decenas
+					posicion = 0; //Con este valor se garantiza que al usar el cambio
+		                          //de valor con la máscara el código entre al condicional
+		                          //de apagado (posicion será igual a 2)
 
 				} else if (posicion == 0){
 
@@ -165,12 +249,8 @@ int main(void)
 					//Activamos vcc del siete segmentos correspondiente a las decenas
 					gpio_WritePin(&vcc_unidad, RESET);
 
-					apagadoLed = 0; //Agregar esta condición ayuda en ajuste para entrada
+					apagadoLed = 3; //Agregar esta condición ayuda en ajuste para entrada
 	                                //del código a las decenas
-					posicion = 3; //Con este valor se garantiza que al usar el cambio
-		                          //de valor con la máscara el código entre al condicional
-		                          //de apagado (posicion será igual a 2)
-
 				}
 
 				// Cambiamos el valor de la posicion para representar todas las posiciones del numero
@@ -190,7 +270,7 @@ int main(void)
 				counter_i = counter_i +1;
 
 				//Delimitamos que el número máximo hasta el cual se contará es 59
-				if(counter_i == 60){
+				if(counter_i == 4096){
 					//Reiniciamos el contador para repetir el ciclo de cuenta
 					counter_i = 0;
 				}
@@ -204,15 +284,15 @@ void initialConfig(){
 
 	    //VERIFICACIÓN DE FUNCIONAMIENTO CONFIGURACIÓN DE DRIVERS
 		/* Configuramos el pin A5*/
-		verificationLed.pGPIOx                         = GPIOA;
-		verificationLed.pinConfig.GPIO_PinNumber       = PIN_5;
-		verificationLed.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
-		verificationLed.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
-		verificationLed.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
-		verificationLed.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+		//verificationLed.pGPIOx                         = GPIOA;
+		//verificationLed.pinConfig.GPIO_PinNumber       = PIN_5;
+		//verificationLed.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+		//verificationLed.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+		//verificationLed.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+		//verificationLed.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
 
 		//Cargamos la configuración en los registros que gobiernan el puerto
-		gpio_Config(&verificationLed);
+		//gpio_Config(&verificationLed);
 
 		//Ejecutamos la configuración realizada en A5
 		//gpio_WritePin(&verificationLed, SET);
@@ -380,7 +460,7 @@ void initialConfig(){
 		//Configuración Timer3 --> display del siete segmentos
 		displayTimer.pTIMx                             = TIM3;
 		displayTimer.TIMx_Config.TIMx_Prescaler        = 16000;
-		displayTimer.TIMx_Config.TIMx_Period           = 5; //Debido a que el código de la representación de los
+		displayTimer.TIMx_Config.TIMx_Period           = 2.5; //Debido a que el código de la representación de los
 		                                                    //numeros en unidad y decena SIEMPRE tiene una pausa intermedia
 		                                                    //para apagar totalmente y asi evitar fantasmas... el código recorre
 		                                                    //el análisis de representación de unidad y decena en UN SEGUNDO,
