@@ -40,7 +40,7 @@ enum{
 
 enum{
 	ALIGNMENT_RIGHT = 0,
-	ALIGNMENT_RIGHT
+	ALIGNMENT_LEFT
 };
 
 enum{
