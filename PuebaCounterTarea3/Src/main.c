@@ -33,7 +33,7 @@ Timer_Handler_t displayTimer = {0}; // Timer asociado al display del siete segme
 Timer_Handler_t controlTimer = {0}; // Timer asociado al control del tiempo
 
 // Definimos variable para activar contador
-uint16_t counter_i = 400;
+uint16_t counter_i = 0;
 
 //Definiendo funciones a usar
 uint32_t counter_a(uint8_t counterSietea);
@@ -146,8 +146,6 @@ int main(void)
 
 					posicion = apagadoLed; //La alternación de apagadoLed permitirá la entrada
 					                       //del código tanto al caso de unidad como decena
-					//apagadoLed = 1; //Agregar esta condición ayuda en ajuste para entrada
-					                //del código a las unidades.
 
 				} else if (posicion == 3){
 
@@ -236,6 +234,8 @@ int main(void)
 					//DESACTIVACIÓN DE VCC:
 					gpio_WritePin(&vcc_unidad, SET);
 					gpio_WritePin(&vcc_decena, SET);
+					gpio_WritePin(&vcc_centena, SET);
+					gpio_WritePin(&vcc_mil, SET);
 
 					//Ejecutamos la configuración de los pines para la UNIDAD
 					gpio_WritePin(&segmentoLed_a, counter_a(unidad));
@@ -454,6 +454,28 @@ void initialConfig(){
 
 		//Cargamos la configuración en los registros que gobiernan el puerto
 		gpio_Config(&vcc_decena);
+
+		/* Configuramos el pin B12 --> vcc CENTENA*/
+		vcc_centena.pGPIOx                         = GPIOC;
+		vcc_centena.pinConfig.GPIO_PinNumber       = PIN_7;
+		vcc_centena.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+		vcc_centena.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+		vcc_centena.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+		vcc_centena.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+
+		//Cargamos la configuración en los registros que gobiernan el puerto
+		gpio_Config(&vcc_centena);
+
+		/* Configuramos el pin B12 --> vcc MIL*/
+		vcc_mil.pGPIOx                         = GPIOA;
+		vcc_mil.pinConfig.GPIO_PinNumber       = PIN_10;
+		vcc_mil.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+		vcc_mil.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+		vcc_mil.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+		vcc_mil.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+
+		//Cargamos la configuración en los registros que gobiernan el puerto
+		gpio_Config(&vcc_mil);
 
 		//A continuación se está realizando la configuración de los timers a usar
 
