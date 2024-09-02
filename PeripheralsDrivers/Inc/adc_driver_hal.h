@@ -94,6 +94,8 @@ typedef struct
 	uint8_t     interrupState;        //Para configurar si se desea o no trabajar con la interrupción
 } ADC_Config_t;
 
+//Es necesario timer para el handler del ADC??
+
 /* Headers definitions for the public functions of adc_driver_hal.c */
 void adc_ConfigSingleChannel(ADC_Config_t *adcConfig);
 void adc_ConfigAnalogPin(uint8_t adcChannel);
