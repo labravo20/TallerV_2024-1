@@ -73,6 +73,9 @@ void initialConfig(void);
 //Definición función para configuración siete segmentos
 void sieteSegmentosConfig(void);
 
+//Definición función para configuración counter
+void counterConfig(void);
+
 //Definición función para RESET de los leds
 void apagadoTotalLeds(void);
 
@@ -90,6 +93,7 @@ int main(void)
 				//Bajamos la bandera de la interrupción de Display Timer
 				banderaDisplayTimer = 0;
 
+				//Llamamos a la función encargada de la representación del contador en el display
 				sieteSegmentosConfig();
 			}
 
@@ -100,14 +104,9 @@ int main(void)
 				//Bajamos la bandera de la interrupción de Control Timer
 				banderaControlTimer = 0;
 
-				//Sumamos el valor del counter para garantizar la cuenta ascentente
-				counter_i = counter_i +1;
+				//Llamamos a la función encargada del counter
+				counterConfig();
 
-				//Delimitamos que el número máximo hasta el cual se contará es 59
-				if(counter_i == 4096){
-					//Reiniciamos el contador para repetir el ciclo de cuenta
-					counter_i = 0;
-				}
 			}
 	}
 
@@ -735,7 +734,17 @@ void sieteSegmentosConfig(void){
 	posicion = posicion^maskChangeDisplay;
 }
 
+//Función para configuración counter
+void counterConfig(void){
+	//Sumamos el valor del counter para garantizar la cuenta ascentente
+	counter_i = counter_i +1;
 
+	//Delimitamos que el número máximo hasta el cual se contará es 59
+	if(counter_i == 4096){
+		//Reiniciamos el contador para repetir el ciclo de cuenta
+		counter_i = 0;
+	}
+}
 /*
  * Overwrite function for A5
  * */

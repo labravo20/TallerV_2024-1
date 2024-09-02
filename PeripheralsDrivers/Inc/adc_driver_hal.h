@@ -92,9 +92,14 @@ typedef struct
 	uint8_t     dataAlignment;        //Alineación a la izquierda
 	uint16_t    adcData;              //Dato de la conversión
 	uint8_t     interrupState;        //Para configurar si se desea o no trabajar con la interrupción
-} ADC_Config_t;
+} ADC_BasicConfig_t;
 
-//Es necesario timer para el handler del ADC??
+/*Handler del ADC */
+typedef struct
+{
+	ADC_TypeDef         *pADCx;
+	ADC_BasicConfig_t  ADCx_Config;
+}ADC_Config_t;
 
 /* Headers definitions for the public functions of adc_driver_hal.c */
 void adc_ConfigSingleChannel(ADC_Config_t *adcConfig);

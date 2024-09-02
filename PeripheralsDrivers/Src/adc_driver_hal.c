@@ -29,7 +29,7 @@ uint16_t       adcRawData      = 0;
 void adc_ConfigSingleChannel(ADC_Config_t *adcConfig){
 
 	/* 1. Configuramos el PinX paea que se cumpla la función del canal análogo deseado*/
-	adc_ConfigAnalogPin(adcConfig->channel);
+	adc_ConfigAnalogPin(adcConfig->ADCx_Config.channel);
 
 	/* 2. Activamos la señal de reloj para el ADC */
 	adc_enable_clock_peripheral();
@@ -81,6 +81,8 @@ void adc_ConfigSingleChannel(ADC_Config_t *adcConfig){
  * */
 static void adc_enable_clock_peripheral(void){
 
+	//Activamos la señal de reloj
+	RCC->APB2ENR |= RCC_APB2ENR_ADC1EN;
 }
 
 
@@ -89,6 +91,48 @@ static void adc_enable_clock_peripheral(void){
  * */
 static void adc_set_resolution(ADC_Config_t *adcConfig){
 
+	switch(adcConfig->ADCx_Config.resolution){
+
+	case RESOLUTION_12_BIT:{
+
+		// Debemos cargar el valor 0b00 en los 12 bit de resolución
+		adcConfig->pADCx->CR1 &= ~ADC_CR1_RES_0;
+		adcConfig->pADCx->CR1 &= ~ADC_CR1_RES_1;
+		break;
+
+	}
+	case RESOLUTION_10_BIT:{
+
+		// Debemos cargar el valor 0b01 en los 10 bit de resolución
+		adcConfig->pADCx->CR1 |= ADC_CR1_RES_0;
+		adcConfig->pADCx->CR1 &= ~ADC_CR1_RES_1;
+		break;
+
+	}
+	case RESOLUTION_8_BIT:{
+
+		// Debemos cargar el valor 0b10 en los 8 bit de resolución
+		adcConfig->pADCx->CR1 &= ~ADC_CR1_RES_0;
+		adcConfig->pADCx->CR1 |= ADC_CR1_RES_1;
+		break;
+
+	}
+	case RESOLUTION_6_BIT:{
+
+		// Debemos cargar el valor 0b11 en los 6 bit de resolución
+		adcConfig->pADCx->CR1 |= ADC_CR1_RES_0;
+		adcConfig->pADCx->CR1 |= ADC_CR1_RES_1;
+		break;
+
+	}
+	default: {
+
+		// En caso por defecto ebemos cargar el valor 0b00 en los 12 bit de resolución
+		adcConfig->pADCx->CR1 &= ~ADC_CR1_RES_0;
+		adcConfig->pADCx->CR1 &= ~ADC_CR1_RES_1;
+		break;
+	}
+	}
 }
 
 
