@@ -31,6 +31,11 @@ GPIO_Handler_t vcc_decena         = {0}; //PinB6
 GPIO_Handler_t vcc_centena        = {0}; //PinC7
 GPIO_Handler_t vcc_mil            = {0}; //PinA10
 
+//Definimos pines a utilizar para EXTI
+GPIO_Handler_t userCKenc     = {0};//Pin ...  //EXTI clock --> interrupción
+GPIO_Handler_t userData      = {0};//Pin ...  //Data encoder (conociendo clock ya se conoce esta)
+GPIO_Handler_t userSWenc     = {0};//Pin ... //EXTI switch --> interrupción
+
 //Definimos timers a utilizar
 Timer_Handler_t blinkTimer   = {0}; // Timer para el blinking
 Timer_Handler_t displayTimer = {0}; // Timer asociado al display del siete segmentos
@@ -54,17 +59,17 @@ uint16_t decena  = 0;
 uint16_t centena = 0;
 uint16_t mil     = 0;
 
-//Definimos variable para activar vcc de unidad o vcc de decena
+//Definimos variable para activar vcc de unidad, vcc de decena, vcc de centena o vcc de mil
 uint8_t posicion = 0;
 
-//Definimos máscara para alternar la posicion unidad o decena
+//Definimos máscara para alternar la posicion unidad, decena, centena y mil
 uint8_t maskChangeDisplay     = 1;
 
 //Definimos variables para asignar el estado de la bandera correspondiente a cada interrupción
 uint8_t banderaDisplayTimer   = 0;
 uint8_t banderaControlTimer   = 0;
 
-//Definición variable para generar apagado total de los dos dígitos del siete segmentos
+//Definición variable para generar apagado total de los cuatro dígitos del siete segmentos
 uint8_t apagadoLed   = 1;
 
 //Definición función para configuración inicial
@@ -582,14 +587,14 @@ void sieteSegmentosConfig(void){
 
 	// Generamos condicional para representar numero en posición unidad o decena del siete segmentos
 	//La dinámica de funcionemiento hace uso del cambio de una variable al
-	//hacer uso de un operador XOR, lo cual alternará entre tres posibles valores
+	//hacer uso de un operador XOR, lo cual alternará entre cinco posibles valores
 	// (siempre y cuando se ubiquen estrategicamente las aignaciones de cada variable)
-	//que condicionarán los estados de representación para DECENA, UNIDAD y TOTAL APAGADO
+	//que condicionarán los estados de representación para MIL, CENTENA, DECENA, UNIDAD y TOTAL APAGADO
 
 	// Condición para representar decena:
 	if(posicion == 2){
 
-		//Desactivamos vcc del siete segmentos para decena y unidad
+		//Desactivamos vcc del siete segmentos para mil, centena, decena y unidad
 		// *****Esto para evitar aparición de fantasmas
 		// == NOTA importante: Debido a que el siete segmentos a utilizar es de ánodo común
 		// == entonces necesitamos generar conexión a tierra, en lugar de alimentación, para
@@ -616,11 +621,11 @@ void sieteSegmentosConfig(void){
 
 		apagadoLed = 2; //Con este valor se garantiza que la posicion, despues de
 		                //pasar por el apagado y el posterior cambio de valor con
-		                //el uso de la máscara, será 0...y el código representará unidades
+		                //el uso de la máscara, será 3...y el código representará centenas
 
 		posicion = 0;  //Con este valor se garantiza que al usar el cambio
 		               //de valor con la máscara el código entre al condicional
-		               //de apagado (posicion será igual a 2)
+		               //de apagado (posicion será igual a 1)
 
 	} else if (posicion == 1){ //Condición para desactivar todos los LEDs
 
@@ -630,11 +635,11 @@ void sieteSegmentosConfig(void){
 		apagadoTotalLeds();
 
 		posicion = apagadoLed; //La alternación de apagadoLed permitirá la entrada
-		                       //del código tanto al caso de unidad como decena
+		                       //del código a todos los dígitos del siete segmentos
 
 	} else if (posicion == 3){
 
-		//Desactivamos vcc del siete segmentos para decena y unidad, y adicionalmente apagamos los leds directamente
+		//Desactivamos vcc del siete segmentos para mil, centena, decena y unidad.
 		// *****Esto para evitar aparición de fantasmas
 		// == NOTA importante: Debido a que el siete segmentos a utilizar es de ánodo común
 		// == entonces necesitamos generar conexión a tierra, en lugar de alimentación, para
@@ -660,14 +665,14 @@ void sieteSegmentosConfig(void){
 		gpio_WritePin(&vcc_centena, RESET);
 
 		apagadoLed = 5; //Agregar esta condición ayuda en ajuste para entrada
-                        //del código a las decenas
+                        //del código al mil
 		posicion = 0; //Con este valor se garantiza que al usar el cambio
 		              //de valor con la máscara el código entre al condicional
-			          //de apagado (posicion será igual a 2)
+			          //de apagado (posicion será igual a 1)
 
 	} else if (posicion == 4){
 
-		//Desactivamos vcc del siete segmentos para decena y unidad, y adicionalmente apagamos los leds directamente
+		//Desactivamos vcc del siete segmentos para mil, centena, decena y unidad.
 		// *****Esto para evitar aparición de fantasmas
 		// == NOTA importante: Debido a que el siete segmentos a utilizar es de ánodo común
 		// == entonces necesitamos generar conexión a tierra, en lugar de alimentación, para
@@ -693,14 +698,14 @@ void sieteSegmentosConfig(void){
 		gpio_WritePin(&vcc_mil, RESET);
 
 		apagadoLed = 1; //Agregar esta condición ayuda en ajuste para entrada
-                       //del código a las decenas
+                       //del código a las unidades
 		posicion = 0; //Con este valor se garantiza que al usar el cambio
                       //de valor con la máscara el código entre al condicional
-                     //de apagado (posicion será igual a 2)
+                     //de apagado (posicion será igual a 1)
 
 	} else if (posicion == 0){
 
-		//Desactivamos vcc del siete segmentos para decena y unidad, y adicionalmente apagamos los leds directamente
+		//Desactivamos vcc del siete segmentos para mil, centena, decena y unidad
 		// *****Esto para evitar aparición de fantasmas
 		// == NOTA importante: Debido a que el siete segmentos a utilizar es de ánodo común
 		// == entonces necesitamos generar conexión a tierra, en lugar de alimentación, para
