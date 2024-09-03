@@ -1119,11 +1119,12 @@ void adc_ScanMode(uint8_t state){
  * */
 void adc_StartSingleConv(void){
 
+	//Se inicializa la conversión ADC simple
+	ADC1->CR2 &= ~ADC_CR2_CONT;
+
 	//Se inicializa la conversión ADC
 	ADC1->CR2 |= ADC_CR2_SWSTART;
 
-	//Se inicializa la conversión ADC simple
-	ADC1->CR2 &= ~ADC_CR2_CONT;
 }
 
 
@@ -1132,11 +1133,12 @@ void adc_StartSingleConv(void){
  * */
 void adc_StartContinuousConv(void){
 
+	//Se inicializa la conversión ADC continua
+	ADC1->CR2 |= ADC_CR2_CONT;
+
 	//Se inicializa la conversión ADC
 	ADC1->CR2 |= ADC_CR2_SWSTART;
 
-	//Se inicializa la conversión ADC continua
-	ADC1->CR2 |= ADC_CR2_CONT;
 }
 
 
