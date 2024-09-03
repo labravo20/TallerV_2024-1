@@ -136,21 +136,6 @@ int main(void)
 			switchConfig();
 		}
 
-		//Evaluamos si la bandera de la interrupción responsable del control del display
-		//está levantada
-		if(banderaDisplayTimer == 1){
-
-			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
-			//se atiende esta interrupción
-			banderaClockExti = 0;
-
-			//Bajamos la bandera de la interrupción de Display Timer
-			banderaDisplayTimer = 0;
-
-			//Llamamos a la función encargada de la representación del contador en el display
-			getDigitToShow();
-		}
-
 		//Evaluamos si el estado del switch indica que si NO se debe realizar función alguna
 		if(numberSwitch == 0){
 			 apagadoTotalLeds();
@@ -162,6 +147,19 @@ int main(void)
 			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
 			//se atiende esta interrupción
 			banderaClockExti = 0;
+
+			//Igualamos variable de counterConfig con la variable getDigitToShow
+			counter_i = counter;
+			//Evaluamos si la bandera de la interrupción responsable del control del display
+			//está levantada
+			if(banderaDisplayTimer == 1){
+
+				//Bajamos la bandera de la interrupción de Display Timer
+				banderaDisplayTimer = 0;
+
+				//Llamamos a la función encargada de la representación del contador en el display
+				getDigitToShow();
+			}
 
 			//Evaluamos si la bandera de la interrupción responsable del control del tiempo
 			//está levantada
@@ -181,6 +179,19 @@ int main(void)
 			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
 			//se atiende esta interrupción
 			banderaControlTimer = 0;
+
+			//Igualamos variable de counterConfig con la variable getDigitToShow
+			counter_i = counterEncoder;
+			//Evaluamos si la bandera de la interrupción responsable del control del display
+			//está levantada
+			if(banderaDisplayTimer == 1){
+
+				//Bajamos la bandera de la interrupción de Display Timer
+				banderaDisplayTimer = 0;
+
+				//Llamamos a la función encargada de la representación del contador en el display
+				getDigitToShow();
+			}
 
 			//Evaluamos si la bandera de la interrupción responsable del counter encoder
 			//está levantada
@@ -873,8 +884,6 @@ void counterConfig(void){
 		counter = 0;
 	}
 
-	//Igualamos variable de counterConfig con la variable getDigitToShow
-	counter_i = counter;
 }
 
 //Función para configuración counter encoder
@@ -907,9 +916,6 @@ void counterEncoderConfig(void){
 			counterEncoder = 4095;
 		}
 	}
-
-	//Igualamos variable de counterConfig con la variable getDigitToShow
-	counter_i = counterEncoder;
 }
 
 //Función para configuración switch
