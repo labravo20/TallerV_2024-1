@@ -45,6 +45,10 @@ Timer_Handler_t controlTimer = {0}; // Timer asociado al control del tiempo
 EXTI_Config_t swExti    = {0}; //EXTI linea 1 para el sw del encoder
 EXTI_Config_t ckExti    = {0}; //EXTI linea 15 para el ck del encoder
 
+//Definimos ADC channel a usar
+ADC_Config_t adcTrimmer            = {0};
+ADC_Config_t adcFotoResistencia    = {0};
+
 // Definimos variable para activar representación numero en siete segmentos
 uint16_t counter_i = 0;
 
@@ -61,11 +65,17 @@ int16_t counterEncoder = 0;
 uint8_t directionclk            = {0};
 uint8_t directiondata           = {0};
 
+//Estrucutra para determinar los modos de función en ADC
+enum{
+	Trimmer = 0,
+	FotoResistencia
+};
+
 // Definimos variable para tomar medida trimmer
-uint16_t counterTrimmer = 2;
+uint16_t counterTrimmer = 0;
 
 // Definimos variable para tomar medida Foto resistencia
-uint16_t counterFotoResistencia = 3;
+uint16_t counterFotoResistencia = 0;
 
 //Definiendo funciones a usar
 uint32_t counter_a(uint8_t counterSietea);
@@ -89,10 +99,11 @@ uint8_t posicion = 0;
 uint8_t maskChangeDisplay     = 1;
 
 //Definimos variables para asignar el estado de la bandera correspondiente a cada interrupción
-uint8_t banderaDisplayTimer   = 0;
-uint8_t banderaControlTimer   = 0;
-uint8_t banderaSwitchExti     = 0;
-uint8_t banderaClockExti      = 0;
+uint8_t banderaDisplayTimer     = 0;
+uint8_t banderaControlTimer     = 0;
+uint8_t banderaSwitchExti       = 0;
+uint8_t banderaClockExti        = 0;
+uint8_t banderaADC              = 0;
 
 //Definición variable para generar apagado total de los cuatro dígitos del siete segmentos
 uint8_t apagadoLed   = 1;
@@ -108,6 +119,9 @@ void counterConfig(void);
 
 //Definición función para configuración counter encoder
 void counterEncoderConfig(void);
+
+//Definición función para configuración ADC
+void ADCValueConfig(uint8_t modoADC);
 
 //Definición función para configuración switch
 void switchConfig(void);
@@ -125,28 +139,32 @@ int main(void)
     /* Loop forever */
 	while(1){
 
-		//Evaluamos si la bandera de la interrupción responsable del control del switch
-		//está levantada
-		if(banderaSwitchExti == 1){
-
-			//Bajamos la bandera de la interrupción del Switch encoder
-			banderaSwitchExti = 0;
-
-			//Llamamos a la función encargada de configuración asociada al switch
-			switchConfig();
-		}
-
 		//Evaluamos si el estado del switch indica que si NO se debe realizar función alguna
-		if(numberSwitch == 0){
+		while(numberSwitch == 0){
 			 apagadoTotalLeds();
+
+			 //Evaluamos si la bandera de la interrupción responsable del control del switch
+			 //está levantada
+			 if(banderaSwitchExti == 1){
+
+			 	//Bajamos la bandera de la interrupción del Switch encoder
+			 	banderaSwitchExti = 0;
+
+			 	//Llamamos a la función encargada de configuración asociada al switch
+			 	switchConfig();
+			 }
 		}
 
 		//Evaluamos si el estado del switch indica que si se debe representar el counter
-		if(numberSwitch == 1){
+		while(numberSwitch == 1){
 
 			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
 			//se atiende esta interrupción
 			banderaClockExti = 0;
+
+			//Bajamos la bandera de la interrupción de Counter encoder para detener medida trimmer mientras
+			//se atiende esta interrupción
+			banderaADC = 0;
 
 			//Igualamos variable de counterConfig con la variable getDigitToShow
 			counter_i = counter;
@@ -171,14 +189,29 @@ int main(void)
 				//Llamamos a la función encargada del counter
 				counterConfig();
 			}
+
+			 //Evaluamos si la bandera de la interrupción responsable del control del switch
+			 //está levantada
+			 if(banderaSwitchExti == 1){
+
+			 	//Bajamos la bandera de la interrupción del Switch encoder
+			 	banderaSwitchExti = 0;
+
+			 	//Llamamos a la función encargada de configuración asociada al switch
+			 	switchConfig();
+			 }
 		}
 
-		//Evaluamos si el estado del switch indica que si se debe representar el counter
-		if(numberSwitch == 2){
+		//Evaluamos si el estado del switch indica que si se debe representar el counter encoder
+		while(numberSwitch == 2){
 
 			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
 			//se atiende esta interrupción
 			banderaControlTimer = 0;
+
+			//Bajamos la bandera de la interrupción de Counter encoder para detener medida trimmer mientras
+			//se atiende esta interrupción
+			banderaADC = 0;
 
 			//Igualamos variable de counterConfig con la variable getDigitToShow
 			counter_i = counterEncoder;
@@ -203,6 +236,121 @@ int main(void)
 			    //Llamamos a la función encargada del counter encoder
 			    counterEncoderConfig();
 			}
+
+			 //Evaluamos si la bandera de la interrupción responsable del control del switch
+			 //está levantada
+			 if(banderaSwitchExti == 1){
+
+			 	//Bajamos la bandera de la interrupción del Switch encoder
+			 	banderaSwitchExti = 0;
+
+			 	//Llamamos a la función encargada de configuración asociada al switch
+			 	switchConfig();
+			 }
+
+		}
+
+		banderaADC = 1;
+		//Evaluamos si el estado del switch indica que si se debe representar medida trimmer
+		while(numberSwitch == 3){
+
+			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
+			//se atiende esta interrupción
+			banderaControlTimer = 0;
+
+			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
+			//se atiende esta interrupción
+			banderaClockExti = 0;
+
+			//Igualamos variable de counterConfig con la variable getDigitToShow
+			counter_i = counterTrimmer;
+			//Evaluamos si la bandera de la interrupción responsable del control del display
+			//está levantada
+			if(banderaDisplayTimer == 1){
+
+				//Bajamos la bandera de la interrupción de Display Timer
+				banderaDisplayTimer = 0;
+
+				//Llamamos a la función encargada de la representación del contador en el display
+				getDigitToShow();
+			}
+
+			//Evaluamos si la bandera de la interrupción responsable del ADC
+			//está levantada
+			if(banderaADC == 1){
+
+				//Bajamos la bandera de la interrupción de ADC
+			    banderaADC = 0;
+
+			    //Llamamos a la función encargada del ADC en trimmer
+			    ADCValueConfig(Trimmer);
+
+			    adc_StartSingleConv();
+
+			    counterTrimmer = adc_Get_Value();
+			}
+			 //Evaluamos si la bandera de la interrupción responsable del control del switch
+			 //está levantada
+			 if(banderaSwitchExti == 1){
+
+			 	//Bajamos la bandera de la interrupción del Switch encoder
+			 	banderaSwitchExti = 0;
+
+			 	//Llamamos a la función encargada de configuración asociada al switch
+			 	switchConfig();
+			 }
+
+		}
+
+		banderaADC = 1;
+		//Evaluamos si el estado del switch indica que si se debe representar medida foto resistencia
+		while(numberSwitch == 4){
+
+			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
+			//se atiende esta interrupción
+			banderaControlTimer = 0;
+
+			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
+			//se atiende esta interrupción
+			banderaClockExti = 0;
+
+			//Igualamos variable de counterConfig con la variable getDigitToShow
+			counter_i = counterFotoResistencia;
+			//Evaluamos si la bandera de la interrupción responsable del control del display
+			//está levantada
+			if(banderaDisplayTimer == 1){
+
+				//Bajamos la bandera de la interrupción de Display Timer
+				banderaDisplayTimer = 0;
+
+				//Llamamos a la función encargada de la representación del contador en el display
+				getDigitToShow();
+			}
+
+			//Evaluamos si la bandera de la interrupción responsable del ADC
+			//está levantada
+			if(banderaADC == 1){
+
+				//Bajamos la bandera de la interrupción de ADC
+			    banderaADC = 0;
+
+			    //Llamamos a la función encargada del ADC en foto resistencia
+			    ADCValueConfig(FotoResistencia);
+
+			    adc_StartSingleConv();
+
+			    counterFotoResistencia = adc_Get_Value();
+			}
+			 //Evaluamos si la bandera de la interrupción responsable del control del switch
+			 //está levantada
+			 if(banderaSwitchExti == 1){
+
+			 	//Bajamos la bandera de la interrupción del Switch encoder
+			 	banderaSwitchExti = 0;
+
+			 	//Llamamos a la función encargada de configuración asociada al switch
+			 	switchConfig();
+			 }
 
 		}
 
@@ -481,6 +629,22 @@ void initialConfig(){
 
 		//Cargamos la configuración de la interrupción externa (EXTI)
 		exti_Config(&ckExti);
+
+		//A continuación se está realizando la configuración de los canales ADC a usar
+
+		/* Configuramos ADC trimmer*/
+		adcTrimmer.channel             = CHANNEL_1;
+		adcTrimmer.resolution          = RESOLUTION_12_BIT;
+		adcTrimmer.dataAlignment       = ALIGNMENT_RIGHT;
+		adcTrimmer.interrupState       = ADC_INT_ENABLE;
+		adcTrimmer.samplingPeriod      = SAMPLING_PERIOD_84_CYCLES;
+
+		/* Configuramos ADC foto resistencia*/
+		adcFotoResistencia.channel             = CHANNEL_0;
+		adcFotoResistencia.resolution          = RESOLUTION_12_BIT;
+		adcFotoResistencia.dataAlignment       = ALIGNMENT_RIGHT;
+		adcFotoResistencia.interrupState       = ADC_INT_ENABLE;
+		adcFotoResistencia.samplingPeriod      = SAMPLING_PERIOD_84_CYCLES;
 
 }
 
@@ -901,7 +1065,7 @@ void counterEncoderConfig(void){
 			counterEncoder = 0;
 		}
 
-	} else if(directionclk != directiondata){ // Condición giro izquierda
+	} else { // Condición giro izquierda
 
 		//Restamos al contador para empezar a restar con cada vuelta
 		counterEncoder--;
@@ -912,6 +1076,38 @@ void counterEncoderConfig(void){
 			counterEncoder = 4095;
 		}
 	}
+}
+
+//Función para configuración ADC
+void ADCValueConfig(uint8_t modoADC){
+
+	//Evaluamos cuál es el modo ADC a representar
+	switch(modoADC){
+
+	//Caso de medida trimmer
+	case Trimmer: {
+
+		//Cargamos configuración del trimmer
+		adc_ConfigSingleChannel(&adcTrimmer);
+		adc_peripheralOnOFF(ADC_ON);
+		break;
+	}
+
+	//Caso de medida foto resistencia
+	case FotoResistencia: {
+
+		//Cargamos configuración de la foto resistencia
+		adc_ConfigSingleChannel(&adcFotoResistencia);
+		adc_peripheralOnOFF(ADC_ON);
+		break;
+	}
+	default:{
+
+		adc_peripheralOnOFF(ADC_OFF);
+		break;
+	}
+	}
+
 }
 
 //Función para configuración switch
@@ -929,7 +1125,7 @@ void switchConfig(void){
 	 * 3. Medida trimmer
 	 * 4. Medida Foto Resistencia
 	 * */
-	if(numberSwitch == 3){
+	if(numberSwitch == 5){
 
 		numberSwitch = 0;
 	}
@@ -981,8 +1177,17 @@ void callback_ExtInt2(void){
 	banderaClockExti = 1;
 
 	//Almacenamos la informacion recibida por los datos de la señal clock y la señal data
+	//Es necesario establecer los valores en el callback para tener una velocidad
+	//correcta en la lectura del dato.
 	directionclk = gpio_ReadPin(&userCKenc);
 	directiondata = gpio_ReadPin(&userData);
+
+}
+/*
+ * Overwrite function for ADC
+ * */
+void adc_CompleteCallback(void){
+	banderaADC = 1;
 }
 /*
  * Esta función sirve para detectar problemas de parámetros

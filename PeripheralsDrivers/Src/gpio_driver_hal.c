@@ -251,21 +251,9 @@ uint32_t gpio_ReadPin(GPIO_Handler_t *pPinHandler){
 
 	// Para determinar si la posición específica del pin que está activa aplicamos un
 	// shift hacia la derecha en cantidad de desplazamiento "pinNumber" de veces:
-	pinValue = (pinValue >> pPinHandler -> pinConfig.GPIO_PinNumber);
+	pinValue = (pinValue >> pPinHandler -> pinConfig.GPIO_PinNumber) & 1;
 
 	//Evaluamos según el resultado del shift si el pin específico de análisis está activo
-
-	//Evaluamos si número asignado a pinValue es par o impar
-	if((pinValue%2) == 0){
-
-		//Si el valor de pinValue es par implica pin está desactivado
-		pinValue = 0;
-	}
-	else{
-
-		//Si el valor de pinValue es par implica pin está activado
-		pinValue = 1;
-	}
 
 	/* ===== Corrección #2 ===== */
 	/*Es redundante la asignación de la variable sobre si misma*/
