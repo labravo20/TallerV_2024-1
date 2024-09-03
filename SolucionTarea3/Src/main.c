@@ -151,6 +151,11 @@ int main(void)
 			getDigitToShow();
 		}
 
+		//Evaluamos si el estado del switch indica que si NO se debe realizar función alguna
+		if(numberSwitch == 0){
+			 apagadoTotalLeds();
+		}
+
 		//Evaluamos si el estado del switch indica que si se debe representar el counter
 		if(numberSwitch == 1){
 
@@ -167,9 +172,6 @@ int main(void)
 
 				//Llamamos a la función encargada del counter
 				counterConfig();
-
-				//Igualamos variable de counterConfig con la variable getDigitToShow
-				counter_i = counter;
 			}
 		}
 
@@ -189,9 +191,6 @@ int main(void)
 
 			    //Llamamos a la función encargada del counter encoder
 			    counterEncoderConfig();
-
-			    //Igualamos variable de counterConfig con la variable getDigitToShow
-			    counter_i = counterEncoder;
 			}
 
 		}
@@ -873,6 +872,9 @@ void counterConfig(void){
 		//Reiniciamos el contador para repetir el ciclo de cuenta
 		counter = 0;
 	}
+
+	//Igualamos variable de counterConfig con la variable getDigitToShow
+	counter_i = counter;
 }
 
 //Función para configuración counter encoder
@@ -905,6 +907,9 @@ void counterEncoderConfig(void){
 			counterEncoder = 4095;
 		}
 	}
+
+	//Igualamos variable de counterConfig con la variable getDigitToShow
+	counter_i = counterEncoder;
 }
 
 //Función para configuración switch
