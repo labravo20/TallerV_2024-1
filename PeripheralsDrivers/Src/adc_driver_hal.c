@@ -1167,11 +1167,13 @@ __attribute__ ((weak)) void adc_CompleteCallback(void){
  * */
 void ADC_IRQHandler(void){
 
-	//Bajamos la bandera
-	ADC1->SR &= ~ ADC_SR_STRT;
+	if(ADC1->CR1 & ADC_CR1_EOCIE){
+		//Bajamos la bandera leyendo el dato
+		adcRawData = ADC1->DR;
 
-	//Se llama al callback
-	adc_CompleteCallback();
+		//Se llama al callback
+		adc_CompleteCallback();
+	}
 }
 
 
