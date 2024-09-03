@@ -884,7 +884,7 @@ void counterEncoderConfig(void){
 			counterEncoder = 0;
 		}
 
-	} else{
+	} else{ // Condición giro izquierda
 
 		//Restamos al contador para empezar a restar con cada vuelta
 		counterEncoder--;
