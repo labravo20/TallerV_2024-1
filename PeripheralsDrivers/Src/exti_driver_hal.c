@@ -640,6 +640,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR0);
+
+			break;
 		}
 
 		//Configuramos para el pin 1
@@ -650,6 +652,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR1);
+
+			break;
 		}
 
 		//Configuramos para el pin 2
@@ -660,6 +664,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR2);
+
+			break;
 		}
 
 		//Configuramos para el pin 3
@@ -670,6 +676,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR3);
+
+			break;
 		}
 
 		//Configuramos para el pin 4
@@ -680,6 +688,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR4);
+
+			break;
 		}
 
 		//Configuramos para el pin 5
@@ -689,6 +699,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR5);
+
+			break;
 		}
 
 		//Configuramos para el pin 6
@@ -699,6 +711,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR6);
+
+			break;
 		}
 
 		//Configuramos para el pin 7
@@ -709,6 +723,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR7);
+
+			break;
 		}
 
 		//Configuramos para el pin 8
@@ -719,6 +735,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR8);
+
+			break;
 		}
 
 		//Configuramos para el pin 9
@@ -729,6 +747,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR9);
+
+			break;
 		}
 
 		//Configuramos para el pin 10
@@ -739,6 +759,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR10);
+
+			break;
 		}
 
 		//Configuramos para el pin 11
@@ -749,6 +771,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR11);
+
+			break;
 		}
 
 		//Configuramos para el pin 12
@@ -759,6 +783,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR12);
+
+			break;
 		}
 
 		//Configuramos para el pin 13
@@ -769,6 +795,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR13);
+
+			break;
 		}
 
 		//Configuramos para el pin 14
@@ -779,6 +807,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR14);
+
+			break;
 		}
 
 		//Configuramos para el pin 15
@@ -789,6 +819,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Falling trigger enabled for input line.
 			EXTI->FTSR |= (EXTI_FTSR_TR15);
+
+			break;
 		}
 
 		}
@@ -808,6 +840,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR0);
+
+			break;
 		}
 
 		//Configuramos para el pin 1
@@ -818,6 +852,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR1);
+
+			break;
 		}
 
 		//Configuramos para el pin 2
@@ -828,6 +864,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR2);
+
+			break;
 		}
 
 		//Configuramos para el pin 3
@@ -838,6 +876,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR3);
+
+			break;
 		}
 
 		//Configuramos para el pin 4
@@ -848,6 +888,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR4);
+
+			break;
 		}
 
 		//Configuramos para el pin 5
@@ -858,6 +900,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR5);
+
+			break;
 		}
 
 		//Configuramos para el pin 6
@@ -868,6 +912,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR6);
+
+			break;
 		}
 
 		//Configuramos para el pin 7
@@ -878,6 +924,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR7);
+
+			break;
 		}
 
 		//Configuramos para el pin 8
@@ -888,6 +936,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR8);
+
+			break;
 		}
 
 		//Configuramos para el pin 9
@@ -898,6 +948,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR9);
+
+			break;
 		}
 
 		//Configuramos para el pin 10
@@ -908,6 +960,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR10);
+
+			break;
 		}
 
 		//Configuramos para el pin 11
@@ -918,6 +972,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR11);
+
+			break;
 		}
 
 		//Configuramos para el pin 12
@@ -928,6 +984,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR12);
+
+			break;
 		}
 
 		//Configuramos para el pin 13
@@ -938,6 +996,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR13);
+
+			break;
 		}
 
 		//Configuramos para el pin 14
@@ -948,6 +1008,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR14);
+
+			break;
 		}
 
 		//Configuramos para el pin 15
@@ -958,6 +1020,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR15);
+
+			break;
 		}
 
 		}
@@ -980,6 +1044,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 				//Rising and falling trigger enabled for input line.
 				EXTI->RTSR |= (EXTI_RTSR_TR0);
 				EXTI->FTSR |= (EXTI_FTSR_TR0);
+
+				break;
 			}
 
 			//Configuramos para el pin 1
@@ -992,6 +1058,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 				//Rising and falling trigger enabled for input line.
 				EXTI->RTSR |= (EXTI_RTSR_TR1);
 				EXTI->FTSR |= (EXTI_FTSR_TR1);
+
+				break;
 			}
 
 			//Configuramos para el pin 2
@@ -1004,6 +1072,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 				//Rising and falling trigger enabled for input line.
 				EXTI->RTSR |= (EXTI_RTSR_TR2);
 				EXTI->FTSR |= (EXTI_FTSR_TR2);
+
+				break;
 			}
 
 			//Configuramos para el pin 3
@@ -1016,6 +1086,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 				//Rising and falling trigger enabled for input line.
 				EXTI->RTSR |= (EXTI_RTSR_TR3);
 				EXTI->FTSR |= (EXTI_FTSR_TR3);
+
+				break;
 			}
 
 			//Configuramos para el pin 4
@@ -1028,6 +1100,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 				//Rising and falling trigger enabled for input line.
 				EXTI->RTSR |= (EXTI_RTSR_TR4);
 				EXTI->FTSR |= (EXTI_FTSR_TR4);
+
+				break;
 			}
 
 			//Configuramos para el pin 5
@@ -1040,6 +1114,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 				//Rising and falling trigger enabled for input line.
 				EXTI->RTSR |= (EXTI_RTSR_TR5);
 				EXTI->FTSR |= (EXTI_FTSR_TR5);
+
+				break;
 			}
 
 			//Configuramos para el pin 6
@@ -1052,6 +1128,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 				//Rising and falling trigger enabled for input line.
 				EXTI->RTSR |= (EXTI_RTSR_TR6);
 				EXTI->FTSR |= (EXTI_FTSR_TR6);
+
+				break;
 			}
 
 			//Configuramos para el pin 7
@@ -1064,6 +1142,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 				//Rising and falling trigger enabled for input line.
 				EXTI->RTSR |= (EXTI_RTSR_TR7);
 				EXTI->FTSR |= (EXTI_FTSR_TR7);
+
+				break;
 			}
 
 			//Configuramos para el pin 8
@@ -1076,6 +1156,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 				//Rising and falling trigger enabled for input line.
 				EXTI->RTSR |= (EXTI_RTSR_TR8);
 				EXTI->FTSR |= (EXTI_FTSR_TR8);
+
+				break;
 			}
 
 			//Configuramos para el pin 9
@@ -1088,6 +1170,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 				//Rising and falling trigger enabled for input line.
 				EXTI->RTSR |= (EXTI_RTSR_TR9);
 				EXTI->FTSR |= (EXTI_FTSR_TR9);
+
+				break;
 			}
 
 			//Configuramos para el pin 10
@@ -1100,6 +1184,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 				//Rising and falling trigger enabled for input line.
 				EXTI->RTSR |= (EXTI_RTSR_TR10);
 				EXTI->FTSR |= (EXTI_FTSR_TR10);
+
+				break;
 			}
 
 			//Configuramos para el pin 11
@@ -1112,6 +1198,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 				//Rising and falling trigger enabled for input line.
 				EXTI->RTSR |= (EXTI_RTSR_TR11);
 				EXTI->FTSR |= (EXTI_FTSR_TR11);
+
+				break;
 			}
 
 			//Configuramos para el pin 12
@@ -1124,6 +1212,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 				//Rising and falling trigger enabled for input line.
 				EXTI->RTSR |= (EXTI_RTSR_TR12);
 				EXTI->FTSR |= (EXTI_FTSR_TR12);
+
+				break;
 			}
 
 			//Configuramos para el pin 13
@@ -1136,6 +1226,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 				//Rising and falling trigger enabled for input line.
 				EXTI->RTSR |= (EXTI_RTSR_TR13);
 				EXTI->FTSR |= (EXTI_FTSR_TR13);
+
+				break;
 			}
 
 			//Configuramos para el pin 14
@@ -1148,6 +1240,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 				//Rising and falling trigger enabled for input line.
 				EXTI->RTSR |= (EXTI_RTSR_TR14);
 				EXTI->FTSR |= (EXTI_FTSR_TR14);
+
+				break;
 			}
 
 			//Configuramos para el pin 15
@@ -1160,6 +1254,8 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 				//Rising and falling trigger enabled for input line.
 				EXTI->RTSR |= (EXTI_RTSR_TR15);
 				EXTI->FTSR |= (EXTI_FTSR_TR15);
+
+				break;
 			}
 
 			}
@@ -1181,96 +1277,129 @@ static void exti_config_interrupt(EXTI_Config_t *extiConfig){
 		case 0: {
 			//Interrupt mask on input line
 			EXTI->IMR |= (EXTI_IMR_MR0);
+
+			break;
+
 		}
 
 		//Configuramos para el pin 1
 		case 1: {
 			//Interrupt mask on input line
 			EXTI->IMR |= (EXTI_IMR_MR1);
+
+			break;
 		}
 
 		//Configuramos para el pin 2
 		case 2: {
 			//Interrupt mask on input line
 			EXTI->IMR |= (EXTI_IMR_MR2);
+
+			break;
 		}
 
 		//Configuramos para el pin 3
 		case 3: {
 			//Interrupt mask on input line
 			EXTI->IMR |= (EXTI_IMR_MR3);
+
+			break;
 		}
 
 		//Configuramos para el pin 4
 		case 4: {
 			//Interrupt mask on input line
 			EXTI->IMR |= (EXTI_IMR_MR4);
+
+			break;
 		}
 
 		//Configuramos para el pin 5
 		case 5: {
 			//Interrupt mask on input line
 			EXTI->IMR |= (EXTI_IMR_MR5);
+
+			break;
 		}
 
 		//Configuramos para el pin 6
 		case 6: {
 			//Interrupt mask on input line
 			EXTI->IMR |= (EXTI_IMR_MR6);
+
+			break;
 		}
 
 		//Configuramos para el pin 7
 		case 7: {
 			//Interrupt mask on input line
 			EXTI->IMR |= (EXTI_IMR_MR7);
+
+			break;
 		}
 
 		//Configuramos para el pin 8
 		case 8: {
 			//Interrupt mask on input line
 			EXTI->IMR |= (EXTI_IMR_MR8);
+
+			break;
 		}
 
 		//Configuramos para el pin 9
 		case 9: {
 			//Interrupt mask on input line
 			EXTI->IMR |= (EXTI_IMR_MR9);
+
+			break;
 		}
 
 		//Configuramos para el pin 10
 		case 10: {
 			//Interrupt mask on input line
 			EXTI->IMR |= (EXTI_IMR_MR10);
+
+			break;
 		}
 
 		//Configuramos para el pin 11
 		case 11: {
 			//Interrupt mask on input line
 			EXTI->IMR |= (EXTI_IMR_MR11);
+
+			break;
 		}
 
 		//Configuramos para el pin 12
 		case 12: {
 			//Interrupt mask on input line
 			EXTI->IMR |= (EXTI_IMR_MR12);
+
+			break;
 		}
 
 		//Configuramos para el pin 13
 		case 13: {
 			//Interrupt mask on input line
 			EXTI->IMR |= (EXTI_IMR_MR13);
+
+			break;
 		}
 
 		//Configuramos para el pin 14
 		case 14: {
 			//Interrupt mask on input line
 			EXTI->IMR |= (EXTI_IMR_MR14);
+
+			break;
 		}
 
 		//Configuramos para el pin 15
 		case 15: {
 			//Interrupt mask on input line
 			EXTI->IMR |= (EXTI_IMR_MR15);
+
+			break;
 		}
 
 		}

@@ -889,10 +889,6 @@ void counterConfig(void){
 //Función para configuración counter encoder
 void counterEncoderConfig(void){
 
-	//Almacenamos la informacion recibida por los datos de la señal clock y la señal data
-	directionclk = gpio_ReadPin(&userCKenc);
-	directiondata = gpio_ReadPin(&userData);
-
 	//Definimos condiciones para diferenciación entre suma y resta de la cantidad de vueltas
 	if(directionclk == directiondata){ //Verificamos condición giro derecha
 
@@ -905,7 +901,7 @@ void counterEncoderConfig(void){
 			counterEncoder = 0;
 		}
 
-	} else{ // Condición giro izquierda
+	} else if(directionclk != directiondata){ // Condición giro izquierda
 
 		//Restamos al contador para empezar a restar con cada vuelta
 		counterEncoder--;
@@ -983,6 +979,10 @@ void callback_ExtInt2(void){
 
 	//Activamos bandera de la interrupción
 	banderaClockExti = 1;
+
+	//Almacenamos la informacion recibida por los datos de la señal clock y la señal data
+	directionclk = gpio_ReadPin(&userCKenc);
+	directiondata = gpio_ReadPin(&userData);
 }
 /*
  * Esta función sirve para detectar problemas de parámetros
