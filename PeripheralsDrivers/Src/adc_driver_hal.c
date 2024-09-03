@@ -29,7 +29,7 @@ uint16_t       adcRawData      = 0;
 void adc_ConfigSingleChannel(ADC_Config_t *adcConfig){
 
 	/* 1. Configuramos el PinX paea que se cumpla la función del canal análogo deseado*/
-	adc_ConfigAnalogPin(adcConfig->ADCx_Config.channel);
+	adc_ConfigAnalogPin(adcConfig->channel);
 
 	/* 2. Activamos la señal de reloj para el ADC */
 	adc_enable_clock_peripheral();
@@ -91,45 +91,45 @@ static void adc_enable_clock_peripheral(void){
  * */
 static void adc_set_resolution(ADC_Config_t *adcConfig){
 
-	switch(adcConfig->ADCx_Config.resolution){
+	switch(adcConfig->resolution){
 
 	case RESOLUTION_12_BIT:{
 
 		// Debemos cargar el valor 0b00 en los 12 bit de resolución
-		adcConfig->pADCx->CR1 &= ~ADC_CR1_RES_0;
-		adcConfig->pADCx->CR1 &= ~ADC_CR1_RES_1;
+		ADC1->CR1 &= ~ADC_CR1_RES_0;
+		ADC1->CR1 &= ~ADC_CR1_RES_1;
 		break;
 
 	}
 	case RESOLUTION_10_BIT:{
 
 		// Debemos cargar el valor 0b01 en los 10 bit de resolución
-		adcConfig->pADCx->CR1 |= ADC_CR1_RES_0;
-		adcConfig->pADCx->CR1 &= ~ADC_CR1_RES_1;
+		ADC1->CR1 |= ADC_CR1_RES_0;
+		ADC1->CR1 &= ~ADC_CR1_RES_1;
 		break;
 
 	}
 	case RESOLUTION_8_BIT:{
 
 		// Debemos cargar el valor 0b10 en los 8 bit de resolución
-		adcConfig->pADCx->CR1 &= ~ADC_CR1_RES_0;
-		adcConfig->pADCx->CR1 |= ADC_CR1_RES_1;
+		ADC1->CR1 &= ~ADC_CR1_RES_0;
+		ADC1->CR1 |= ADC_CR1_RES_1;
 		break;
 
 	}
 	case RESOLUTION_6_BIT:{
 
 		// Debemos cargar el valor 0b11 en los 6 bit de resolución
-		adcConfig->pADCx->CR1 |= ADC_CR1_RES_0;
-		adcConfig->pADCx->CR1 |= ADC_CR1_RES_1;
+		ADC1->CR1 |= ADC_CR1_RES_0;
+		ADC1->CR1 |= ADC_CR1_RES_1;
 		break;
 
 	}
 	default: {
 
 		// En caso por defecto ebemos cargar el valor 0b00 en los 12 bit de resolución
-		adcConfig->pADCx->CR1 &= ~ADC_CR1_RES_0;
-		adcConfig->pADCx->CR1 &= ~ADC_CR1_RES_1;
+		ADC1->CR1 &= ~ADC_CR1_RES_0;
+		ADC1->CR1 &= ~ADC_CR1_RES_1;
 		break;
 	}
 	}
@@ -141,10 +141,12 @@ static void adc_set_resolution(ADC_Config_t *adcConfig){
  * */
 static void adc_set_alignment(ADC_Config_t *adcConfig){
 
-	if(adcConfig->ADCx_Config.dataAlignment == ALIGNMENT_RIGHT){
-		adcConfig->pADCx->CR2 &= ~ADC_CR2_ALIGN;
+	if(adcConfig->dataAlignment == ALIGNMENT_RIGHT){
+		ADC1->CR2 &= ~ADC_CR2_ALIGN;
+	} else if(adcConfig->dataAlignment == ALIGNMENT_LEFT){
+		ADC1->CR2 |= ADC_CR2_ALIGN;
 	} else{
-		adcConfig->pADCx->CR2 |= ADC_CR2_ALIGN;
+		ADC1->CR2 &= ~ADC_CR2_ALIGN;
 	}
 }
 
@@ -154,664 +156,672 @@ static void adc_set_alignment(ADC_Config_t *adcConfig){
  * */
 static void adc_set_sampling_and_hold(ADC_Config_t *adcConfig){
 
-	switch(adcConfig->ADCx_Config.samplingPeriod){
+	switch(adcConfig->samplingPeriod){
 
 	case SAMPLING_PERIOD_3_CYCLES: {
-		if(adcConfig->ADCx_Config.channel == CHANNEL_0){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP0_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP0_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP0_2;
+		if(adcConfig->channel == CHANNEL_0){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP0_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP0_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP0_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_1){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP1_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP1_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP1_2;
+		}else if(adcConfig->channel == CHANNEL_1){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP1_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP1_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP1_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_2){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP2_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP2_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP2_2;
+		}else if(adcConfig->channel == CHANNEL_2){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP2_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP2_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP2_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_3){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP3_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP3_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP3_2;
+		}else if(adcConfig->channel == CHANNEL_3){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP3_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP3_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP3_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_4){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP4_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP4_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP4_2;
+		}else if(adcConfig->channel == CHANNEL_4){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP4_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP4_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP4_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_5){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP5_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP5_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP5_2;
+		}else if(adcConfig->channel == CHANNEL_5){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP5_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP5_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP5_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_6){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP6_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP6_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP6_2;
+		}else if(adcConfig->channel == CHANNEL_6){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP6_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP6_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP6_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_7){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP7_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP7_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP7_2;
+		}else if(adcConfig->channel == CHANNEL_7){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP7_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP7_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP7_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_8){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP8_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP8_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP8_2;
+		}else if(adcConfig->channel == CHANNEL_8){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP8_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP8_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP8_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_9){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP9_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP9_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP9_2;
+		}else if(adcConfig->channel == CHANNEL_9){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP9_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP9_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP9_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_10){
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP10_0;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP10_1;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP10_2;
+		}else if(adcConfig->channel == CHANNEL_10){
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP10_0;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP10_1;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP10_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_11){
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP11_0;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP11_1;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP11_2;
+		}else if(adcConfig->channel == CHANNEL_11){
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP11_0;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP11_1;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP11_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_12){
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP12_0;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP12_1;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP12_2;
+		}else if(adcConfig->channel == CHANNEL_12){
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP12_0;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP12_1;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP12_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_13){
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP13_0;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP13_1;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP13_2;
+		}else if(adcConfig->channel == CHANNEL_13){
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP13_0;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP13_1;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP13_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_14){
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP14_0;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP14_1;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP14_2;
+		}else if(adcConfig->channel == CHANNEL_14){
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP14_0;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP14_1;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP14_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_15){
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP15_0;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP15_1;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP15_2;
+		}else if(adcConfig->channel == CHANNEL_15){
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP15_0;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP15_1;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP15_2;
 		}
+		break;
 	}
 	case SAMPLING_PERIOD_15_CYCLES: {
-		if(adcConfig->ADCx_Config.channel == CHANNEL_0){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP0_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP0_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP0_2;
+		if(adcConfig->channel == CHANNEL_0){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP0_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP0_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP0_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_1){
+		}else if(adcConfig->channel == CHANNEL_1){
 
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP1_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP1_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP1_2;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP1_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP1_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP1_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_2){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP2_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP2_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP2_2;
+		}else if(adcConfig->channel == CHANNEL_2){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP2_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP2_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP2_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_3){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP3_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP3_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP3_2;
+		}else if(adcConfig->channel == CHANNEL_3){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP3_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP3_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP3_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_4){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP4_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP4_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP4_2;
+		}else if(adcConfig->channel == CHANNEL_4){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP4_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP4_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP4_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_5){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP5_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP5_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP5_2;
+		}else if(adcConfig->channel == CHANNEL_5){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP5_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP5_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP5_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_6){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP6_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP6_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP6_2;
+		}else if(adcConfig->channel == CHANNEL_6){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP6_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP6_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP6_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_7){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP7_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP7_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP7_2;
+		}else if(adcConfig->channel == CHANNEL_7){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP7_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP7_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP7_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_8){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP8_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP8_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP8_2;
+		}else if(adcConfig->channel == CHANNEL_8){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP8_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP8_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP8_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_9){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP9_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP9_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP9_2;
+		}else if(adcConfig->channel == CHANNEL_9){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP9_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP9_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP9_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_10){
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP10_0;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP10_1;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP10_2;
+		}else if(adcConfig->channel == CHANNEL_10){
+			ADC1->SMPR1 |= ADC_SMPR1_SMP10_0;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP10_1;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP10_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_11){
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP11_0;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP11_1;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP11_2;
+		}else if(adcConfig->channel == CHANNEL_11){
+			ADC1->SMPR1 |= ADC_SMPR1_SMP11_0;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP11_1;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP11_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_12){
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP12_0;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP12_1;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP12_2;
+		}else if(adcConfig->channel == CHANNEL_12){
+			ADC1->SMPR1 |= ADC_SMPR1_SMP12_0;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP12_1;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP12_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_13){
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP13_0;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP13_1;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP13_2;
+		}else if(adcConfig->channel == CHANNEL_13){
+			ADC1->SMPR1 |= ADC_SMPR1_SMP13_0;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP13_1;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP13_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_14){
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP14_0;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP14_1;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP14_2;
+		}else if(adcConfig->channel == CHANNEL_14){
+			ADC1->SMPR1 |= ADC_SMPR1_SMP14_0;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP14_1;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP14_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_15){
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP15_0;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP15_1;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP15_2;
+		}else if(adcConfig->channel == CHANNEL_15){
+			ADC1->SMPR1 |= ADC_SMPR1_SMP15_0;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP15_1;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP15_2;
 		}
+		break;
 	}
 	case SAMPLING_PERIOD_28_CYCLES: {
-		if(adcConfig->ADCx_Config.channel == CHANNEL_0){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP0_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP0_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP0_2;
+		if(adcConfig->channel == CHANNEL_0){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP0_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP0_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP0_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_1){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP1_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP1_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP1_2;
+		}else if(adcConfig->channel == CHANNEL_1){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP1_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP1_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP1_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_2){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP2_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP2_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP2_2;
+		}else if(adcConfig->channel == CHANNEL_2){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP2_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP2_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP2_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_3){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP3_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP3_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP3_2;
+		}else if(adcConfig->channel == CHANNEL_3){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP3_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP3_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP3_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_4){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP4_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP4_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP4_2;
+		}else if(adcConfig->channel == CHANNEL_4){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP4_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP4_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP4_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_5){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP5_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP5_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP5_2;
+		}else if(adcConfig->channel == CHANNEL_5){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP5_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP5_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP5_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_6){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP6_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP6_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP6_2;
+		}else if(adcConfig->channel == CHANNEL_6){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP6_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP6_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP6_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_7){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP7_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP7_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP7_2;
+		}else if(adcConfig->channel == CHANNEL_7){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP7_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP7_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP7_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_8){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP8_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP8_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP8_2;
+		}else if(adcConfig->channel == CHANNEL_8){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP8_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP8_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP8_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_9){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP9_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP9_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP9_2;
+		}else if(adcConfig->channel == CHANNEL_9){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP9_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP9_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP9_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_10){
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP10_0;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP10_1;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP10_2;
+		}else if(adcConfig->channel == CHANNEL_10){
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP10_0;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP10_1;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP10_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_11){
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP11_0;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP11_1;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP11_2;
+		}else if(adcConfig->channel == CHANNEL_11){
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP11_0;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP11_1;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP11_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_12){
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP12_0;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP12_1;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP12_2;
+		}else if(adcConfig->channel == CHANNEL_12){
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP12_0;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP12_1;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP12_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_13){
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP13_0;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP13_1;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP13_2;
+		}else if(adcConfig->channel == CHANNEL_13){
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP13_0;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP13_1;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP13_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_14){
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP14_0;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP14_1;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP14_2;
+		}else if(adcConfig->channel == CHANNEL_14){
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP14_0;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP14_1;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP14_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_15){
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP15_0;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP15_1;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP15_2;
+		}else if(adcConfig->channel == CHANNEL_15){
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP15_0;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP15_1;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP15_2;
 		}
+		break;
 	}
 	case SAMPLING_PERIOD_56_CYCLES: {
-		if(adcConfig->ADCx_Config.channel == CHANNEL_0){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP0_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP0_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP0_2;
+		if(adcConfig->channel == CHANNEL_0){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP0_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP0_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP0_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_1){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP1_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP1_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP1_2;
+		}else if(adcConfig->channel == CHANNEL_1){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP1_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP1_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP1_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_2){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP2_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP2_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP2_2;
+		}else if(adcConfig->channel == CHANNEL_2){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP2_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP2_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP2_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_3){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP3_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP3_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP3_2;
+		}else if(adcConfig->channel == CHANNEL_3){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP3_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP3_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP3_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_4){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP4_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP4_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP4_2;
+		}else if(adcConfig->channel == CHANNEL_4){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP4_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP4_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP4_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_5){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP5_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP5_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP5_2;
+		}else if(adcConfig->channel == CHANNEL_5){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP5_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP5_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP5_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_6){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP6_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP6_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP6_2;
+		}else if(adcConfig->channel == CHANNEL_6){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP6_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP6_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP6_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_7){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP7_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP7_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP7_2;
+		}else if(adcConfig->channel == CHANNEL_7){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP7_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP7_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP7_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_8){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP8_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP8_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP8_2;
+		}else if(adcConfig->channel == CHANNEL_8){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP8_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP8_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP8_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_9){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP9_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP9_1;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP9_2;
+		}else if(adcConfig->channel == CHANNEL_9){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP9_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP9_1;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP9_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_10){
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP10_0;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP10_1;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP10_2;
+		}else if(adcConfig->channel == CHANNEL_10){
+			ADC1->SMPR1 |= ADC_SMPR1_SMP10_0;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP10_1;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP10_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_11){
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP11_0;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP11_1;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP11_2;
+		}else if(adcConfig->channel == CHANNEL_11){
+			ADC1->SMPR1 |= ADC_SMPR1_SMP11_0;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP11_1;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP11_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_12){
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP12_0;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP12_1;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP12_2;
+		}else if(adcConfig->channel == CHANNEL_12){
+			ADC1->SMPR1 |= ADC_SMPR1_SMP12_0;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP12_1;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP12_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_13){
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP13_0;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP13_1;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP13_2;
+		}else if(adcConfig->channel == CHANNEL_13){
+			ADC1->SMPR1 |= ADC_SMPR1_SMP13_0;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP13_1;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP13_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_14){
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP14_0;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP14_1;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP14_2;
+		}else if(adcConfig->channel == CHANNEL_14){
+			ADC1->SMPR1 |= ADC_SMPR1_SMP14_0;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP14_1;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP14_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_15){
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP15_0;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP15_1;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP15_2;
+		}else if(adcConfig->channel == CHANNEL_15){
+			ADC1->SMPR1 |= ADC_SMPR1_SMP15_0;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP15_1;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP15_2;
 		}
+		break;
 	}
 	case SAMPLING_PERIOD_84_CYCLES: {
-		if(adcConfig->ADCx_Config.channel == CHANNEL_0){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP0_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP0_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP0_2;
+		if(adcConfig->channel == CHANNEL_0){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP0_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP0_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP0_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_1){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP1_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP1_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP1_2;
+		}else if(adcConfig->channel == CHANNEL_1){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP1_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP1_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP1_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_2){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP2_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP2_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP2_2;
+		}else if(adcConfig->channel == CHANNEL_2){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP2_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP2_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP2_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_3){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP3_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP3_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP3_2;
+		}else if(adcConfig->channel == CHANNEL_3){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP3_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP3_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP3_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_4){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP4_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP4_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP4_2;
+		}else if(adcConfig->channel == CHANNEL_4){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP4_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP4_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP4_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_5){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP5_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP5_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP5_2;
+		}else if(adcConfig->channel == CHANNEL_5){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP5_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP5_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP5_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_6){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP6_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP6_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP6_2;
+		}else if(adcConfig->channel == CHANNEL_6){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP6_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP6_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP6_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_7){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP7_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP7_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP7_2;
+		}else if(adcConfig->channel == CHANNEL_7){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP7_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP7_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP7_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_8){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP8_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP8_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP8_2;
+		}else if(adcConfig->channel == CHANNEL_8){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP8_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP8_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP8_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_9){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP9_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP9_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP9_2;
+		}else if(adcConfig->channel == CHANNEL_9){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP9_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP9_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP9_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_10){
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP10_0;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP10_1;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP10_2;
+		}else if(adcConfig->channel == CHANNEL_10){
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP10_0;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP10_1;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP10_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_11){
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP11_0;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP11_1;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP11_2;
+		}else if(adcConfig->channel == CHANNEL_11){
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP11_0;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP11_1;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP11_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_12){
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP12_0;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP12_1;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP12_2;
+		}else if(adcConfig->channel == CHANNEL_12){
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP12_0;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP12_1;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP12_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_13){
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP13_0;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP13_1;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP13_2;
+		}else if(adcConfig->channel == CHANNEL_13){
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP13_0;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP13_1;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP13_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_14){
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP14_0;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP14_1;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP14_2;
+		}else if(adcConfig->channel == CHANNEL_14){
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP14_0;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP14_1;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP14_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_15){
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP15_0;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP15_1;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP15_2;
+		}else if(adcConfig->channel == CHANNEL_15){
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP15_0;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP15_1;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP15_2;
 		}
+		break;
 	}
 	case SAMPLING_PERIOD_112_CYCLES: {
-		if(adcConfig->ADCx_Config.channel == CHANNEL_0){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP0_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP0_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP0_2;
+		if(adcConfig->channel == CHANNEL_0){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP0_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP0_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP0_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_1){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP1_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP1_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP1_2;
+		}else if(adcConfig->channel == CHANNEL_1){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP1_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP1_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP1_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_2){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP2_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP2_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP2_2;
+		}else if(adcConfig->channel == CHANNEL_2){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP2_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP2_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP2_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_3){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP3_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP3_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP3_2;
+		}else if(adcConfig->channel == CHANNEL_3){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP3_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP3_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP3_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_4){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP4_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP4_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP4_2;
+		}else if(adcConfig->channel == CHANNEL_4){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP4_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP4_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP4_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_5){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP5_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP5_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP5_2;
+		}else if(adcConfig->channel == CHANNEL_5){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP5_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP5_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP5_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_6){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP6_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP6_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP6_2;
+		}else if(adcConfig->channel == CHANNEL_6){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP6_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP6_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP6_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_7){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP7_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP7_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP7_2;
+		}else if(adcConfig->channel == CHANNEL_7){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP7_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP7_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP7_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_8){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP8_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP8_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP8_2;
+		}else if(adcConfig->channel == CHANNEL_8){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP8_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP8_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP8_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_9){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP9_0;
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP9_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP9_2;
+		}else if(adcConfig->channel == CHANNEL_9){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP9_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP9_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP9_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_10){
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP10_0;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP10_1;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP10_2;
+		}else if(adcConfig->channel == CHANNEL_10){
+			ADC1->SMPR1 |= ADC_SMPR1_SMP10_0;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP10_1;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP10_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_11){
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP11_0;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP11_1;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP11_2;
+		}else if(adcConfig->channel == CHANNEL_11){
+			ADC1->SMPR1 |= ADC_SMPR1_SMP11_0;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP11_1;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP11_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_12){
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP12_0;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP12_1;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP12_2;
+		}else if(adcConfig->channel == CHANNEL_12){
+			ADC1->SMPR1 |= ADC_SMPR1_SMP12_0;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP12_1;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP12_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_13){
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP13_0;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP13_1;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP13_2;
+		}else if(adcConfig->channel == CHANNEL_13){
+			ADC1->SMPR1 |= ADC_SMPR1_SMP13_0;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP13_1;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP13_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_14){
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP14_0;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP14_1;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP14_2;
+		}else if(adcConfig->channel == CHANNEL_14){
+			ADC1->SMPR1 |= ADC_SMPR1_SMP14_0;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP14_1;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP14_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_15){
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP15_0;
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP15_1;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP15_2;
+		}else if(adcConfig->channel == CHANNEL_15){
+			ADC1->SMPR1 |= ADC_SMPR1_SMP15_0;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP15_1;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP15_2;
 		}
+		break;
 	}
 	case SAMPLING_PERIOD_144_CYCLES: {
-		if(adcConfig->ADCx_Config.channel == CHANNEL_0){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP0_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP0_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP0_2;
+		if(adcConfig->channel == CHANNEL_0){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP0_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP0_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP0_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_1){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP1_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP1_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP1_2;
+		}else if(adcConfig->channel == CHANNEL_1){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP1_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP1_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP1_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_2){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP2_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP2_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP2_2;
+		}else if(adcConfig->channel == CHANNEL_2){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP2_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP2_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP2_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_3){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP3_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP3_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP3_2;
+		}else if(adcConfig->channel == CHANNEL_3){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP3_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP3_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP3_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_4){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP4_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP4_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP4_2;
+		}else if(adcConfig->channel == CHANNEL_4){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP4_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP4_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP4_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_5){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP5_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP5_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP5_2;
+		}else if(adcConfig->channel == CHANNEL_5){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP5_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP5_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP5_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_6){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP6_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP6_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP6_2;
+		}else if(adcConfig->channel == CHANNEL_6){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP6_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP6_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP6_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_7){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP7_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP7_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP7_2;
+		}else if(adcConfig->channel == CHANNEL_7){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP7_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP7_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP7_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_8){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP8_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP8_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP8_2;
+		}else if(adcConfig->channel == CHANNEL_8){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP8_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP8_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP8_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_9){
-			adcConfig->pADCx->SMPR2 &= ~ADC_SMPR2_SMP9_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP9_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP9_2;
+		}else if(adcConfig->channel == CHANNEL_9){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP9_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP9_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP9_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_10){
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP10_0;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP10_1;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP10_2;
+		}else if(adcConfig->channel == CHANNEL_10){
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP10_0;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP10_1;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP10_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_11){
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP11_0;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP11_1;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP11_2;
+		}else if(adcConfig->channel == CHANNEL_11){
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP11_0;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP11_1;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP11_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_12){
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP12_0;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP12_1;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP12_2;
+		}else if(adcConfig->channel == CHANNEL_12){
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP12_0;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP12_1;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP12_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_13){
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP13_0;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP13_1;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP13_2;
+		}else if(adcConfig->channel == CHANNEL_13){
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP13_0;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP13_1;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP13_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_14){
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP14_0;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP14_1;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP14_2;
+		}else if(adcConfig->channel == CHANNEL_14){
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP14_0;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP14_1;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP14_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_15){
-			adcConfig->pADCx->SMPR1 &= ~ADC_SMPR1_SMP15_0;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP15_1;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP15_2;
+		}else if(adcConfig->channel == CHANNEL_15){
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP15_0;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP15_1;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP15_2;
 		}
+		break;
 	}
 	case SAMPLING_PERIOD_480_CYCLES: {
-		if(adcConfig->ADCx_Config.channel == CHANNEL_0){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP0_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP0_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP0_2;
+		if(adcConfig->channel == CHANNEL_0){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP0_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP0_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP0_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_1){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP1_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP1_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP1_2;
+		}else if(adcConfig->channel == CHANNEL_1){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP1_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP1_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP1_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_2){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP2_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP2_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP2_2;
+		}else if(adcConfig->channel == CHANNEL_2){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP2_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP2_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP2_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_3){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP3_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP3_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP3_2;
+		}else if(adcConfig->channel == CHANNEL_3){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP3_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP3_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP3_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_4){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP4_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP4_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP4_2;
+		}else if(adcConfig->channel == CHANNEL_4){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP4_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP4_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP4_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_5){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP5_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP5_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP5_2;
+		}else if(adcConfig->channel == CHANNEL_5){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP5_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP5_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP5_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_6){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP6_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP6_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP6_2;
+		}else if(adcConfig->channel == CHANNEL_6){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP6_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP6_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP6_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_7){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP7_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP7_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP7_2;
+		}else if(adcConfig->channel == CHANNEL_7){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP7_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP7_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP7_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_8){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP8_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP8_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP8_2;
+		}else if(adcConfig->channel == CHANNEL_8){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP8_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP8_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP8_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_9){
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP9_0;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP9_1;
-			adcConfig->pADCx->SMPR2 |= ADC_SMPR2_SMP9_2;
+		}else if(adcConfig->channel == CHANNEL_9){
+			ADC1->SMPR2 |= ADC_SMPR2_SMP9_0;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP9_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP9_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_10){
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP10_0;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP10_1;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP10_2;
+		}else if(adcConfig->channel == CHANNEL_10){
+			ADC1->SMPR1 |= ADC_SMPR1_SMP10_0;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP10_1;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP10_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_11){
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP11_0;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP11_1;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP11_2;
+		}else if(adcConfig->channel == CHANNEL_11){
+			ADC1->SMPR1 |= ADC_SMPR1_SMP11_0;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP11_1;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP11_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_12){
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP12_0;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP12_1;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP12_2;
+		}else if(adcConfig->channel == CHANNEL_12){
+			ADC1->SMPR1 |= ADC_SMPR1_SMP12_0;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP12_1;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP12_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_13){
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP13_0;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP13_1;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP13_2;
+		}else if(adcConfig->channel == CHANNEL_13){
+			ADC1->SMPR1 |= ADC_SMPR1_SMP13_0;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP13_1;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP13_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_14){
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP14_0;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP14_1;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP14_2;
+		}else if(adcConfig->channel == CHANNEL_14){
+			ADC1->SMPR1 |= ADC_SMPR1_SMP14_0;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP14_1;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP14_2;
 
-		}else if(adcConfig->ADCx_Config.channel == CHANNEL_15){
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP15_0;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP15_1;
-			adcConfig->pADCx->SMPR1 |= ADC_SMPR1_SMP15_2;
+		}else if(adcConfig->channel == CHANNEL_15){
+			ADC1->SMPR1 |= ADC_SMPR1_SMP15_0;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP15_1;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP15_2;
 		}
+		break;
 	}
 	}
 }
@@ -824,9 +834,9 @@ static void adc_set_sampling_and_hold(ADC_Config_t *adcConfig){
 static void adc_set_one_channel_sequence(ADC_Config_t *adcConfig){
 
 	//Se realiza la selección para UN CANAL
-	adcConfig->pADCx->CR1 &= ~ADC_CR1_DISCNUM_0;
-	adcConfig->pADCx->CR1 &= ~ADC_CR1_DISCNUM_1;
-	adcConfig->pADCx->CR1 &= ~ADC_CR1_DISCNUM_2;
+	ADC1->CR1 &= ~ADC_CR1_DISCNUM_0;
+	ADC1->CR1 &= ~ADC_CR1_DISCNUM_1;
+	ADC1->CR1 &= ~ADC_CR1_DISCNUM_2;
 }
 
 
@@ -835,10 +845,10 @@ static void adc_set_one_channel_sequence(ADC_Config_t *adcConfig){
  * */
 static void adc_config_interrupt(ADC_Config_t *adcConfig){
 
-	if(adcConfig->ADCx_Config.interrupState == ADC_INT_ENABLE){
+	if(adcConfig->interrupState == ADC_INT_ENABLE){
 
 		//ACTIVAMOS LA INTERRUPCIÓN
-		adcConfig->pADCx->CR1 |= ADC_CR1_EOCIE;
+		ADC1->CR1 |= ADC_CR1_EOCIE;
 
 		/* Activamos el canal del sistema NVIC para que lea la interrupción*/
 		NVIC_EnableIRQ(ADC_IRQn);
@@ -846,7 +856,7 @@ static void adc_config_interrupt(ADC_Config_t *adcConfig){
 	} else{
 
 		//DESACTIVAMOS LA INTERRUPCIÓN
-		adcConfig->pADCx->CR1 &= ~ADC_CR1_EOCIE;
+		ADC1->CR1 &= ~ADC_CR1_EOCIE;
 
 		/* Desactivamos el canal del sistema NVIC para que lea la interrupción*/
 		NVIC_DisableIRQ(ADC_IRQn);
@@ -862,11 +872,11 @@ void adc_peripheralOnOFF(ADC_Config_t *adcConfig, uint8_t state){
 
 	if(state == ADC_ON){
 
-		adcConfig->pADCx->CR2 |= ADC_CR2_ADON;
+		ADC1->CR2 |= ADC_CR2_ADON;
 
 	}else{
 
-		adcConfig->pADCx->CR2 &= ~ADC_CR2_ADON;
+		ADC1->CR2 &= ~ADC_CR2_ADON;
 	}
 }
 
@@ -880,11 +890,11 @@ void adc_ScanMode(ADC_Config_t *adcConfig,uint8_t state){
 
 	if(state == SCAN_ON){
 
-		adcConfig->pADCx->CR1 |= ADC_CR1_SCAN;
+		ADC1->CR1 |= ADC_CR1_SCAN;
 
 	}else{
 
-		adcConfig->pADCx->CR1 &= ~ADC_CR1_SCAN;
+		ADC1->CR1 &= ~ADC_CR1_SCAN;
 
 	}
 }

@@ -32,17 +32,40 @@ GPIO_Handler_t vcc_centena        = {0}; //PinC7
 GPIO_Handler_t vcc_mil            = {0}; //PinA10
 
 //Definimos pines a utilizar para EXTI
-GPIO_Handler_t userCKenc     = {0};//Pin ...  //EXTI clock --> interrupción
-GPIO_Handler_t userData      = {0};//Pin ...  //Data encoder (conociendo clock ya se conoce esta)
-GPIO_Handler_t userSWenc     = {0};//Pin ... //EXTI switch --> interrupción
+GPIO_Handler_t userCKenc     = {0};//Pin B2  //EXTI clock --> interrupción
+GPIO_Handler_t userData      = {0};//Pin B15  //Data encoder (conociendo clock ya se conoce esta)
+GPIO_Handler_t userSWenc     = {0};//Pin B1 //EXTI switch --> interrupción
 
 //Definimos timers a utilizar
 Timer_Handler_t blinkTimer   = {0}; // Timer para el blinking
 Timer_Handler_t displayTimer = {0}; // Timer asociado al display del siete segmentos
 Timer_Handler_t controlTimer = {0}; // Timer asociado al control del tiempo
 
-// Definimos variable para activar contador
+//Definición lineas EXTI que vamos a utilizar
+EXTI_Config_t swExti    = {0}; //EXTI linea 1 para el sw del encoder
+EXTI_Config_t ckExti    = {0}; //EXTI linea 15 para el ck del encoder
+
+// Definimos variable para activar representación numero en siete segmentos
 uint16_t counter_i = 0;
+
+//Definimos variable para generar cambios en el numero a representar en el siete segmentos
+uint8_t numberSwitch = 0;
+
+// Definimos variable para activar contador
+uint16_t counter = 0;
+
+// Definimos variable para contar vueltas encoder
+int16_t counterEncoder = 0;
+
+// Definimos variables para cargar características de las señales data y clock del encoder
+uint8_t directionclk            = {0};
+uint8_t directiondata           = {0};
+
+// Definimos variable para tomar medida trimmer
+uint16_t counterTrimmer = 2;
+
+// Definimos variable para tomar medida Foto resistencia
+uint16_t counterFotoResistencia = 3;
 
 //Definiendo funciones a usar
 uint32_t counter_a(uint8_t counterSietea);
@@ -68,6 +91,8 @@ uint8_t maskChangeDisplay     = 1;
 //Definimos variables para asignar el estado de la bandera correspondiente a cada interrupción
 uint8_t banderaDisplayTimer   = 0;
 uint8_t banderaControlTimer   = 0;
+uint8_t banderaSwitchExti     = 0;
+uint8_t banderaClockExti      = 0;
 
 //Definición variable para generar apagado total de los cuatro dígitos del siete segmentos
 uint8_t apagadoLed   = 1;
@@ -76,13 +101,20 @@ uint8_t apagadoLed   = 1;
 void initialConfig(void);
 
 //Definición función para configuración siete segmentos
-void sieteSegmentosConfig(void);
+void getDigitToShow(void);
 
 //Definición función para configuración counter
 void counterConfig(void);
 
+//Definición función para configuración counter encoder
+void counterEncoderConfig(void);
+
+//Definición función para configuración switch
+void switchConfig(void);
+
 //Definición función para RESET de los leds
 void apagadoTotalLeds(void);
+
 
 /*  Main function  */
 int main(void)
@@ -93,29 +125,70 @@ int main(void)
     /* Loop forever */
 	while(1){
 
-			if(banderaDisplayTimer == 1){
+		//Evaluamos si la bandera de la interrupción responsable del control del switch
+		//está levantada
+		if(banderaSwitchExti == 1){
 
-				//Bajamos la bandera de la interrupción de Display Timer
-				banderaDisplayTimer = 0;
+			//Bajamos la bandera de la interrupción del Switch encoder
+			banderaSwitchExti = 0;
 
-				//Llamamos a la función encargada de la representación del contador en el display
-				sieteSegmentosConfig();
+			//Llamamos a la función encargada de configuración asociada al switch
+			switchConfig();
+		}
+
+		//Evaluamos si la bandera de la interrupción responsable del control del display
+		//está levantada
+		if(banderaDisplayTimer == 1){
+
+			//Bajamos la bandera de la interrupción de Display Timer
+			banderaDisplayTimer = 0;
+
+			//Llamamos a la función encargada de la representación del contador en el display
+			getDigitToShow();
+		}
+
+		//Evaluamos si la bandera de la interrupción responsable del control del tiempo
+		//está levantada
+		if(banderaControlTimer == 1){
+
+			//Bajamos la bandera de la interrupción de Control Timer
+			banderaControlTimer = 0;
+
+			//Llamamos a la función encargada del counter
+			counterConfig();
+
+
+			//Evaluamos si el estado del switch indica que si se debe representar el counter
+			if(numberSwitch == 1){
+
+				//Igualamos variable de counterConfig con la variable getDigitToShow
+				counter_i = counter;
 			}
 
-			//Evaluamos si la bandera de la interrupción responsable del control del tiempo
-			//está levantada
-			if(banderaControlTimer == 1){
+		}
 
-				//Bajamos la bandera de la interrupción de Control Timer
-				banderaControlTimer = 0;
+		//Evaluamos si la bandera de la interrupción responsable del counter encoder
+		//está levantada
+		if(banderaClockExti == 1){
 
-				//Llamamos a la función encargada del counter
-				counterConfig();
+			//Bajamos la bandera de la interrupción de Counter encoder
+			banderaClockExti = 0;
 
+			//Llamamos a la función encargada del counter encoder
+			counterEncoderConfig();
+
+			//Evaluamos si el estado del switch indica que si se debe representar el counter
+			if(numberSwitch == 2){
+
+				//Igualamos variable de counterConfig con la variable getDigitToShow
+				counter_i = counterEncoder;
 			}
-	}
 
-}
+		}
+
+	}//Fin ciclo while
+
+}//Fin función main
 
 //Definimos función para realizar todas las configuraciones iniciales
 void initialConfig(){
@@ -134,8 +207,6 @@ void initialConfig(){
 
 		//Ejecutamos la configuración realizada en A5
 		//gpio_WritePin(&verificationLed, SET);
-
-		/* ========== SOLUCIÓN TAREA 2 ========== */
 
 		/* A continuación se realiza la configuración del led de estado (este está ubicado en
 		 * la "board táctica")*/
@@ -170,7 +241,7 @@ void initialConfig(){
 		/* A continuación se empieza con la configuración de los pines seleccionados para
 		 * activar los LEDs de la cuenta respectiva en el 7 segmentos */
 
-		/* Configuramos el pin C12 --> LED a*/
+		/* Configuramos el pin A11 --> LED a*/
 		segmentoLed_a.pGPIOx                         = GPIOA;
 		segmentoLed_a.pinConfig.GPIO_PinNumber       = PIN_11;
 		segmentoLed_a.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
@@ -181,7 +252,7 @@ void initialConfig(){
 		//Cargamos la configuración en los registros que gobiernan el puerto
 		gpio_Config(&segmentoLed_a);
 
-		//A continuación se está probando el correcto funcionamiento del pin C12
+		//A continuación se está probando el correcto funcionamiento del pin A11
 		//gpio_WritePin(&segmentoLed_a, SET);
 
 		/* Configuramos el pin A12 --> LED b*/
@@ -198,7 +269,7 @@ void initialConfig(){
 		//A continuación se está probando el correcto funcionamiento del pin A12
 		//gpio_WritePin(&segmentoLed_b, SET);
 
-		/* Configuramos el pin C6 --> LED c*/
+		/* Configuramos el pin C12 --> LED c*/
 		segmentoLed_c.pGPIOx                         = GPIOC;
 		segmentoLed_c.pinConfig.GPIO_PinNumber       = PIN_12;
 		segmentoLed_c.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
@@ -209,10 +280,10 @@ void initialConfig(){
 		//Cargamos la configuración en los registros que gobiernan el puerto
 		gpio_Config(&segmentoLed_c);
 
-		//A continuación se está probando el correcto funcionamiento del pin C6
+		//A continuación se está probando el correcto funcionamiento del pin C12
 		//gpio_WritePin(&segmentoLed_c, SET);
 
-		/* Configuramos el pin B13 --> LED d*/
+		/* Configuramos el pin C11 --> LED d*/
 		segmentoLed_d.pGPIOx                         = GPIOC;
 		segmentoLed_d.pinConfig.GPIO_PinNumber       = PIN_11;
 		segmentoLed_d.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
@@ -223,10 +294,10 @@ void initialConfig(){
 		//Cargamos la configuración en los registros que gobiernan el puerto
 		gpio_Config(&segmentoLed_d);
 
-		//A continuación se está probando el correcto funcionamiento del pin B13
+		//A continuación se está probando el correcto funcionamiento del pin C11
 		//gpio_WritePin(&segmentoLed_d, SET);
 
-		/* Configuramos el pin B10 --> LED e*/
+		/* Configuramos el pin C10 --> LED e*/
 		segmentoLed_e.pGPIOx                         = GPIOC;
 		segmentoLed_e.pinConfig.GPIO_PinNumber       = PIN_10;
 		segmentoLed_e.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
@@ -237,10 +308,10 @@ void initialConfig(){
 		//Cargamos la configuración en los registros que gobiernan el puerto
 		gpio_Config(&segmentoLed_e);
 
-		//A continuación se está probando el correcto funcionamiento del pin B10
+		//A continuación se está probando el correcto funcionamiento del pin C10
 		//gpio_WritePin(&segmentoLed_e, SET);
 
-		/* Configuramos el pin C10 --> LED f*/
+		/* Configuramos el pin B12 --> LED f*/
 		segmentoLed_f.pGPIOx                         = GPIOB;
 		segmentoLed_f.pinConfig.GPIO_PinNumber       = PIN_12;
 		segmentoLed_f.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
@@ -251,7 +322,7 @@ void initialConfig(){
 		//Cargamos la configuración en los registros que gobiernan el puerto
 		gpio_Config(&segmentoLed_f);
 
-		//A continuación se está probando el correcto funcionamiento del pin B7
+		//A continuación se está probando el correcto funcionamiento del pin B12
 		//gpio_WritePin(&segmentoLed_f, SET);
 
 		/* Configuramos el pin B7 --> LED g*/
@@ -265,13 +336,13 @@ void initialConfig(){
 		//Cargamos la configuración en los registros que gobiernan el puerto
 		gpio_Config(&segmentoLed_g);
 
-		//A continuación se está probando el correcto funcionamiento del pin C10
+		//A continuación se está probando el correcto funcionamiento del pin B7
 		//gpio_WritePin(&segmentoLed_g, SET);
 
 		//Cargamos ahora la configuración respectiva para los pines de alimentación de los vcc
 		//de los transistores que componen el circuito del siete segmentos.
 
-		/* Configuramos el pin A0 --> vcc unidad*/
+		/* Configuramos el pin C2 --> vcc unidad*/
 		vcc_unidad.pGPIOx                         = GPIOC;
 		vcc_unidad.pinConfig.GPIO_PinNumber       = PIN_2;
 		vcc_unidad.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
@@ -282,7 +353,7 @@ void initialConfig(){
 		//Cargamos la configuración en los registros que gobiernan el puerto
 		gpio_Config(&vcc_unidad);
 
-		/* Configuramos el pin B12 --> vcc decimal*/
+		/* Configuramos el pin B6 --> vcc decimal*/
 		vcc_decena.pGPIOx                         = GPIOB;
 		vcc_decena.pinConfig.GPIO_PinNumber       = PIN_6;
 		vcc_decena.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
@@ -293,7 +364,7 @@ void initialConfig(){
 		//Cargamos la configuración en los registros que gobiernan el puerto
 		gpio_Config(&vcc_decena);
 
-		/* Configuramos el pin B12 --> vcc CENTENA*/
+		/* Configuramos el pin C7 --> vcc CENTENA*/
 		vcc_centena.pGPIOx                         = GPIOC;
 		vcc_centena.pinConfig.GPIO_PinNumber       = PIN_7;
 		vcc_centena.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
@@ -304,7 +375,7 @@ void initialConfig(){
 		//Cargamos la configuración en los registros que gobiernan el puerto
 		gpio_Config(&vcc_centena);
 
-		/* Configuramos el pin B12 --> vcc MIL*/
+		/* Configuramos el pin A10 --> vcc MIL*/
 		vcc_mil.pGPIOx                         = GPIOA;
 		vcc_mil.pinConfig.GPIO_PinNumber       = PIN_10;
 		vcc_mil.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
@@ -338,8 +409,8 @@ void initialConfig(){
 
 		//Configuración Timer5 --> control del tiempo
 		controlTimer.pTIMx                             = TIM5;
-		controlTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 1 s
-		controlTimer.TIMx_Config.TIMx_Period           = 1000;     //De la mano con el prescaler...
+		controlTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 0.1 s
+		controlTimer.TIMx_Config.TIMx_Period           = 100;     //De la mano con el prescaler...
 		controlTimer.TIMx_Config.TIMx_mode             = TIMER_UP_COUNTER;
 		controlTimer.TIMx_Config.TIMx_InterruptEnable  = TIMER_INT_ENABLE;
 
@@ -348,6 +419,49 @@ void initialConfig(){
 
 		//Encendemos el Timer
 		timer_SetState(&controlTimer, TIMER_ON);
+
+		//A continuación se está realizando la configuración de las lineas para EXTI a usar
+
+		/*Configuramos el pin B15 -> DATA ENCODER*/
+		userData.pGPIOx                         = GPIOB;
+		userData.pinConfig.GPIO_PinNumber       = PIN_15;
+		userData.pinConfig.GPIO_PinMode         = GPIO_MODE_IN;
+
+		//Cargamos la configuración en los registros que gobiernan el puerto
+		gpio_Config(&userData);
+
+		/*Configuramos el pin..  --> SWITCH ENCODER*/
+		userSWenc.pGPIOx                         = GPIOB;
+		userSWenc.pinConfig.GPIO_PinNumber       = PIN_1;
+		userSWenc.pinConfig.GPIO_PinMode         = GPIO_MODE_IN;
+
+		//Cargamos la configuración en los registros que gobiernan el puerto
+		gpio_Config(&userSWenc);
+
+		/*Configuramos el pin B15  --> CLOCK ENCODER*/
+		userCKenc.pGPIOx                         = GPIOB;
+		userCKenc.pinConfig.GPIO_PinNumber       = PIN_2;
+		userCKenc.pinConfig.GPIO_PinMode         = GPIO_MODE_IN;
+
+		//Cargamos la configuración en los registros que gobiernan el puerto
+		gpio_Config(&userCKenc);
+
+		//A continuación se está realizando la configuración de los EXTI a usar
+
+		/*Configuramos el EXTI sw que será en la linea 1--> Switch*/
+		swExti.pGPIOHandler = &userSWenc;
+		swExti.edgeType     = EXTERNAL_INTERRUPT_RISING_EDGE;
+
+		//Cargamos la configuración de la interrupción externa (EXTI)
+		exti_Config(&swExti);
+
+		/*Configuramos el EXTI ck que será en la linea 2 --> Clock*/
+		ckExti.pGPIOHandler = &userCKenc;
+		ckExti.edgeType     = EXTERNAL_INTERRUPT_RISING_EDGE;
+
+		//Cargamos la configuración de la interrupción externa (EXTI)
+		exti_Config(&ckExti);
+
 }
 
 //Definimos función para modo set o reset de los pines con respecto al número (0 a 9)
@@ -571,7 +685,7 @@ void apagadoTotalLeds(void){
 }
 
 //Función para configuración siete segmentos
-void sieteSegmentosConfig(void){
+void getDigitToShow(void){
 
 	// Construimos relación para identificar el valor de mil del número
 	mil = counter_i - (counter_i%1000);
@@ -742,14 +856,68 @@ void sieteSegmentosConfig(void){
 //Función para configuración counter
 void counterConfig(void){
 	//Sumamos el valor del counter para garantizar la cuenta ascentente
-	counter_i = counter_i +1;
+	counter = counter +1;
 
 	//Delimitamos que el número máximo hasta el cual se contará es 59
-	if(counter_i == 4096){
+	if(counter == 4096){
 		//Reiniciamos el contador para repetir el ciclo de cuenta
-		counter_i = 0;
+		counter = 0;
 	}
 }
+
+//Función para configuración counter encoder
+void counterEncoderConfig(void){
+
+	//Almacenamos la informacion recibida por los datos de la señal clock y la señal data
+	directionclk = gpio_ReadPin(&userCKenc);
+	directiondata = gpio_ReadPin(&userData);
+
+	//Definimos condiciones para diferenciación entre suma y resta de la cantidad de vueltas
+	if(directionclk == directiondata){ //Verificamos condición giro derecha
+
+		//Sumamos al contador para empezar a sumar con cada vuelta
+		counterEncoder++;
+
+		//Verificamos si el valor sobrepasó el maximo de representación
+		if(counterEncoder == 4096){
+			//En caso de alcanzar el máximo se reinicia la cuenta desde cero
+			counterEncoder = 0;
+		}
+
+	} else{
+
+		//Restamos al contador para empezar a restar con cada vuelta
+		counterEncoder--;
+
+		//Verificamos si el valor sobrepasó el minimo de representación
+		if(counterEncoder == -1){
+			//En caso de alcanzar el mÍNIMO se reinicia la cuenta desde máximo
+			counterEncoder = 4095;
+		}
+	}
+}
+
+//Función para configuración switch
+void switchConfig(void){
+
+	//Aumentamos el valor de la variable con cada activación del switch
+	//==== Cada numero asignado va a representar un caso especifico de representación en el siete segmentos
+	numberSwitch ++;
+
+	//Definimos límite del contador en 5 casos posibles
+	/*
+	 * 0. No realiza ninguna función
+	 * 1. Contador de tiempo
+	 * 2. Contador vueltas encoder
+	 * 3. Medida trimmer
+	 * 4. Medida Foto Resistencia
+	 * */
+	if(numberSwitch == 3){
+
+		numberSwitch = 0;
+	}
+}
+
 /*
  * Overwrite function for A5
  * */
@@ -779,7 +947,22 @@ void Timer5_Callback(void){
 	//Subimos la bandera de la interrupción de Control Timer
 	banderaControlTimer = 1;
 }
+/*
+ * Overwrite function for switch
+ * */
+void callback_ExtInt1(void){
 
+	//Activamos bandera de la interrupción
+	banderaSwitchExti = 1;
+}
+/*
+ * Overwrite function for clock
+ * */
+void callback_ExtInt2(void){
+
+	//Activamos bandera de la interrupción
+	banderaClockExti = 1;
+}
 /*
  * Esta función sirve para detectar problemas de parámetros
  * incorrectos al momento de ejecutar un programa.
