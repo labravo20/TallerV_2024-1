@@ -99,10 +99,10 @@ void adc_ConfigSingleChannel(ADC_Config_t *adcConfig);
 void adc_ConfigAnalogPin(uint8_t adcChannel);
 void adc_CompleteCallback(void);
 void adc_StartSingleConv(void);
-void adc_ScanMode(ADC_Config_t *adcConfig, uint8_t state);
+void adc_ScanMode(uint8_t state);
 void adc_StartContinuousConv(void);
 void adc_StopContinuousConv(void);
-void adc_peripheralOnOFF(ADC_Config_t *adcConfig, uint8_t state);
+void adc_peripheralOnOFF(uint8_t state);
 uint16_t adc_Get_Value(void);
 
 /* Configuraciones avanzadas del ADC */

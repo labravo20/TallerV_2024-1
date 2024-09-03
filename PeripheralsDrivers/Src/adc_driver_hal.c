@@ -44,7 +44,7 @@ void adc_ConfigSingleChannel(ADC_Config_t *adcConfig){
 	adc_set_resolution(adcConfig);
 
 	/* 4. Configuramos el modo Scan como desactivado */
-	adc_ScanMode(adcConfig, SCAN_OFF);
+	adc_ScanMode(SCAN_OFF);
 
 	/* 5. Configuramos la alineación de los datos (derecha o izquierda)*/
 	adc_set_alignment(adcConfig);
@@ -69,7 +69,7 @@ void adc_ConfigSingleChannel(ADC_Config_t *adcConfig){
 	adc_config_interrupt(adcConfig);
 
 	/* 12. Activamos el modulo ADC */
-	adc_peripheralOnOFF(adcConfig, ADC_ON);
+	adc_peripheralOnOFF(ADC_ON);
 
 	/* 13. Activamos las interrupciones globales */
 	__enable_irq();
@@ -823,6 +823,89 @@ static void adc_set_sampling_and_hold(ADC_Config_t *adcConfig){
 		}
 		break;
 	}
+	default:{
+		if(adcConfig->channel == CHANNEL_0){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP0_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP0_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP0_2;
+
+		}else if(adcConfig->channel == CHANNEL_1){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP1_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP1_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP1_2;
+
+		}else if(adcConfig->channel == CHANNEL_2){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP2_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP2_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP2_2;
+
+		}else if(adcConfig->channel == CHANNEL_3){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP3_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP3_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP3_2;
+
+		}else if(adcConfig->channel == CHANNEL_4){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP4_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP4_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP4_2;
+
+		}else if(adcConfig->channel == CHANNEL_5){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP5_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP5_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP5_2;
+
+		}else if(adcConfig->channel == CHANNEL_6){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP6_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP6_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP6_2;
+
+		}else if(adcConfig->channel == CHANNEL_7){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP7_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP7_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP7_2;
+
+		}else if(adcConfig->channel == CHANNEL_8){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP8_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP8_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP8_2;
+
+		}else if(adcConfig->channel == CHANNEL_9){
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP9_0;
+			ADC1->SMPR2 &= ~ADC_SMPR2_SMP9_1;
+			ADC1->SMPR2 |= ADC_SMPR2_SMP9_2;
+
+		}else if(adcConfig->channel == CHANNEL_10){
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP10_0;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP10_1;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP10_2;
+
+		}else if(adcConfig->channel == CHANNEL_11){
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP11_0;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP11_1;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP11_2;
+
+		}else if(adcConfig->channel == CHANNEL_12){
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP12_0;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP12_1;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP12_2;
+
+		}else if(adcConfig->channel == CHANNEL_13){
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP13_0;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP13_1;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP13_2;
+
+		}else if(adcConfig->channel == CHANNEL_14){
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP14_0;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP14_1;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP14_2;
+
+		}else if(adcConfig->channel == CHANNEL_15){
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP15_0;
+			ADC1->SMPR1 &= ~ADC_SMPR1_SMP15_1;
+			ADC1->SMPR1 |= ADC_SMPR1_SMP15_2;
+		}
+		break;
+	}
 	}
 }
 
@@ -833,10 +916,141 @@ static void adc_set_sampling_and_hold(ADC_Config_t *adcConfig){
  * */
 static void adc_set_one_channel_sequence(ADC_Config_t *adcConfig){
 
-	//Se realiza la selección para UN CANAL
-	ADC1->CR1 &= ~ADC_CR1_DISCNUM_0;
-	ADC1->CR1 &= ~ADC_CR1_DISCNUM_1;
-	ADC1->CR1 &= ~ADC_CR1_DISCNUM_2;
+	ADC1->SQR1 &= ~ADC_SQR1_L;
+	switch(adcConfig->channel){
+
+	case CHANNEL_0:{
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_0;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_1;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_2;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_3;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_4;
+		break;
+	}
+	case CHANNEL_1:{
+		ADC1->SQR3 |= ADC_SQR1_SQ13_0;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_1;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_2;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_3;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_4;
+		break;
+	}
+	case CHANNEL_2:{
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_0;
+		ADC1->SQR3 |= ADC_SQR1_SQ13_1;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_2;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_3;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_4;
+		break;
+	}
+	case CHANNEL_3:{
+		ADC1->SQR3 |= ADC_SQR1_SQ13_0;
+		ADC1->SQR3 |= ADC_SQR1_SQ13_1;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_2;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_3;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_4;
+		break;
+	}
+	case CHANNEL_4:{
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_0;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_1;
+		ADC1->SQR3 |= ADC_SQR1_SQ13_2;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_3;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_4;
+		break;
+	}
+	case CHANNEL_5:{
+		ADC1->SQR3 |= ADC_SQR1_SQ13_0;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_1;
+		ADC1->SQR3 |= ADC_SQR1_SQ13_2;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_3;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_4;
+		break;
+	}
+	case CHANNEL_6:{
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_0;
+		ADC1->SQR3 |= ADC_SQR1_SQ13_1;
+		ADC1->SQR3 |= ADC_SQR1_SQ13_2;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_3;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_4;
+		break;
+	}
+	case CHANNEL_7:{
+		ADC1->SQR3 |= ADC_SQR1_SQ13_0;
+		ADC1->SQR3 |= ADC_SQR1_SQ13_1;
+		ADC1->SQR3 |= ADC_SQR1_SQ13_2;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_3;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_4;
+		break;
+	}
+	case CHANNEL_8:{
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_0;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_1;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_2;
+		ADC1->SQR3 |= ADC_SQR1_SQ13_3;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_4;
+		break;
+	}
+	case CHANNEL_9:{
+		ADC1->SQR3 |= ADC_SQR1_SQ13_0;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_1;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_2;
+		ADC1->SQR3 |= ADC_SQR1_SQ13_3;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_4;
+		break;
+	}
+	case CHANNEL_10:{
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_0;
+		ADC1->SQR3 |= ADC_SQR1_SQ13_1;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_2;
+		ADC1->SQR3 |= ADC_SQR1_SQ13_3;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_4;
+		break;
+	}
+	case CHANNEL_11:{
+		ADC1->SQR3 |= ADC_SQR1_SQ13_0;
+		ADC1->SQR3 |= ADC_SQR1_SQ13_1;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_2;
+		ADC1->SQR3 |= ADC_SQR1_SQ13_3;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_4;
+		break;
+	}
+	case CHANNEL_12:{
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_0;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_1;
+		ADC1->SQR3 |= ADC_SQR1_SQ13_2;
+		ADC1->SQR3 |= ADC_SQR1_SQ13_3;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_4;
+		break;
+	}
+	case CHANNEL_13:{
+		ADC1->SQR3 |= ADC_SQR1_SQ13_0;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_1;
+		ADC1->SQR3 |= ADC_SQR1_SQ13_2;
+		ADC1->SQR3 |= ADC_SQR1_SQ13_3;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_4;
+		break;
+	}
+	case CHANNEL_14:{
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_0;
+		ADC1->SQR3 |= ADC_SQR1_SQ13_1;
+		ADC1->SQR3 |= ADC_SQR1_SQ13_2;
+		ADC1->SQR3 |= ADC_SQR1_SQ13_3;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_4;
+		break;
+	}
+	case CHANNEL_15:{
+		ADC1->SQR3 |= ADC_SQR1_SQ13_0;
+		ADC1->SQR3 |= ADC_SQR1_SQ13_1;
+		ADC1->SQR3 |= ADC_SQR1_SQ13_2;
+		ADC1->SQR3 |= ADC_SQR1_SQ13_3;
+		ADC1->SQR3 &= ~ADC_SQR1_SQ13_4;
+		break;
+	}
+	default:{
+		break;
+	}
+	}
 }
 
 
@@ -868,7 +1082,7 @@ static void adc_config_interrupt(ADC_Config_t *adcConfig){
  * Controla la ctivación y desactivación del modulo ADC desde el registro
  * CR2 del ADC
  * */
-void adc_peripheralOnOFF(ADC_Config_t *adcConfig, uint8_t state){
+void adc_peripheralOnOFF(uint8_t state){
 
 	if(state == ADC_ON){
 
@@ -886,7 +1100,7 @@ void adc_peripheralOnOFF(ADC_Config_t *adcConfig, uint8_t state){
  *Funciona de la mano con la secuencia de carios canales
  *NO es necesario para el caso de solo un canal simple
  * */
-void adc_ScanMode(ADC_Config_t *adcConfig,uint8_t state){
+void adc_ScanMode(uint8_t state){
 
 	if(state == SCAN_ON){
 
@@ -931,8 +1145,8 @@ void adc_StartContinuousConv(void){
  * */
 void adc_StopContinuousConv(void){
 
-	//Conversion complete
-	ADC1->SR |= ADC_SR_EOC;
+	//Se inicializa la conversión ADC continua
+	ADC1->CR2 &= ~ADC_CR2_CONT;
 }
 
 
@@ -958,6 +1172,132 @@ void ADC_IRQHandler(void){
 
 	//Se llama al callback
 	adc_CompleteCallback();
+}
+
+
+/*
+ * Con esta función configuramod qué pin deseamos que funcione como ADC
+ * */
+void adc_ConfigAnalogPin(uint8_t adcChannel){
+
+	switch(adcChannel){
+
+	case CHANNEL_0:{
+		handlerADCPin.pGPIOx                    = GPIOA;
+		handlerADCPin.pinConfig.GPIO_PinMode    = GPIO_MODE_ANALOG;
+		handlerADCPin.pinConfig.GPIO_PinNumber  = PIN_0;
+		gpio_Config(&handlerADCPin);
+		break;
+	}
+	case CHANNEL_1:{
+		handlerADCPin.pGPIOx                    = GPIOA;
+		handlerADCPin.pinConfig.GPIO_PinMode    = GPIO_MODE_ANALOG;
+		handlerADCPin.pinConfig.GPIO_PinNumber  = PIN_1;
+		gpio_Config(&handlerADCPin);
+		break;
+	}
+	case CHANNEL_2:{
+		handlerADCPin.pGPIOx                    = GPIOA;
+		handlerADCPin.pinConfig.GPIO_PinMode    = GPIO_MODE_ANALOG;
+		handlerADCPin.pinConfig.GPIO_PinNumber  = PIN_2;
+		gpio_Config(&handlerADCPin);
+		break;
+	}
+	case CHANNEL_3:{
+		handlerADCPin.pGPIOx                    = GPIOA;
+		handlerADCPin.pinConfig.GPIO_PinMode    = GPIO_MODE_ANALOG;
+		handlerADCPin.pinConfig.GPIO_PinNumber  = PIN_3;
+		gpio_Config(&handlerADCPin);
+		break;
+	}
+	case CHANNEL_4:{
+		handlerADCPin.pGPIOx                    = GPIOA;
+		handlerADCPin.pinConfig.GPIO_PinMode    = GPIO_MODE_ANALOG;
+		handlerADCPin.pinConfig.GPIO_PinNumber  = PIN_4;
+		gpio_Config(&handlerADCPin);
+		break;
+	}
+	case CHANNEL_5:{
+		handlerADCPin.pGPIOx                    = GPIOA;
+		handlerADCPin.pinConfig.GPIO_PinMode    = GPIO_MODE_ANALOG;
+		handlerADCPin.pinConfig.GPIO_PinNumber  = PIN_5;
+		gpio_Config(&handlerADCPin);
+		break;
+	}
+	case CHANNEL_6:{
+		handlerADCPin.pGPIOx                    = GPIOA;
+		handlerADCPin.pinConfig.GPIO_PinMode    = GPIO_MODE_ANALOG;
+		handlerADCPin.pinConfig.GPIO_PinNumber  = PIN_6;
+		gpio_Config(&handlerADCPin);
+		break;
+	}
+	case CHANNEL_7:{
+		handlerADCPin.pGPIOx                    = GPIOA;
+		handlerADCPin.pinConfig.GPIO_PinMode    = GPIO_MODE_ANALOG;
+		handlerADCPin.pinConfig.GPIO_PinNumber  = PIN_7;
+		gpio_Config(&handlerADCPin);
+		break;
+	}
+	case CHANNEL_8:{
+		handlerADCPin.pGPIOx                    = GPIOB;
+		handlerADCPin.pinConfig.GPIO_PinMode    = GPIO_MODE_ANALOG;
+		handlerADCPin.pinConfig.GPIO_PinNumber  = PIN_0;
+		gpio_Config(&handlerADCPin);
+		break;
+	}
+	case CHANNEL_9:{
+		handlerADCPin.pGPIOx                    = GPIOB;
+		handlerADCPin.pinConfig.GPIO_PinMode    = GPIO_MODE_ANALOG;
+		handlerADCPin.pinConfig.GPIO_PinNumber  = PIN_1;
+		gpio_Config(&handlerADCPin);
+		break;
+	}
+	case CHANNEL_10:{
+		handlerADCPin.pGPIOx                    = GPIOC;
+		handlerADCPin.pinConfig.GPIO_PinMode    = GPIO_MODE_ANALOG;
+		handlerADCPin.pinConfig.GPIO_PinNumber  = PIN_0;
+		gpio_Config(&handlerADCPin);
+		break;
+	}
+	case CHANNEL_11:{
+		handlerADCPin.pGPIOx                    = GPIOC;
+		handlerADCPin.pinConfig.GPIO_PinMode    = GPIO_MODE_ANALOG;
+		handlerADCPin.pinConfig.GPIO_PinNumber  = PIN_1;
+		gpio_Config(&handlerADCPin);
+		break;
+	}
+	case CHANNEL_12:{
+		handlerADCPin.pGPIOx                    = GPIOC;
+		handlerADCPin.pinConfig.GPIO_PinMode    = GPIO_MODE_ANALOG;
+		handlerADCPin.pinConfig.GPIO_PinNumber  = PIN_2;
+		gpio_Config(&handlerADCPin);
+		break;
+	}
+	case CHANNEL_13:{
+		handlerADCPin.pGPIOx                    = GPIOC;
+		handlerADCPin.pinConfig.GPIO_PinMode    = GPIO_MODE_ANALOG;
+		handlerADCPin.pinConfig.GPIO_PinNumber  = PIN_3;
+		gpio_Config(&handlerADCPin);
+		break;
+	}
+	case CHANNEL_14:{
+		handlerADCPin.pGPIOx                    = GPIOC;
+		handlerADCPin.pinConfig.GPIO_PinMode    = GPIO_MODE_ANALOG;
+		handlerADCPin.pinConfig.GPIO_PinNumber  = PIN_4;
+		gpio_Config(&handlerADCPin);
+		break;
+	}
+	case CHANNEL_15:{
+		handlerADCPin.pGPIOx                    = GPIOC;
+		handlerADCPin.pinConfig.GPIO_PinMode    = GPIO_MODE_ANALOG;
+		handlerADCPin.pinConfig.GPIO_PinNumber  = PIN_5;
+		gpio_Config(&handlerADCPin);
+		break;
+	}
+	default:{
+		break;
+	}
+	}
 }
 
 
