@@ -140,6 +140,10 @@ int main(void)
 		//está levantada
 		if(banderaDisplayTimer == 1){
 
+			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
+			//se atiende esta interrupción
+			banderaClockExti = 0;
+
 			//Bajamos la bandera de la interrupción de Display Timer
 			banderaDisplayTimer = 0;
 
@@ -147,41 +151,47 @@ int main(void)
 			getDigitToShow();
 		}
 
-		//Evaluamos si la bandera de la interrupción responsable del control del tiempo
-		//está levantada
-		if(banderaControlTimer == 1){
+		//Evaluamos si el estado del switch indica que si se debe representar el counter
+		if(numberSwitch == 1){
 
-			//Bajamos la bandera de la interrupción de Control Timer
-			banderaControlTimer = 0;
+			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
+			//se atiende esta interrupción
+			banderaClockExti = 0;
 
-			//Llamamos a la función encargada del counter
-			counterConfig();
+			//Evaluamos si la bandera de la interrupción responsable del control del tiempo
+			//está levantada
+			if(banderaControlTimer == 1){
 
+				//Bajamos la bandera de la interrupción de Control Timer
+				banderaControlTimer = 0;
 
-			//Evaluamos si el estado del switch indica que si se debe representar el counter
-			if(numberSwitch == 1){
+				//Llamamos a la función encargada del counter
+				counterConfig();
 
 				//Igualamos variable de counterConfig con la variable getDigitToShow
 				counter_i = counter;
 			}
-
 		}
 
-		//Evaluamos si la bandera de la interrupción responsable del counter encoder
-		//está levantada
-		if(banderaClockExti == 1){
+		//Evaluamos si el estado del switch indica que si se debe representar el counter
+		if(numberSwitch == 2){
 
-			//Bajamos la bandera de la interrupción de Counter encoder
-			banderaClockExti = 0;
+			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
+			//se atiende esta interrupción
+			banderaControlTimer = 0;
 
-			//Llamamos a la función encargada del counter encoder
-			counterEncoderConfig();
+			//Evaluamos si la bandera de la interrupción responsable del counter encoder
+			//está levantada
+			if(banderaClockExti == 1){
 
-			//Evaluamos si el estado del switch indica que si se debe representar el counter
-			if(numberSwitch == 2){
+				//Bajamos la bandera de la interrupción de Counter encoder
+			    banderaClockExti = 0;
 
-				//Igualamos variable de counterConfig con la variable getDigitToShow
-				counter_i = counterEncoder;
+			    //Llamamos a la función encargada del counter encoder
+			    counterEncoderConfig();
+
+			    //Igualamos variable de counterConfig con la variable getDigitToShow
+			    counter_i = counterEncoder;
 			}
 
 		}
