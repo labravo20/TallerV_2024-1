@@ -58,13 +58,6 @@ USART_Handler_t   usart2    = {0};
 
 //Definimos el caracter para ejecución del USART
 char bufferMsgSleep[128]                  = {0};
-//char bufferMsgCounter[128]              = {0};
-//char bufferMsgCounterEncoder[128]       = {0};
-//char bufferMsgADCTrimmer[128]           = {0};
-//char bufferMsgADCFotoResistencia[128]   = {0};
-
-// Definimos variable para activar representación de modo sleep en USART
-uint16_t modoSleep = 0;
 
 // Definimos variable para activar representación numero en siete segmentos
 uint16_t counter_i = 0;
@@ -103,6 +96,10 @@ uint32_t counter_d(uint8_t counterSieted);
 uint32_t counter_e(uint8_t counterSietee);
 uint32_t counter_f(uint8_t counterSietef);
 uint32_t counter_g(uint8_t counterSieteg);
+
+
+//Definimos varible para cargar valor del Sleep Mode
+uint16_t modoSleep  = 0;
 
 //Definimos varible para cargar valor del numero a representar
 uint16_t unidad  = 0;
