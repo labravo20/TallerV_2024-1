@@ -30,7 +30,7 @@ GPIO_Handler_t  user13      = {0};
 GPIO_Handler_t   usart2trx  = {0};
 
 char bufferMsg[128]         = {0};
-char bufferMsgVar[128]         = {0};
+char bufferMsgVar[128]      = {0};
 
 uint8_t bandera             = {0};
 uint8_t sendMsg             = {0};

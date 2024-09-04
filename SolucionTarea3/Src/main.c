@@ -13,6 +13,7 @@
 #include "timer_driver_hal.h"
 #include "exti_driver_hal.h"
 #include "adc_driver_hal.h"
+#include "usart_driver_hal.h"
 
 //Definimos pines a utilizar para verificación correcto funcionamiento
 GPIO_Handler_t verificationLed    = {0}; //PinA5 (Led para verificación de correcto funcionamiento)
@@ -33,8 +34,11 @@ GPIO_Handler_t vcc_mil            = {0}; //PinA10
 
 //Definimos pines a utilizar para EXTI
 GPIO_Handler_t userCKenc     = {0};//Pin B2  //EXTI clock --> interrupción
-GPIO_Handler_t userData      = {0};//Pin B15  //Data encoder (conociendo clock ya se conoce esta)
-GPIO_Handler_t userSWenc     = {0};//Pin B1 //EXTI switch --> interrupción
+GPIO_Handler_t userData      = {0};//Pin B15 //Data encoder (conociendo clock ya se conoce esta)
+GPIO_Handler_t userSWenc     = {0};//Pin B1  //EXTI switch --> interrupción
+
+//Definimos pines a utilizar para USART
+GPIO_Handler_t   userUsart2   = {0};//Pin A2 //USART pin
 
 //Definimos timers a utilizar
 Timer_Handler_t blinkTimer   = {0}; // Timer para el blinking
@@ -49,8 +53,22 @@ EXTI_Config_t ckExti    = {0}; //EXTI linea 15 para el ck del encoder
 ADC_Config_t adcTrimmer            = {0};
 ADC_Config_t adcFotoResistencia    = {0};
 
+//Definimos USART a usar
+USART_Handler_t   usart2    = {0};
+
+//Definimos el caracter para ejecución del USART
+char bufferMsgSleep[128]                  = {0};
+//char bufferMsgCounter[128]              = {0};
+//char bufferMsgCounterEncoder[128]       = {0};
+//char bufferMsgADCTrimmer[128]           = {0};
+//char bufferMsgADCFotoResistencia[128]   = {0};
+
+// Definimos variable para activar representación de modo sleep en USART
+uint16_t modoSleep = 0;
+
 // Definimos variable para activar representación numero en siete segmentos
 uint16_t counter_i = 0;
+
 
 //Definimos variable para generar cambios en el numero a representar en el siete segmentos
 uint8_t numberSwitch = 0;
@@ -95,6 +113,9 @@ uint16_t mil     = 0;
 //Definimos variable para activar vcc de unidad, vcc de decena, vcc de centena o vcc de mil
 uint8_t posicion = 0;
 
+//Definición variable para generar apagado total de los cuatro dígitos del siete segmentos
+uint8_t apagadoLed   = 1;
+
 //Definimos máscara para alternar la posicion unidad, decena, centena y mil
 uint8_t maskChangeDisplay     = 1;
 
@@ -104,9 +125,17 @@ uint8_t banderaControlTimer     = 0;
 uint8_t banderaSwitchExti       = 0;
 uint8_t banderaClockExti        = 0;
 uint8_t banderaADC              = 0;
+uint8_t banderaUSARTTx          = 0;
+uint8_t banderaUSARTRx          = 0;
 
-//Definición variable para generar apagado total de los cuatro dígitos del siete segmentos
-uint8_t apagadoLed   = 1;
+//Definimos enumeración para representar los modos del switch
+enum{
+	SleepMode = 0,
+	CounterMode,
+	CounterEncoderMode,
+	AdcTrimmerMode,
+	AdcFotoResistenciaMode
+};
 
 //Definición función para configuración inicial
 void initialConfig(void);
@@ -126,8 +155,17 @@ void counterAction(void);
 //Definición función para configuración counter encoder
 void counterEncoderConfig(void);
 
+//Definición función para ejecutar counter encoder
+void counterEncoderAction(void);
+
 //Definición función para configuración ADC
 void ADCValueConfig(uint8_t modoADC);
+
+//Definición función para ejecutar ADC con trimmer
+void ADCTrimmerAction(void);
+
+//Definición función para ejecutar ADC con Fotoresistencia
+void ADCFotoResistenciaAction(void);
 
 //Definición función para configuración switch
 void switchConfig(void);
@@ -137,6 +175,9 @@ void switchAction(void);
 
 //Definición función para RESET de los leds
 void apagadoTotalLeds(void);
+
+//Definición función para configuración USART
+void analyzeUSART(uint8_t SwitchModeState);
 
 
 /*  Main function  */
@@ -149,8 +190,14 @@ int main(void)
 	while(1){
 
 		//Evaluamos si el estado del switch indica que si NO se debe realizar función alguna
-		while(numberSwitch == 0){
+		while(numberSwitch == SleepMode){
+
+			//Este modo NO ejecuta ninguna acción, motivo por el cual se procede a apagar
+			//todos los leds
 			 apagadoTotalLeds();
+
+			 //Se llama función para representación en USART
+			 analyzeUSART(numberSwitch);
 
 			 //Evaluamos si la bandera de la interrupción responsable del control del switch
 			 //está levantada y en caso de ser asi ejecuta función para cambio en numberSwitch
@@ -158,7 +205,7 @@ int main(void)
 		}
 
 		//Evaluamos si el estado del switch indica que si se debe representar el counter
-		while(numberSwitch == 1){
+		while(numberSwitch == CounterMode){
 
 			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
 			//se atiende esta interrupción
@@ -180,13 +227,16 @@ int main(void)
 
 			counterAction();
 
+			 //Se llama función para representación en USART
+			 analyzeUSART(numberSwitch);
+
 			 //Evaluamos si la bandera de la interrupción responsable del control del switch
 			 //está levantada y en caso de ser asi ejecuta función para cambio en numberSwitch
 			 switchAction();
 		}
 
 		//Evaluamos si el estado del switch indica que si se debe representar el counter encoder
-		while(numberSwitch == 2){
+		while(numberSwitch == CounterEncoderMode){
 
 			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
 			//se atiende esta interrupción
@@ -204,19 +254,15 @@ int main(void)
 			showDigit();
 
 			//Evaluamos si la bandera de la interrupción responsable del counter encoder
-			//está levantada
-			if(banderaClockExti == 1){
+			//está levantada y en caso de ser asi se ejecuta la configuración del counter encoder
+			counterEncoderAction();
 
-				//Bajamos la bandera de la interrupción de Counter encoder
-			    banderaClockExti = 0;
+			 //Se llama función para representación en USART
+			 analyzeUSART(numberSwitch);
 
-			    //Llamamos a la función encargada del counter encoder
-			    counterEncoderConfig();
-			}
-
-			 //Evaluamos si la bandera de la interrupción responsable del control del switch
-			 //está levantada y en caso de ser asi ejecuta función para cambio en numberSwitch
-			 switchAction();
+			//Evaluamos si la bandera de la interrupción responsable del control del switch
+			//está levantada y en caso de ser asi ejecuta función para cambio en numberSwitch
+			switchAction();
 
 		}
 
@@ -224,7 +270,7 @@ int main(void)
 		//garantizar inicio de acción de interrupción ADC
 		banderaADC = 1;
 		//Evaluamos si el estado del switch indica que si se debe representar medida trimmer
-		while(numberSwitch == 3){
+		while(numberSwitch == AdcTrimmerMode){
 
 			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
 			//se atiende esta interrupción
@@ -242,25 +288,15 @@ int main(void)
 			showDigit();
 
 			//Evaluamos si la bandera de la interrupción responsable del ADC
-			//está levantada
-			if(banderaADC == 1){
+			//está levantada y en caso de ser asi se ejecuta configuración del trimmer
+			ADCTrimmerAction();
 
-				//Bajamos la bandera de la interrupción de ADC
-			    banderaADC = 0;
+			 //Se llama función para representación en USART
+			 analyzeUSART(numberSwitch);
 
-			    //Cargamos valor de conversión ADC en la variable a representar
-			    counterTrimmer = adc_Get_Value();
-
-			    //Llamamos a la función encargada del ADC en trimmer
-			    ADCValueConfig(Trimmer);
-
-			    //Se inicializa la conversión ADC
-			    adc_StartSingleConv();
-			}
-
-			 //Evaluamos si la bandera de la interrupción responsable del control del switch
-			 //está levantada y en caso de ser asi ejecuta función para cambio en numberSwitch
-			 switchAction();
+			//Evaluamos si la bandera de la interrupción responsable del control del switch
+			//está levantada y en caso de ser asi ejecuta función para cambio en numberSwitch
+			switchAction();
 
 		}
 
@@ -268,7 +304,7 @@ int main(void)
 		//garantizar inicio de acción de interrupción ADC
 		banderaADC = 1;
 		//Evaluamos si el estado del switch indica que si se debe representar medida foto resistencia
-		while(numberSwitch == 4){
+		while(numberSwitch == AdcFotoResistenciaMode){
 
 			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
 			//se atiende esta interrupción
@@ -286,25 +322,15 @@ int main(void)
 			showDigit();
 
 			//Evaluamos si la bandera de la interrupción responsable del ADC
-			//está levantada
-			if(banderaADC == 1){
+			//está levantada y en caso de ser asi se ejecuta la configuración de la foto resistencia
+			ADCFotoResistenciaAction();
 
-				//Bajamos la bandera de la interrupción de ADC
-			    banderaADC = 0;
+			 //Se llama función para representación en USART
+			 analyzeUSART(numberSwitch);
 
-			    //Cargamos valor de conversión ADC en la variable a representar
-			    counterFotoResistencia = adc_Get_Value();
-
-			    //Llamamos a la función encargada del ADC en foto resistencia
-			    ADCValueConfig(FotoResistencia);
-
-			    //Se inicializa la conversión ADC
-			    adc_StartSingleConv();
-			}
-
-			 //Evaluamos si la bandera de la interrupción responsable del control del switch
-			 //está levantada y en caso de ser asi ejecuta función para cambio en numberSwitch
-			 switchAction();
+			//Evaluamos si la bandera de la interrupción responsable del control del switch
+			//está levantada y en caso de ser asi ejecuta función para cambio en numberSwitch
+			switchAction();
 
 		}
 
@@ -350,7 +376,7 @@ void initialConfig(){
 		//Configuración Timer2 --> blinking
 		blinkTimer.pTIMx                             = TIM2;
 		blinkTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 1 ms
-		blinkTimer.TIMx_Config.TIMx_Period           = 250;     //De la mano con el prescaler...
+		blinkTimer.TIMx_Config.TIMx_Period           = 1000;     //De la mano con el prescaler...
 		blinkTimer.TIMx_Config.TIMx_mode             = TIMER_UP_COUNTER;
 		blinkTimer.TIMx_Config.TIMx_InterruptEnable  = TIMER_INT_ENABLE;
 
@@ -599,6 +625,32 @@ void initialConfig(){
 		adcFotoResistencia.dataAlignment       = ALIGNMENT_RIGHT;
 		adcFotoResistencia.interrupState       = ADC_INT_ENABLE;
 		adcFotoResistencia.samplingPeriod      = SAMPLING_PERIOD_144_CYCLES;
+
+		//A continuación se está realizando configuración del puerto serial
+		/* Pin sobre los que funciona el USART2 (RX)*/
+		userUsart2.pGPIOx                          = GPIOA;
+		userUsart2.pinConfig.GPIO_PinNumber        = PIN_2;
+		userUsart2.pinConfig.GPIO_PinMode          = GPIO_MODE_ALTFN;
+		userUsart2.pinConfig.GPIO_PinOutputType    = GPIO_OTYPE_PUSHPULL;
+		userUsart2.pinConfig.GPIO_PinOutputSpeed   = GPIO_OSPEED_MEDIUM;
+		userUsart2.pinConfig.GPIO_PinPuPdControl   = GPIO_PUPDR_NOTHING;
+		userUsart2.pinConfig.GPIO_PinAltFunMode    = AF7;
+
+		//Cargamos la configuración en los registros que gobiernan el puerto
+		gpio_Config(&userUsart2);
+
+		/* Configuramos el puerto serial USART2 */
+		usart2.ptrUSARTx                  = USART2;
+		usart2.USART_Config.baudrate      = USART_BAUDRATE_230400;
+		usart2.USART_Config.datasize      = USART_DATASIZE_8BIT;
+		usart2.USART_Config.parity        = USART_PARITY_NONE;
+		usart2.USART_Config.stopbits      = USART_STOPBIT_1;
+		usart2.USART_Config.mode          = USART_MODE_RXTX;
+		usart2.USART_Config.enableIntRX   = USART_RX_INTERRUP_ENABLE;
+		usart2.USART_Config.enableIntTX   = USART_TX_INTERRUP_DISABLE;
+
+		//Cargamos la configuración en los registros que gobiernan el puerto
+		usart_Config(&usart2);
 
 }
 
@@ -1061,6 +1113,20 @@ void counterEncoderConfig(void){
 	}
 }
 
+//Función para ejecutar counter encoder
+void counterEncoderAction(void){
+	//Evaluamos si la bandera de la interrupción responsable del counter encoder
+	//está levantada
+	if(banderaClockExti == 1){
+
+		//Bajamos la bandera de la interrupción de Counter encoder
+	    banderaClockExti = 0;
+
+	    //Llamamos a la función encargada del counter encoder
+	    counterEncoderConfig();
+	}
+}
+
 //Función para configuración ADC
 void ADCValueConfig(uint8_t modoADC){
 
@@ -1091,6 +1157,46 @@ void ADCValueConfig(uint8_t modoADC){
 	}
 	}
 
+}
+
+//Función para ejecutar ADC con trimmer
+void ADCTrimmerAction(void){
+	//Evaluamos si la bandera de la interrupción responsable del ADC
+	//está levantada
+	if(banderaADC == 1){
+
+		//Bajamos la bandera de la interrupción de ADC
+	    banderaADC = 0;
+
+	    //Cargamos valor de conversión ADC en la variable a representar
+	    counterTrimmer = adc_Get_Value();
+
+	    //Llamamos a la función encargada del ADC en trimmer
+	    ADCValueConfig(Trimmer);
+
+	    //Se inicializa la conversión ADC
+	    adc_StartSingleConv();
+	}
+}
+
+//Función para ejecutar ADC con Fotoresistencia
+void ADCFotoResistenciaAction(void){
+	//Evaluamos si la bandera de la interrupción responsable del ADC
+	//está levantada
+	if(banderaADC == 1){
+
+		//Bajamos la bandera de la interrupción de ADC
+	    banderaADC = 0;
+
+	    //Cargamos valor de conversión ADC en la variable a representar
+	    counterFotoResistencia = adc_Get_Value();
+
+	    //Llamamos a la función encargada del ADC en foto resistencia
+	    ADCValueConfig(FotoResistencia);
+
+	    //Se inicializa la conversión ADC
+	    adc_StartSingleConv();
+	}
 }
 
 //Función para configuración switch
@@ -1129,6 +1235,54 @@ void switchAction(void){
 	 }
 
 }
+
+//Función para configuración USART
+void analyzeUSART(uint8_t switchModeState){
+
+	//Evaluamos si bandera de USART está activada
+	if(banderaUSARTTx){
+
+		banderaUSARTTx = 0;
+		switch(switchModeState){
+		case SleepMode:{
+
+			sprintf(bufferMsgSleep, "Sleep mode is active %d\n\r",modoSleep);
+			usart_writeMsg(&usart2, bufferMsgSleep);
+
+			break;
+		}
+		case CounterMode: {
+
+			sprintf(bufferMsgSleep, "Counter mode is active. Value: %d\n\r",counter);
+			usart_writeMsg(&usart2, bufferMsgSleep);
+
+			break;
+		}
+		case CounterEncoderMode:{
+
+			sprintf(bufferMsgSleep, "Counter Encoder mode is active. Value: %d\n\r",counterEncoder);
+			usart_writeMsg(&usart2, bufferMsgSleep);
+
+			break;
+		}
+		case AdcTrimmerMode:{
+
+			sprintf(bufferMsgSleep, "ADC converter for trimmer is active. Value: %d\n\r",counterTrimmer);
+			usart_writeMsg(&usart2, bufferMsgSleep);
+
+			break;
+		}
+		case AdcFotoResistenciaMode:{
+
+			sprintf(bufferMsgSleep, "ADC converter for Photoresistence is active. Value: %d\n\r",counterFotoResistencia);
+			usart_writeMsg(&usart2, bufferMsgSleep);
+
+			break;
+		}
+		}
+	}
+}
+
 /*
  * Overwrite function for A5
  * */
@@ -1141,6 +1295,9 @@ void switchAction(void){
  * */
 void Timer2_Callback(void){
 	gpio_TooglePin(&stateLed);
+
+	//Activamos bandera correspondiente a USART para transmisión
+	banderaUSARTTx = 1;
 }
 /*
  * Overwrite function for display del siete segmentos
@@ -1187,6 +1344,13 @@ void callback_ExtInt2(void){
 void adc_CompleteCallback(void){
 	banderaADC = 1;
 }
+
+void usart2_RxCallback(void){
+
+	banderaUSARTRx     = 1;
+
+}
+
 /*
  * Esta función sirve para detectar problemas de parámetros
  * incorrectos al momento de ejecutar un programa.
