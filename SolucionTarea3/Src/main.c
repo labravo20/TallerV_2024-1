@@ -38,7 +38,7 @@ GPIO_Handler_t userData      = {0};//Pin B15 //Data encoder (conociendo clock ya
 GPIO_Handler_t userSWenc     = {0};//Pin B1  //EXTI switch --> interrupción
 
 //Definimos pines a utilizar para USART
-GPIO_Handler_t   userUsart2   = {0};//Pin A2 //USART pin
+GPIO_Handler_t   userUsart2  = {0};//Pin A2 //USART pin
 
 //Definimos timers a utilizar
 Timer_Handler_t blinkTimer   = {0}; // Timer para el blinking
@@ -57,7 +57,7 @@ ADC_Config_t adcFotoResistencia    = {0};
 USART_Handler_t   usart2    = {0};
 
 //Definimos el caracter para ejecución del USART
-char bufferMsgSleep[128]                  = {0};
+char bufferMsg[128]             = {0};
 
 // Definimos variable para activar representación numero en siete segmentos
 uint16_t counter_i = 0;
@@ -96,10 +96,6 @@ uint32_t counter_d(uint8_t counterSieted);
 uint32_t counter_e(uint8_t counterSietee);
 uint32_t counter_f(uint8_t counterSietef);
 uint32_t counter_g(uint8_t counterSieteg);
-
-
-//Definimos varible para cargar valor del Sleep Mode
-uint16_t modoSleep  = 0;
 
 //Definimos varible para cargar valor del numero a representar
 uint16_t unidad  = 0;
@@ -624,7 +620,7 @@ void initialConfig(){
 		adcFotoResistencia.samplingPeriod      = SAMPLING_PERIOD_144_CYCLES;
 
 		//A continuación se está realizando configuración del puerto serial
-		/* Pin sobre los que funciona el USART2 (RX)*/
+		/* Pin sobre los que funciona el USART2 (TX)*/
 		userUsart2.pGPIOx                          = GPIOA;
 		userUsart2.pinConfig.GPIO_PinNumber        = PIN_2;
 		userUsart2.pinConfig.GPIO_PinMode          = GPIO_MODE_ALTFN;
@@ -1243,36 +1239,35 @@ void analyzeUSART(uint8_t switchModeState){
 		switch(switchModeState){
 		case SleepMode:{
 
-			sprintf(bufferMsgSleep, "Sleep mode is active %d\n\r",modoSleep);
-			usart_writeMsg(&usart2, bufferMsgSleep);
+			usart_writeMsg(&usart2, "Sleep mode is active...\n");
 
 			break;
 		}
 		case CounterMode: {
 
-			sprintf(bufferMsgSleep, "Counter mode is active. Value: %d\n\r",counter);
-			usart_writeMsg(&usart2, bufferMsgSleep);
+			sprintf(bufferMsg, "Counter mode is active. Value: %d\n\r",counter);
+			usart_writeMsg(&usart2, bufferMsg);
 
 			break;
 		}
 		case CounterEncoderMode:{
 
-			sprintf(bufferMsgSleep, "Counter Encoder mode is active. Value: %d\n\r",counterEncoder);
-			usart_writeMsg(&usart2, bufferMsgSleep);
+			sprintf(bufferMsg, "Counter Encoder mode is active. Value: %d\n\r",counterEncoder);
+			usart_writeMsg(&usart2, bufferMsg);
 
 			break;
 		}
 		case AdcTrimmerMode:{
 
-			sprintf(bufferMsgSleep, "ADC converter for trimmer is active. Value: %d\n\r",counterTrimmer);
-			usart_writeMsg(&usart2, bufferMsgSleep);
+			sprintf(bufferMsg, "ADC converter for trimmer is active. Value: %d\n\r",counterTrimmer);
+			usart_writeMsg(&usart2, bufferMsg);
 
 			break;
 		}
 		case AdcFotoResistenciaMode:{
 
-			sprintf(bufferMsgSleep, "ADC converter for Photoresistence is active. Value: %d\n\r",counterFotoResistencia);
-			usart_writeMsg(&usart2, bufferMsgSleep);
+			sprintf(bufferMsg, "ADC converter for Photoresistence is active. Value: %d\n\r",counterFotoResistencia);
+			usart_writeMsg(&usart2, bufferMsg);
 
 			break;
 		}
