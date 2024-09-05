@@ -73,7 +73,6 @@ uint16_t counter = 0;
 int16_t counterEncoder = 0;
 
 // Definimos variables para cargar características de las señales data y clock del encoder
-uint8_t directionclk            = {0};
 uint8_t directiondata           = {0};
 
 //Estrucutra para determinar los modos de función en ADC
@@ -1082,7 +1081,7 @@ void counterAction(void){
 void counterEncoderConfig(void){
 
 	//Definimos condiciones para diferenciación entre suma y resta de la cantidad de vueltas
-	if(directionclk == directiondata){ //Verificamos condición giro derecha
+	if(directiondata){ //Verificamos condición giro derecha
 
 		//Sumamos al contador para empezar a sumar con cada vuelta
 		counterEncoder++;
@@ -1326,7 +1325,6 @@ void callback_ExtInt2(void){
 	//Almacenamos la informacion recibida por los datos de la señal clock y la señal data
 	//Es necesario establecer los valores en el callback para tener una velocidad
 	//correcta en la lectura del dato.
-	directionclk = gpio_ReadPin(&userCKenc);
 	directiondata = gpio_ReadPin(&userData);
 
 }

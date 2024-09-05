@@ -822,6 +822,9 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 
 			break;
 		}
+		default:{
+			break;
+		}
 
 		}
 	}
@@ -1021,6 +1024,10 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 			//Rising trigger enabled for input line.
 			EXTI->RTSR |= (EXTI_RTSR_TR15);
 
+			break;
+		}
+
+		default:{
 			break;
 		}
 
@@ -1258,6 +1265,10 @@ static void exti_select_edge(EXTI_Config_t *extiConfig){
 				break;
 			}
 
+			default:{
+				break;
+			}
+
 			}
 		}
 }
@@ -1399,6 +1410,9 @@ static void exti_config_interrupt(EXTI_Config_t *extiConfig){
 			//Interrupt mask on input line
 			EXTI->IMR |= (EXTI_IMR_MR15);
 
+			break;
+		}
+		default:{
 			break;
 		}
 

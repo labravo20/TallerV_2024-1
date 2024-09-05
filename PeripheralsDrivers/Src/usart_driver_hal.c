@@ -278,6 +278,9 @@ static void usart_config_mode(USART_Handler_t *ptrUsartHandler){
 		ptrUsartHandler->ptrUSARTx->CR1 &= ~USART_CR1_UE;
 		break;
 	}
+	default:{
+		break;
+	}
   }
 }
 
