@@ -178,6 +178,12 @@ void switchAction(void);
 //Definición función para RESET de los leds
 void apagadoTotalLeds(void);
 
+//Definición función para configuración SavingMode
+void savingModeConfig(void);
+
+//Definición función para configuración sleepMode
+void sleepModeConfig(void);
+
 //Definición función para configuración USART
 void analyzeUSART(uint8_t switchModeState);
 
@@ -204,17 +210,8 @@ int main(void)
 		//Evaluamos si el estado del switch indica que si NO se debe realizar función alguna
 		case (SleepMode):{
 
-		    //Encendemos led en color correspondiente
-		    gpio_WritePin(&ledBlue, RESET);
-		    gpio_WritePin(&ledRed, RESET);
-		    gpio_WritePin(&ledGreen, RESET);
-
-			//Igualamos variable de counterConfig con la variable getDigitToShow
-			counter_i = counterEncoder;
-
-			//Evaluamos si la bandera de la interrupción responsable del control del display
-			//está levantada y en caso de ser asi ejecuta función para representar numero en el siete segmentos
-			showDigit();
+			//Llamamos a la función de configuración del sleepMode
+			sleepModeConfig();
 
 			//Se activa bandera ADC una única vez para el caso de foto resistencia --> esto para
 			//garantizar inicio de acción de interrupción ADC de los modos a continuación
@@ -230,13 +227,6 @@ int main(void)
 			//se atiende esta interrupción
 			banderaClockExti = 0;
 
-			//Igualamos variable de counterConfig con la variable getDigitToShow
-			counter_i = counterTrimmer;
-
-			//Evaluamos si la bandera de la interrupción responsable del control del display
-			//está levantada y en caso de ser asi ejecuta función para representar numero en el siete segmentos
-			showDigit();
-
 			//Evaluamos si la bandera de la interrupción responsable del ADC
 			//está levantada y en caso de ser asi se ejecuta configuración del trimmer
 			ADCTrimmerAction();
@@ -248,17 +238,8 @@ int main(void)
 		//Evaluamos si el estado del switch indica que se debe representar la última medida del trimmer
 		case (SavingMode): {
 
-		    //Encendemos led en color correspondiente
-		    gpio_WritePin(&ledBlue, SET);
-		    gpio_WritePin(&ledRed, RESET);
-		    gpio_WritePin(&ledGreen, RESET);
-
-			//Igualamos variable de counterConfig con la variable getDigitToShow
-			counter_i = counterTrimmer;
-
-			//Evaluamos si la bandera de la interrupción responsable del control del display
-			//está levantada y en caso de ser asi ejecuta función para representar numero en el siete segmentos
-			showDigit();
+			//Llamamos la función de configuración para savingMode
+			savingModeConfig();
 
 			break;
 
@@ -271,16 +252,10 @@ int main(void)
 			//se atiende esta interrupción
 			banderaClockExti = 0;
 
-			//Igualamos variable de counterConfig con la variable getDigitToShow
-			counter_i = counterFotoResistencia;
-
-			//Evaluamos si la bandera de la interrupción responsable del control del display
-			//está levantada y en caso de ser asi ejecuta función para representar numero en el siete segmentos
-			showDigit();
-
 			//Evaluamos si la bandera de la interrupción responsable del ADC
 			//está levantada y en caso de ser asi se ejecuta la configuración de la foto resistencia
 			ADCFotoResistenciaAction();
+
 			break;
 
 		}
@@ -296,18 +271,11 @@ int main(void)
 			//se atiende esta interrupción
 			banderaADC = 0;
 
-			//Igualamos variable de counterConfig con la variable getDigitToShow
-			counter_i = counter;
-
-			//Evaluamos si la bandera de la interrupción responsable del control del display
-			//está levantada y en caso de ser asi ejecuta función para representar numero en el siete segmentos
-			showDigit();
-
 			//Evaluamos si la bandera de la interrupción responsable del control del tiempo
 			//está levantada y en caso de que si se ejecuta la configuración del counter
-
 			counterAction();
-			 break;
+
+			break;
 		}
 
 		//Evaluamos si el estado del switch indica que si se debe representar el counter encoder
@@ -316,13 +284,6 @@ int main(void)
 			//Bajamos la bandera de la interrupción de Counter encoder para detener medida trimmer mientras
 			//se atiende esta interrupción
 			banderaADC = 0;
-
-			//Igualamos variable de counterConfig con la variable getDigitToShow
-			counter_i = counterEncoder;
-
-			//Evaluamos si la bandera de la interrupción responsable del control del display
-			//está levantada y en caso de ser asi ejecuta función para representar numero en el siete segmentos
-			showDigit();
 
 			//Evaluamos si la bandera de la interrupción responsable del counter encoder
 			//está levantada y en caso de ser asi se ejecuta la configuración del counter encoder
@@ -335,8 +296,12 @@ int main(void)
 
 		}//Fin switch case
 
-		 //Se llama función para representación en USART
-		 analyzeUSART(numberSwitch);
+		//Evaluamos si la bandera de la interrupción responsable del control del display
+		//está levantada y en caso de ser asi ejecuta función para representar numero en el siete segmentos
+		showDigit();
+
+		//Se llama función para representación en USART
+		analyzeUSART(numberSwitch);
 
 
 	}//Fin ciclo while
@@ -1124,6 +1089,10 @@ void counterConfig(void){
 
 //Función para configuración counter
 void counterAction(void){
+
+	//Igualamos variable de counterConfig con la variable getDigitToShow
+	counter_i = counter;
+
 	//Evaluamos si la bandera de la interrupción responsable del control del tiempo
 	//está levantada
 	if(banderaControlTimer == 1){
@@ -1173,7 +1142,11 @@ void counterEncoderConfig(void){
 
 //Función para ejecutar counter encoder
 void counterEncoderAction(void){
-    //Encendemos led en color correspondiente
+
+	//Igualamos variable de counterConfig con la variable getDigitToShow
+	counter_i = counterEncoder;
+
+	//Encendemos led en color correspondiente
     gpio_WritePin(&ledRed, SET);
     gpio_WritePin(&ledBlue, SET);
     gpio_WritePin(&ledGreen, RESET);
@@ -1232,6 +1205,10 @@ void ADCValueConfig(uint8_t modoADC){
 
 //Función para ejecutar ADC con trimmer
 void ADCTrimmerAction(void){
+
+	//Igualamos variable de counterConfig con la variable getDigitToShow
+	counter_i = counterTrimmer;
+
 	//Evaluamos si la bandera de la interrupción responsable del ADC
 	//está levantada
 	if(banderaADC == 1){
@@ -1258,6 +1235,10 @@ void ADCTrimmerAction(void){
 
 //Función para ejecutar ADC con Fotoresistencia
 void ADCFotoResistenciaAction(void){
+
+	//Igualamos variable de counterConfig con la variable getDigitToShow
+	counter_i = counterFotoResistencia;
+
 	//Evaluamos si la bandera de la interrupción responsable del ADC
 	//está levantada
 	if(banderaADC == 1){
@@ -1374,6 +1355,28 @@ void analyzeUSART(uint8_t switchModeState ){
 	}
 }
 
+//Función para configuración SavingMode
+void savingModeConfig(void){
+
+    //Encendemos led en color correspondiente
+    gpio_WritePin(&ledBlue, SET);
+    gpio_WritePin(&ledRed, RESET);
+    gpio_WritePin(&ledGreen, RESET);
+
+	//Igualamos variable de counterConfig con la variable getDigitToShow
+	counter_i = counterTrimmer;
+}
+
+//Función para configuración sleepMode
+void sleepModeConfig(void){
+    //Encendemos led en color correspondiente
+    gpio_WritePin(&ledBlue, RESET);
+    gpio_WritePin(&ledRed, RESET);
+    gpio_WritePin(&ledGreen, RESET);
+
+	//Igualamos variable de counterConfig con la variable getDigitToShow
+	counter_i = counterEncoder;
+}
 /*
  * Overwrite function for A5
  * */
