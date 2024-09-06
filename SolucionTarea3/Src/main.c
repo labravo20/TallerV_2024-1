@@ -124,10 +124,11 @@ uint8_t banderaUSARTRx          = 0;
 //Definimos enumeración para representar los modos del switch
 enum{
 	SleepMode = 0,
-	CounterMode,
-	CounterEncoderMode,
 	AdcTrimmerMode,
-	AdcFotoResistenciaMode
+	SavingMode,
+	AdcFotoResistenciaMode,
+	CounterMode,
+	CounterEncoderMode
 };
 
 //Definición función para configuración inicial
@@ -170,7 +171,7 @@ void switchAction(void);
 void apagadoTotalLeds(void);
 
 //Definición función para configuración USART
-void analyzeUSART(uint8_t SwitchModeState);
+void analyzeUSART(uint8_t switchModeState);
 
 
 /*  Main function  */
@@ -182,29 +183,89 @@ int main(void)
     /* Loop forever */
 	while(1){
 
+		//Evaluamos si la bandera de la interrupción responsable del control del switch
+		//está levantada y en caso de ser asi ejecuta función para cambio en numberSwitch
+		switchAction();
+
+		 //Se llama función para representación en USART
+		 analyzeUSART(numberSwitch);
+
 		switch(numberSwitch){
 
 		//Evaluamos si el estado del switch indica que si NO se debe realizar función alguna
 		case (SleepMode):{
 
-			 //Se llama función para representación en USART
-			 analyzeUSART(numberSwitch);
-
 			//Este modo NO ejecuta ninguna acción, motivo por el cual se procede a apagar
 			//todos los leds
 			 apagadoTotalLeds();
 
-			 //Evaluamos si la bandera de la interrupción responsable del control del switch
-			 //está levantada y en caso de ser asi ejecuta función para cambio en numberSwitch
-			 switchAction();
+			//Se activa bandera ADC una única vez para el caso de foto resistencia --> esto para
+			//garantizar inicio de acción de interrupción ADC de los modos a continuación
+			banderaADC = 1;
+
+
 			 break;
+		}
+
+		//Evaluamos si el estado del switch indica que si se debe representar medida trimmer
+		case (AdcTrimmerMode):{
+
+			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
+			//se atiende esta interrupción
+			banderaClockExti = 0;
+
+			//Igualamos variable de counterConfig con la variable getDigitToShow
+			counter_i = counterTrimmer;
+
+			//Evaluamos si la bandera de la interrupción responsable del control del display
+			//está levantada y en caso de ser asi ejecuta función para representar numero en el siete segmentos
+			showDigit();
+
+			//Evaluamos si la bandera de la interrupción responsable del ADC
+			//está levantada y en caso de ser asi se ejecuta configuración del trimmer
+			ADCTrimmerAction();
+
+			break;
+
+		}
+
+		//Evaluamos si el estado del switch indica que se debe representar la última medida del trimmer
+		case (SavingMode): {
+
+			//Igualamos variable de counterConfig con la variable getDigitToShow
+			counter_i = counterTrimmer;
+
+			//Evaluamos si la bandera de la interrupción responsable del control del display
+			//está levantada y en caso de ser asi ejecuta función para representar numero en el siete segmentos
+			showDigit();
+
+			break;
+
+		}
+
+		//Evaluamos si el estado del switch indica que si se debe representar medida foto resistencia
+		case (AdcFotoResistenciaMode):{
+
+			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
+			//se atiende esta interrupción
+			banderaClockExti = 0;
+
+			//Igualamos variable de counterConfig con la variable getDigitToShow
+			counter_i = counterFotoResistencia;
+
+			//Evaluamos si la bandera de la interrupción responsable del control del display
+			//está levantada y en caso de ser asi ejecuta función para representar numero en el siete segmentos
+			showDigit();
+
+			//Evaluamos si la bandera de la interrupción responsable del ADC
+			//está levantada y en caso de ser asi se ejecuta la configuración de la foto resistencia
+			ADCFotoResistenciaAction();
+			break;
+
 		}
 
 		//Evaluamos si el estado del switch indica que si se debe representar el counter
 		case (CounterMode):{
-
-			 //Se llama función para representación en USART
-			analyzeUSART(numberSwitch);
 
 			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
 			//se atiende esta interrupción
@@ -225,19 +286,11 @@ int main(void)
 			//está levantada y en caso de que si se ejecuta la configuración del counter
 
 			counterAction();
-
-			 //Evaluamos si la bandera de la interrupción responsable del control del switch
-			 //está levantada y en caso de ser asi ejecuta función para cambio en numberSwitch
-			 switchAction();
-
 			 break;
 		}
 
 		//Evaluamos si el estado del switch indica que si se debe representar el counter encoder
 		case (CounterEncoderMode):{
-
-			 //Se llama función para representación en USART
-			analyzeUSART(numberSwitch);
 
 			//Bajamos la bandera de la interrupción de Counter encoder para detener medida trimmer mientras
 			//se atiende esta interrupción
@@ -254,79 +307,13 @@ int main(void)
 			//está levantada y en caso de ser asi se ejecuta la configuración del counter encoder
 			counterEncoderAction();
 
-
-			//Evaluamos si la bandera de la interrupción responsable del control del switch
-			//está levantada y en caso de ser asi ejecuta función para cambio en numberSwitch
-			switchAction();
-
-			//Se activa bandera ADC una única vez para el caso de foto resistencia --> esto para
-			//garantizar inicio de acción de interrupción ADC de los modos a continuación
-			banderaADC = 1;
 			break;
 
 		}
 
-		//Evaluamos si el estado del switch indica que si se debe representar medida trimmer
-		case (AdcTrimmerMode):{
 
-			 //Se llama función para representación en USART
-			 analyzeUSART(numberSwitch);
+		}//Fin switch case
 
-			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
-			//se atiende esta interrupción
-			banderaClockExti = 0;
-
-			//Igualamos variable de counterConfig con la variable getDigitToShow
-			counter_i = counterTrimmer;
-
-			//Evaluamos si la bandera de la interrupción responsable del control del display
-			//está levantada y en caso de ser asi ejecuta función para representar numero en el siete segmentos
-			showDigit();
-
-			//Evaluamos si la bandera de la interrupción responsable del ADC
-			//está levantada y en caso de ser asi se ejecuta configuración del trimmer
-			ADCTrimmerAction();
-
-
-			//Evaluamos si la bandera de la interrupción responsable del control del switch
-			//está levantada y en caso de ser asi ejecuta función para cambio en numberSwitch
-			switchAction();
-
-			break;
-
-		}
-
-		//Evaluamos si el estado del switch indica que si se debe representar medida foto resistencia
-		case (AdcFotoResistenciaMode):{
-
-			 //Se llama función para representación en USART
-			 analyzeUSART(numberSwitch);
-
-			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
-			//se atiende esta interrupción
-			banderaClockExti = 0;
-
-			//Igualamos variable de counterConfig con la variable getDigitToShow
-			counter_i = counterFotoResistencia;
-
-			//Evaluamos si la bandera de la interrupción responsable del control del display
-			//está levantada y en caso de ser asi ejecuta función para representar numero en el siete segmentos
-			showDigit();
-
-			//Evaluamos si la bandera de la interrupción responsable del ADC
-			//está levantada y en caso de ser asi se ejecuta la configuración de la foto resistencia
-			ADCFotoResistenciaAction();
-
-
-			//Evaluamos si la bandera de la interrupción responsable del control del switch
-			//está levantada y en caso de ser asi ejecuta función para cambio en numberSwitch
-			switchAction();
-
-			break;
-
-		}
-
-		}
 
 	}//Fin ciclo while
 
@@ -593,7 +580,8 @@ void initialConfig(){
 
 		/*Configuramos el EXTI sw que será en la linea 1--> Switch*/
 		swExti.pGPIOHandler = &userSWenc;
-		swExti.edgeType     = EXTERNAL_INTERRUPT_RISING_EDGE;
+//		swExti.edgeType     = EXTERNAL_INTERRUPT_RISING_EDGE;
+		swExti.edgeType     = EXTERNAL_INTERRUPT_FALLING_EDGE;
 
 		//Cargamos la configuración de la interrupción externa (EXTI)
 		exti_Config(&swExti);
@@ -1201,17 +1189,18 @@ void switchConfig(void){
 
 	//Aumentamos el valor de la variable con cada activación del switch
 	//==== Cada numero asignado va a representar un caso especifico de representación en el siete segmentos
-	numberSwitch ++;
+	numberSwitch++;
 
 	//Definimos límite del contador en 5 casos posibles
 	/*
-	 * 0. No realiza ninguna función
-	 * 1. Contador de tiempo
-	 * 2. Contador vueltas encoder
-	 * 3. Medida trimmer
-	 * 4. Medida Foto Resistencia
+	 * 0. Guarda última info guardada --> LED APAGADO
+	 * 1. Medida Trimmer --> LED VERDE
+	 * 2. Guarda dato Trimmer --> LED AZUL
+	 * 3. Medida Foto Resistencia -->LED ROJO
+	 * 4. Contador tiempo --> LED NARANJA
+	 * 5. Contador ENCODER --> LED MORADO
 	 * */
-	if(numberSwitch == 5){
+	if(numberSwitch == 6){
 
 		numberSwitch = 0;
 	}
@@ -1224,53 +1213,62 @@ void switchAction(void){
 	 //está levantada
 	 if(banderaSwitchExti == 1){
 
-	 	//Bajamos la bandera de la interrupción del Switch encoder
-	 	banderaSwitchExti = 0;
-
 	 	//Llamamos a la función encargada de configuración asociada al switch
 	 	switchConfig();
+
+	 	//Bajamos la bandera de la interrupción del Switch encoder
+	 	banderaSwitchExti = 0;
 	 }
 
 }
 
 //Función para configuración USART
-void analyzeUSART(uint8_t switchModeState){
+void analyzeUSART(uint8_t switchModeState ){
 
 	//Evaluamos si bandera de USART está activada
 	if(banderaUSARTTx){
+
 
 		banderaUSARTTx = 0;
 		switch(switchModeState){
 		case SleepMode:{
 
-			usart_writeMsg(&usart2, "Sleep mode is active...\n");
+			sprintf(bufferMsg, "Sleep mode is active. Last value saved: %d\n\r",counter_i);
+			usart_writeMsg(&usart2, bufferMsg);
 
 			break;
 		}
 		case CounterMode: {
 
-			sprintf(bufferMsg, "Counter mode is active. Value: %d\n\r",counter);
+			sprintf(bufferMsg, "Counter mode is active. Value: %d\n\r",counter_i);
 			usart_writeMsg(&usart2, bufferMsg);
 
 			break;
 		}
 		case CounterEncoderMode:{
 
-			sprintf(bufferMsg, "Counter Encoder mode is active. Value: %d\n\r",counterEncoder);
+			sprintf(bufferMsg, "Counter Encoder mode is active. Value: %d\n\r",counter_i);
 			usart_writeMsg(&usart2, bufferMsg);
 
 			break;
 		}
 		case AdcTrimmerMode:{
 
-			sprintf(bufferMsg, "ADC converter for trimmer is active. Value: %d\n\r",counterTrimmer);
+			sprintf(bufferMsg, "ADC converter for trimmer is active. Value: %d\n\r",counter_i);
+			usart_writeMsg(&usart2, bufferMsg);
+
+			break;
+		}
+		case SavingMode:{
+
+			sprintf(bufferMsg, "Saving mode is active. Last value saved: %d\n\r",counter_i);
 			usart_writeMsg(&usart2, bufferMsg);
 
 			break;
 		}
 		case AdcFotoResistenciaMode:{
 
-			sprintf(bufferMsg, "ADC converter for Photoresistence is active. Value: %d\n\r",counterFotoResistencia);
+			sprintf(bufferMsg, "ADC converter for Photoresistence is active. Value: %d\n\r",counter_i);
 			usart_writeMsg(&usart2, bufferMsg);
 
 			break;
@@ -1332,7 +1330,7 @@ void callback_ExtInt2(void){
 	//correcta en la lectura del dato.
 	directionClock = gpio_ReadPin(&userCKenc);
 	directionData = gpio_ReadPin(&userData);
-	//__NOP();
+	__NOP();
 
 }
 /*

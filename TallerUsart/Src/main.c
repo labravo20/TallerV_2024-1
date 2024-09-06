@@ -14,6 +14,7 @@
 #include "timer_driver_hal.h"
 #include "exti_driver_hal.h"
 #include "usart_driver_hal.h"
+#include "adc_driver_hal.h"
 
 USART_Handler_t   usart2    = {0};
 GPIO_Handler_t    usart2t   = {0};
@@ -23,8 +24,9 @@ Timer_Handler_t  refreshTimer = {0};
 GPIO_Handler_t   userLed    = {0};
 GPIO_Handler_t   userLed1   = {0};
 
-EXTI_Config_t   imprimir    = {0};
-GPIO_Handler_t  user13      = {0};
+EXTI_Config_t   imprimir     = {0};
+GPIO_Handler_t  user13       = {0};
+ADC_Config_t    osciloscopio = {0};
 
 //USART_Handler_t usart2rx  = {0};
 GPIO_Handler_t   usart2trx  = {0};
@@ -214,6 +216,8 @@ void initSys(void){
 	imprimir.edgeType          = EXTERNAL_INTERRUPT_FALLING_EDGE;
 
 	exti_Config(&imprimir);
+
+	/* Configuración ADC */
 
 }
 
