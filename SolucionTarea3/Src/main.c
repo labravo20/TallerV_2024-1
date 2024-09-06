@@ -40,6 +40,11 @@ GPIO_Handler_t userSWenc     = {0};//Pin B1  //EXTI switch --> interrupción
 //Definimos pines a utilizar para USART
 GPIO_Handler_t   userUsart2  = {0};//Pin A2 //USART pin
 
+//Definimos pines a usar para led RGB
+GPIO_Handler_t ledRed      = {0};
+GPIO_Handler_t ledGreen    = {0};
+GPIO_Handler_t ledBlue     = {0};
+
 //Definimos timers a utilizar
 Timer_Handler_t blinkTimer   = {0}; // Timer para el blinking
 Timer_Handler_t displayTimer = {0}; // Timer asociado al display del siete segmentos
@@ -199,6 +204,11 @@ int main(void)
 		//Evaluamos si el estado del switch indica que si NO se debe realizar función alguna
 		case (SleepMode):{
 
+		    //Encendemos led en color correspondiente
+		    gpio_WritePin(&ledBlue, RESET);
+		    gpio_WritePin(&ledRed, RESET);
+		    gpio_WritePin(&ledGreen, RESET);
+
 			//Igualamos variable de counterConfig con la variable getDigitToShow
 			counter_i = counterEncoder;
 
@@ -237,6 +247,11 @@ int main(void)
 
 		//Evaluamos si el estado del switch indica que se debe representar la última medida del trimmer
 		case (SavingMode): {
+
+		    //Encendemos led en color correspondiente
+		    gpio_WritePin(&ledBlue, SET);
+		    gpio_WritePin(&ledRed, RESET);
+		    gpio_WritePin(&ledGreen, RESET);
 
 			//Igualamos variable de counterConfig con la variable getDigitToShow
 			counter_i = counterTrimmer;
@@ -376,6 +391,50 @@ void initialConfig(){
 
 		//Encendemos el Timer
 		timer_SetState(&blinkTimer, TIMER_ON);
+
+		/* A continuación se empieza con la configuración de los pines seleccionados para el led RGB*/
+
+		/*Configuramos pin C1 --> BLUE */
+		ledBlue.pGPIOx                         = GPIOC;
+		ledBlue.pinConfig.GPIO_PinNumber       = PIN_1;
+		ledBlue.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+		ledBlue.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+		ledBlue.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+		ledBlue.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+
+		//Cargamos la configuración en los registros que gobiernan el puerto
+		gpio_Config(&ledBlue);
+
+		//A continuación se está probando el correcto funcionamiento del pin A11
+		//gpio_WritePin(&ledBlue, SET);
+
+		/*Configuramos pin B0 --> GREEN */
+		ledGreen.pGPIOx                         = GPIOB;
+		ledGreen.pinConfig.GPIO_PinNumber       = PIN_0;
+		ledGreen.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+		ledGreen.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+		ledGreen.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+		ledGreen.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+
+		//Cargamos la configuración en los registros que gobiernan el puerto
+		gpio_Config(&ledGreen);
+
+		//A continuación se está probando el correcto funcionamiento del pin A11
+		//gpio_WritePin(&ledGreen, SET);
+
+		/*Configuramos pin A4 --> RED */
+		ledRed.pGPIOx                         = GPIOA;
+		ledRed.pinConfig.GPIO_PinNumber       = PIN_4;
+		ledRed.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+		ledRed.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+		ledRed.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+		ledRed.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+
+		//Cargamos la configuración en los registros que gobiernan el puerto
+		gpio_Config(&ledRed);
+
+		//A continuación se está probando el correcto funcionamiento del pin A11
+		//gpio_WritePin(&ledRed, SET);
 
 		/* A continuación se empieza con la configuración de los pines seleccionados para
 		 * activar los LEDs de la cuenta respectiva en el 7 segmentos */
@@ -1072,6 +1131,11 @@ void counterAction(void){
 		//Bajamos la bandera de la interrupción de Control Timer
 		banderaControlTimer = 0;
 
+	    //Encendemos led en color correspondiente
+	    gpio_WritePin(&ledGreen, SET);
+	    gpio_WritePin(&ledRed, SET);
+	    gpio_WritePin(&ledBlue, RESET);
+
 		//Llamamos a la función encargada del counter
 		counterConfig();
 	}
@@ -1109,6 +1173,11 @@ void counterEncoderConfig(void){
 
 //Función para ejecutar counter encoder
 void counterEncoderAction(void){
+    //Encendemos led en color correspondiente
+    gpio_WritePin(&ledRed, SET);
+    gpio_WritePin(&ledBlue, SET);
+    gpio_WritePin(&ledGreen, RESET);
+
 	//Evaluamos si la bandera de la interrupción responsable del counter encoder
 	//está levantada
 	if(banderaClockExti == 1){
@@ -1118,6 +1187,7 @@ void counterEncoderAction(void){
 
 		//Bajamos la bandera de la interrupción de Counter encoder
 	    banderaClockExti = 0;
+
 	}
 }
 
@@ -1169,6 +1239,12 @@ void ADCTrimmerAction(void){
 		//Bajamos la bandera de la interrupción de ADC
 	    banderaADC = 0;
 
+	    //Encendemos led en color correspondiente
+	    gpio_WritePin(&ledGreen, SET);
+	    //Encendemos led en color correspondiente
+	    gpio_WritePin(&ledBlue, RESET);
+	    gpio_WritePin(&ledRed, RESET);
+
 	    //Cargamos valor de conversión ADC en la variable a representar
 	    counterTrimmer = adc_Get_Value();
 
@@ -1188,6 +1264,11 @@ void ADCFotoResistenciaAction(void){
 
 		//Bajamos la bandera de la interrupción de ADC
 	    banderaADC = 0;
+
+	    //Encendemos led en color correspondiente
+	    gpio_WritePin(&ledRed, SET);
+	    gpio_WritePin(&ledBlue, RESET);
+	    gpio_WritePin(&ledGreen, RESET);
 
 	    //Cargamos valor de conversión ADC en la variable a representar
 	    counterFotoResistencia = adc_Get_Value();
