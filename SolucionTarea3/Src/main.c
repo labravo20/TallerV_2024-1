@@ -182,23 +182,29 @@ int main(void)
     /* Loop forever */
 	while(1){
 
+		switch(numberSwitch){
+
 		//Evaluamos si el estado del switch indica que si NO se debe realizar función alguna
-		while(numberSwitch == SleepMode){
+		case (SleepMode):{
+
+			 //Se llama función para representación en USART
+			 analyzeUSART(numberSwitch);
 
 			//Este modo NO ejecuta ninguna acción, motivo por el cual se procede a apagar
 			//todos los leds
 			 apagadoTotalLeds();
 
-			 //Se llama función para representación en USART
-			 analyzeUSART(numberSwitch);
-
 			 //Evaluamos si la bandera de la interrupción responsable del control del switch
 			 //está levantada y en caso de ser asi ejecuta función para cambio en numberSwitch
 			 switchAction();
+			 break;
 		}
 
 		//Evaluamos si el estado del switch indica que si se debe representar el counter
-		while(numberSwitch == CounterMode){
+		case (CounterMode):{
+
+			 //Se llama función para representación en USART
+			analyzeUSART(numberSwitch);
 
 			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
 			//se atiende esta interrupción
@@ -220,20 +226,18 @@ int main(void)
 
 			counterAction();
 
-			 //Se llama función para representación en USART
-			 analyzeUSART(numberSwitch);
-
 			 //Evaluamos si la bandera de la interrupción responsable del control del switch
 			 //está levantada y en caso de ser asi ejecuta función para cambio en numberSwitch
 			 switchAction();
+
+			 break;
 		}
 
 		//Evaluamos si el estado del switch indica que si se debe representar el counter encoder
-		while(numberSwitch == CounterEncoderMode){
+		case (CounterEncoderMode):{
 
-			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
-			//se atiende esta interrupción
-			banderaControlTimer = 0;
+			 //Se llama función para representación en USART
+			analyzeUSART(numberSwitch);
 
 			//Bajamos la bandera de la interrupción de Counter encoder para detener medida trimmer mientras
 			//se atiende esta interrupción
@@ -250,24 +254,23 @@ int main(void)
 			//está levantada y en caso de ser asi se ejecuta la configuración del counter encoder
 			counterEncoderAction();
 
-			 //Se llama función para representación en USART
-			 analyzeUSART(numberSwitch);
 
 			//Evaluamos si la bandera de la interrupción responsable del control del switch
 			//está levantada y en caso de ser asi ejecuta función para cambio en numberSwitch
 			switchAction();
 
+			//Se activa bandera ADC una única vez para el caso de foto resistencia --> esto para
+			//garantizar inicio de acción de interrupción ADC de los modos a continuación
+			banderaADC = 1;
+			break;
+
 		}
 
-		//Se activa bandera ADC una única vez para el caso del trimmer --> esto para
-		//garantizar inicio de acción de interrupción ADC
-		banderaADC = 1;
 		//Evaluamos si el estado del switch indica que si se debe representar medida trimmer
-		while(numberSwitch == AdcTrimmerMode){
+		case (AdcTrimmerMode):{
 
-			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
-			//se atiende esta interrupción
-			banderaControlTimer = 0;
+			 //Se llama función para representación en USART
+			 analyzeUSART(numberSwitch);
 
 			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
 			//se atiende esta interrupción
@@ -284,24 +287,20 @@ int main(void)
 			//está levantada y en caso de ser asi se ejecuta configuración del trimmer
 			ADCTrimmerAction();
 
-			 //Se llama función para representación en USART
-			 analyzeUSART(numberSwitch);
 
 			//Evaluamos si la bandera de la interrupción responsable del control del switch
 			//está levantada y en caso de ser asi ejecuta función para cambio en numberSwitch
 			switchAction();
 
+			break;
+
 		}
 
-		//Se activa bandera ADC una única vez para el caso de foto resistencia --> esto para
-		//garantizar inicio de acción de interrupción ADC
-		banderaADC = 1;
 		//Evaluamos si el estado del switch indica que si se debe representar medida foto resistencia
-		while(numberSwitch == AdcFotoResistenciaMode){
+		case (AdcFotoResistenciaMode):{
 
-			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
-			//se atiende esta interrupción
-			banderaControlTimer = 0;
+			 //Se llama función para representación en USART
+			 analyzeUSART(numberSwitch);
 
 			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
 			//se atiende esta interrupción
@@ -318,12 +317,14 @@ int main(void)
 			//está levantada y en caso de ser asi se ejecuta la configuración de la foto resistencia
 			ADCFotoResistenciaAction();
 
-			 //Se llama función para representación en USART
-			 analyzeUSART(numberSwitch);
 
 			//Evaluamos si la bandera de la interrupción responsable del control del switch
 			//está levantada y en caso de ser asi ejecuta función para cambio en numberSwitch
 			switchAction();
+
+			break;
+
+		}
 
 		}
 
@@ -345,6 +346,7 @@ void initialConfig(){
 
 		//Cargamos la configuración en los registros que gobiernan el puerto
 		//gpio_Config(&verificationLed);
+
 
 		//Ejecutamos la configuración realizada en A5
 		//gpio_WritePin(&verificationLed, SET);
@@ -1330,7 +1332,7 @@ void callback_ExtInt2(void){
 	//correcta en la lectura del dato.
 	directionClock = gpio_ReadPin(&userCKenc);
 	directionData = gpio_ReadPin(&userData);
-	__NOP();
+	//__NOP();
 
 }
 /*
