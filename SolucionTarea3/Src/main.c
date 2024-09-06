@@ -116,9 +116,10 @@ uint8_t apagadoLed   = 1;
 //Definimos máscara para alternar la posicion unidad, decena, centena y mil
 uint8_t maskChangeDisplay     = 1;
 
-//Definimos variables para realizar función promedio
-uint8_t   sumando  = 0;
-uint16_t  sumaProm = 0;
+//Definimos variables para realizar promedio
+uint16_t valueProm = 0;
+uint16_t sumaProm = 0;
+uint16_t counterTrimmerProm = 0;
 
 //Definimos variables para asignar el estado de la bandera correspondiente a cada interrupción
 uint8_t banderaDisplayTimer     = 0;
@@ -128,6 +129,7 @@ uint8_t banderaClockExti        = 0;
 uint8_t banderaADC              = 0;
 uint8_t banderaUSARTTx          = 0;
 uint8_t banderaUSARTRx          = 0;
+uint8_t banderaPromADC          = 0;
 
 //Definimos enumeración para representar los modos del switch
 enum{
@@ -185,11 +187,10 @@ void savingModeConfig(void);
 void sleepModeConfig(void);
 
 //Definición función para configuración USART
-void analyzeUSART(uint8_t switchModeState);
+void analyzeUSART(void);
 
 //Definición función para realizar promedios
-void promedio(uint16_t valueProm);
-
+void promedio(uint16_t valueToProm);
 
 
 /*  Main function  */
@@ -301,8 +302,7 @@ int main(void)
 		showDigit();
 
 		//Se llama función para representación en USART
-		analyzeUSART(numberSwitch);
-
+		analyzeUSART();
 
 	}//Fin ciclo while
 
@@ -1165,9 +1165,26 @@ void counterEncoderAction(void){
 }
 
 //Función para realizar promedios
-void promedio(uint16_t valueProm){
+void promedio(uint16_t valueToProm){
 
+	//Definimos que vamos a promediar 5 valores de conversión
+	if(valueProm < 10){
 
+		sumaProm += valueToProm;
+
+		valueProm++;
+	} else{
+
+		counterTrimmerProm = sumaProm / 10;
+		valueProm = 0;
+		sumaProm = 0;
+
+		if (banderaPromADC){
+			banderaPromADC = 0;
+
+			counter_i = counterTrimmerProm;
+		}
+	}
 
 }
 
@@ -1206,9 +1223,6 @@ void ADCValueConfig(uint8_t modoADC){
 //Función para ejecutar ADC con trimmer
 void ADCTrimmerAction(void){
 
-	//Igualamos variable de counterConfig con la variable getDigitToShow
-	counter_i = counterTrimmer;
-
 	//Evaluamos si la bandera de la interrupción responsable del ADC
 	//está levantada
 	if(banderaADC == 1){
@@ -1218,18 +1232,21 @@ void ADCTrimmerAction(void){
 
 	    //Encendemos led en color correspondiente
 	    gpio_WritePin(&ledGreen, SET);
-	    //Encendemos led en color correspondiente
 	    gpio_WritePin(&ledBlue, RESET);
 	    gpio_WritePin(&ledRed, RESET);
-
-	    //Cargamos valor de conversión ADC en la variable a representar
-	    counterTrimmer = adc_Get_Value();
 
 	    //Llamamos a la función encargada del ADC en trimmer
 	    ADCValueConfig(Trimmer);
 
 	    //Se inicializa la conversión ADC
 	    adc_StartSingleConv();
+
+	    //Llamamos al valor de la conversión
+	    counterTrimmer = adc_Get_Value();
+
+	    //Cargamos valor de conversión ADC en la variable a representar
+	    promedio(counterTrimmer);
+
 	}
 }
 
@@ -1301,14 +1318,14 @@ void switchAction(void){
 }
 
 //Función para configuración USART
-void analyzeUSART(uint8_t switchModeState ){
+void analyzeUSART(void){
 
 	//Evaluamos si bandera de USART está activada
 	if(banderaUSARTTx){
 
 
 		banderaUSARTTx = 0;
-		switch(switchModeState){
+		switch(numberSwitch){
 		case SleepMode:{
 
 			sprintf(bufferMsg, "Sleep mode is active. Last value saved: %d\n\r",counter_i);
@@ -1392,6 +1409,8 @@ void Timer2_Callback(void){
 
 	//Activamos bandera correspondiente a USART para transmisión
 	banderaUSARTTx = 1;
+
+	banderaPromADC = 1;
 }
 /*
  * Overwrite function for display del siete segmentos
