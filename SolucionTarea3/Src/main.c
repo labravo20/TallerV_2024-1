@@ -1170,18 +1170,28 @@ void promedio(uint16_t valueToProm){
 	//Definimos que vamos a promediar 5 valores de conversión
 	if(valueProm < 10){
 
+		//Acumulamos la suma de los valores a los cuales se les calculará el promedio
 		sumaProm += valueToProm;
 
+		//Aumentamos el valor de ValueProm para avanzar en la cantidad de datos a promediar
 		valueProm++;
 	} else{
 
+		//En caso de alcanzar los 10 datos se calcula el promedio
 		counterTrimmerProm = sumaProm / 10;
+
+		//Reiniciamos el valor de asignación del promedio y de la variable que permite acumular suma de datos a promediar
 		valueProm = 0;
 		sumaProm = 0;
 
+		//Generamos condicional en actualización de dato a representar en el display a la velocidad de 1 s aprox (relación con Timer)
+		//Verificamos si la bandera del timer está activada
 		if (banderaPromADC){
+
+			//Bajamos la bandera
 			banderaPromADC = 0;
 
+			//Definimos que el valor a representar en el display será el promedio de las conversiones ADC
 			counter_i = counterTrimmerProm;
 		}
 	}
@@ -1253,9 +1263,6 @@ void ADCTrimmerAction(void){
 //Función para ejecutar ADC con Fotoresistencia
 void ADCFotoResistenciaAction(void){
 
-	//Igualamos variable de counterConfig con la variable getDigitToShow
-	counter_i = counterFotoResistencia;
-
 	//Evaluamos si la bandera de la interrupción responsable del ADC
 	//está levantada
 	if(banderaADC == 1){
@@ -1268,14 +1275,18 @@ void ADCFotoResistenciaAction(void){
 	    gpio_WritePin(&ledBlue, RESET);
 	    gpio_WritePin(&ledGreen, RESET);
 
-	    //Cargamos valor de conversión ADC en la variable a representar
-	    counterFotoResistencia = adc_Get_Value();
-
 	    //Llamamos a la función encargada del ADC en foto resistencia
 	    ADCValueConfig(FotoResistencia);
 
 	    //Se inicializa la conversión ADC
 	    adc_StartSingleConv();
+
+	    //Cargamos valor de conversión ADC en la variable a representar
+	    counterFotoResistencia = adc_Get_Value();
+
+	    //Cargamos valor de conversión ADC en la variable a representar
+	    promedio(counterFotoResistencia);
+
 	}
 }
 
@@ -1381,7 +1392,7 @@ void savingModeConfig(void){
     gpio_WritePin(&ledGreen, RESET);
 
 	//Igualamos variable de counterConfig con la variable getDigitToShow
-	counter_i = counterTrimmer;
+	counter_i = counterTrimmerProm;
 }
 
 //Función para configuración sleepMode
