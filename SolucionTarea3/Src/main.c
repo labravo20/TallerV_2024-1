@@ -62,7 +62,6 @@ char bufferMsg[128]             = {0};
 // Definimos variable para activar representación numero en siete segmentos
 uint16_t counter_i = 0;
 
-
 //Definimos variable para generar cambios en el numero a representar en el siete segmentos
 uint8_t numberSwitch = 0;
 
@@ -111,6 +110,10 @@ uint8_t apagadoLed   = 1;
 
 //Definimos máscara para alternar la posicion unidad, decena, centena y mil
 uint8_t maskChangeDisplay     = 1;
+
+//Definimos variables para realizar función promedio
+uint8_t   sumando  = 0;
+uint16_t  sumaProm = 0;
 
 //Definimos variables para asignar el estado de la bandera correspondiente a cada interrupción
 uint8_t banderaDisplayTimer     = 0;
@@ -173,6 +176,10 @@ void apagadoTotalLeds(void);
 //Definición función para configuración USART
 void analyzeUSART(uint8_t switchModeState);
 
+//Definición función para realizar promedios
+void promedio(uint16_t valueProm);
+
+
 
 /*  Main function  */
 int main(void)
@@ -187,22 +194,21 @@ int main(void)
 		//está levantada y en caso de ser asi ejecuta función para cambio en numberSwitch
 		switchAction();
 
-		 //Se llama función para representación en USART
-		 analyzeUSART(numberSwitch);
-
 		switch(numberSwitch){
 
 		//Evaluamos si el estado del switch indica que si NO se debe realizar función alguna
 		case (SleepMode):{
 
-			//Este modo NO ejecuta ninguna acción, motivo por el cual se procede a apagar
-			//todos los leds
-			 apagadoTotalLeds();
+			//Igualamos variable de counterConfig con la variable getDigitToShow
+			counter_i = counterEncoder;
+
+			//Evaluamos si la bandera de la interrupción responsable del control del display
+			//está levantada y en caso de ser asi ejecuta función para representar numero en el siete segmentos
+			showDigit();
 
 			//Se activa bandera ADC una única vez para el caso de foto resistencia --> esto para
 			//garantizar inicio de acción de interrupción ADC de los modos a continuación
 			banderaADC = 1;
-
 
 			 break;
 		}
@@ -313,6 +319,9 @@ int main(void)
 
 
 		}//Fin switch case
+
+		 //Se llama función para representación en USART
+		 analyzeUSART(numberSwitch);
 
 
 	}//Fin ciclo while
@@ -1110,6 +1119,13 @@ void counterEncoderAction(void){
 		//Bajamos la bandera de la interrupción de Counter encoder
 	    banderaClockExti = 0;
 	}
+}
+
+//Función para realizar promedios
+void promedio(uint16_t valueProm){
+
+
+
 }
 
 //Función para configuración ADC
