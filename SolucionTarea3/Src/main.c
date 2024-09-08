@@ -657,7 +657,7 @@ void initialConfig(){
 
 		/* Configuramos el puerto serial USART2 */
 		usart2.ptrUSARTx                  = USART2;
-		usart2.USART_Config.baudrate      = USART_BAUDRATE_230400;
+		usart2.USART_Config.baudrate      = USART_BAUDRATE_115200;
 		usart2.USART_Config.datasize      = USART_DATASIZE_8BIT;
 		usart2.USART_Config.parity        = USART_PARITY_NONE;
 		usart2.USART_Config.stopbits      = USART_STOPBIT_1;
