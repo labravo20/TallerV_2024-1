@@ -92,7 +92,7 @@ uint16_t counterTrimmer = 0;
 // Definimos variable para tomar medida Foto resistencia
 uint16_t counterFotoResistencia = 0;
 
-//Definiendo funciones a usar
+//Definiendo funciones a usar para representación de números en el display 7 segmentos
 uint32_t counter_a(uint8_t counterSietea);
 uint32_t counter_b(uint8_t counterSieteb);
 uint32_t counter_c(uint8_t counterSietec);
@@ -116,7 +116,7 @@ uint8_t apagadoLed   = 1;
 //Definimos máscara para alternar la posicion unidad, decena, centena y mil
 uint8_t maskChangeDisplay     = 1;
 
-//Definimos variables para realizar promedio
+//Definimos variables para realizar promedio en conversiones ADC
 uint16_t valueProm = 0;
 uint16_t sumaProm = 0;
 uint16_t counterTrimmerProm = 0;
@@ -128,7 +128,7 @@ uint8_t banderaSwitchExti       = 0;
 uint8_t banderaClockExti        = 0;
 uint8_t banderaADC              = 0;
 uint8_t banderaUSARTTx          = 0;
-uint8_t banderaUSARTRx          = 0;
+uint8_t banderaUSARTRx          = 0; // ======== REVISAR SI SE VA A USAR O NO!!! =======
 uint8_t banderaPromADC          = 0;
 
 //Definimos enumeración para representar los modos del switch
@@ -147,7 +147,7 @@ void initialConfig(void);
 //Definición función para configuración siete segmentos
 void getDigitToShow(void);
 
-//Definición función para configuración siete segmentos
+//Definición función para representar número en siete segmentos
 void showDigit(void);
 
 //Definición función para configuración counter
@@ -177,7 +177,7 @@ void switchConfig(void);
 //Definición función para ejecutar switch
 void switchAction(void);
 
-//Definición función para RESET de los leds
+//Definición función para RESET de los leds del display
 void apagadoTotalLeds(void);
 
 //Definición función para configuración SavingMode
@@ -189,7 +189,7 @@ void sleepModeConfig(void);
 //Definición función para configuración USART
 void analyzeUSART(void);
 
-//Definición función para realizar promedios
+//Definición función para realizar promedios de las conversiones ADC
 void promedio(uint16_t valueToProm);
 
 
@@ -208,7 +208,7 @@ int main(void)
 
 		switch(numberSwitch){
 
-		//Evaluamos si el estado del switch indica que si NO se debe realizar función alguna
+		//Evaluamos si el estado del switch indica que si se debe realizar configuración del sleepMode
 		case (SleepMode):{
 
 			//Llamamos a la función de configuración del sleepMode
@@ -221,12 +221,12 @@ int main(void)
 			 break;
 		}
 
-		//Evaluamos si el estado del switch indica que si se debe representar medida trimmer
+		//Evaluamos si el estado del switch indica si se debe representar medida conversión ADC trimmer
 		case (AdcTrimmerMode):{
 
 			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
 			//se atiende esta interrupción
-			banderaClockExti = 0;
+			banderaClockExti = 0; //=== REVISAR SI ES NECESARIO O NO DEJARLO
 
 			//Evaluamos si la bandera de la interrupción responsable del ADC
 			//está levantada y en caso de ser asi se ejecuta configuración del trimmer
@@ -236,7 +236,7 @@ int main(void)
 
 		}
 
-		//Evaluamos si el estado del switch indica que se debe representar la última medida del trimmer
+		//Evaluamos si el estado del switch indica se debe representar la última medida del modo anterior
 		case (SavingMode): {
 
 			//Llamamos la función de configuración para savingMode
@@ -246,12 +246,12 @@ int main(void)
 
 		}
 
-		//Evaluamos si el estado del switch indica que si se debe representar medida foto resistencia
+		//Evaluamos si el estado del switch indica si se debe representar medida conversión ADC foto resistencia
 		case (AdcFotoResistenciaMode):{
 
 			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
 			//se atiende esta interrupción
-			banderaClockExti = 0;
+			banderaClockExti = 0; //=== REVISAR SI ES NECESARIO O NO DEJARLO
 
 			//Evaluamos si la bandera de la interrupción responsable del ADC
 			//está levantada y en caso de ser asi se ejecuta la configuración de la foto resistencia
@@ -261,16 +261,16 @@ int main(void)
 
 		}
 
-		//Evaluamos si el estado del switch indica que si se debe representar el counter
+		//Evaluamos si el estado del switch indica si se debe representar el counter
 		case (CounterMode):{
 
 			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
 			//se atiende esta interrupción
-			banderaClockExti = 0;
+			banderaClockExti = 0;  //=== REVISAR SI ES NECESARIO O NO DEJARLO
 
 			//Bajamos la bandera de la interrupción de Counter encoder para detener medida trimmer mientras
 			//se atiende esta interrupción
-			banderaADC = 0;
+			banderaADC = 0;  //=== REVISAR SI ES NECESARIO O NO DEJARLO
 
 			//Evaluamos si la bandera de la interrupción responsable del control del tiempo
 			//está levantada y en caso de que si se ejecuta la configuración del counter
@@ -279,12 +279,12 @@ int main(void)
 			break;
 		}
 
-		//Evaluamos si el estado del switch indica que si se debe representar el counter encoder
+		//Evaluamos si el estado del switch indica si se debe representar el counter encoder
 		case (CounterEncoderMode):{
 
 			//Bajamos la bandera de la interrupción de Counter encoder para detener medida trimmer mientras
 			//se atiende esta interrupción
-			banderaADC = 0;
+			banderaADC = 0;  //=== REVISAR SI ES NECESARIO O NO DEJARLO
 
 			//Evaluamos si la bandera de la interrupción responsable del counter encoder
 			//está levantada y en caso de ser asi se ejecuta la configuración del counter encoder
@@ -593,7 +593,7 @@ void initialConfig(){
 		//Cargamos la configuración en los registros que gobiernan el puerto
 		gpio_Config(&userData);
 
-		/*Configuramos el pin..  --> SWITCH ENCODER*/
+		/*Configuramos el pin B1  --> SWITCH ENCODER*/
 		userSWenc.pGPIOx                         = GPIOB;
 		userSWenc.pinConfig.GPIO_PinNumber       = PIN_1;
 		userSWenc.pinConfig.GPIO_PinMode         = GPIO_MODE_IN;
@@ -601,7 +601,7 @@ void initialConfig(){
 		//Cargamos la configuración en los registros que gobiernan el puerto
 		gpio_Config(&userSWenc);
 
-		/*Configuramos el pin B15  --> CLOCK ENCODER*/
+		/*Configuramos el pin B2  --> CLOCK ENCODER*/
 		userCKenc.pGPIOx                         = GPIOB;
 		userCKenc.pinConfig.GPIO_PinNumber       = PIN_2;
 		userCKenc.pinConfig.GPIO_PinMode         = GPIO_MODE_IN;
@@ -613,7 +613,6 @@ void initialConfig(){
 
 		/*Configuramos el EXTI sw que será en la linea 1--> Switch*/
 		swExti.pGPIOHandler = &userSWenc;
-//		swExti.edgeType     = EXTERNAL_INTERRUPT_RISING_EDGE;
 		swExti.edgeType     = EXTERNAL_INTERRUPT_FALLING_EDGE;
 
 		//Cargamos la configuración de la interrupción externa (EXTI)
@@ -630,19 +629,20 @@ void initialConfig(){
 
 		/* Configuramos ADC trimmer*/
 		adcTrimmer.channel             = CHANNEL_1;
-		adcTrimmer.resolution          = RESOLUTION_10_BIT;
+		adcTrimmer.resolution          = RESOLUTION_12_BIT;
 		adcTrimmer.dataAlignment       = ALIGNMENT_RIGHT;
 		adcTrimmer.interrupState       = ADC_INT_ENABLE;
 		adcTrimmer.samplingPeriod      = SAMPLING_PERIOD_144_CYCLES;
 
 		/* Configuramos ADC foto resistencia*/
 		adcFotoResistencia.channel             = CHANNEL_0;
-		adcFotoResistencia.resolution          = RESOLUTION_10_BIT;
+		adcFotoResistencia.resolution          = RESOLUTION_12_BIT;
 		adcFotoResistencia.dataAlignment       = ALIGNMENT_RIGHT;
 		adcFotoResistencia.interrupState       = ADC_INT_ENABLE;
 		adcFotoResistencia.samplingPeriod      = SAMPLING_PERIOD_144_CYCLES;
 
 		//A continuación se está realizando configuración del puerto serial
+
 		/* Pin sobre los que funciona el USART2 (TX)*/
 		userUsart2.pGPIOx                          = GPIOA;
 		userUsart2.pinConfig.GPIO_PinNumber        = PIN_2;
@@ -878,7 +878,7 @@ uint32_t counter_g(uint8_t counterSieteg){
 	return pinLed_g;
 }
 
-//Función para apagar los leds manualmente para garantizar NO aparezcan fantasmas
+//Función para apagar todos los leds del siete segmentos para garantizar NO aparezcan fantasmas
 void apagadoTotalLeds(void){
 
 	gpio_WritePin(&segmentoLed_a, SET);
@@ -1079,7 +1079,7 @@ void counterConfig(void){
 	//Sumamos el valor del counter para garantizar la cuenta ascentente
 	counter = counter +1;
 
-	//Delimitamos que el número máximo hasta el cual se contará es 59
+	//Delimitamos que el número máximo hasta el cual se contará es 4095 (máximo valor a representar en 12 bits)
 	if(counter == 4096){
 		//Reiniciamos el contador para repetir el ciclo de cuenta
 		counter = 0;
@@ -1087,7 +1087,7 @@ void counterConfig(void){
 
 }
 
-//Función para configuración counter
+//Función para ejecutar configuración counter
 void counterAction(void){
 
 	//Igualamos variable de counterConfig con la variable getDigitToShow
@@ -1100,7 +1100,7 @@ void counterAction(void){
 		//Bajamos la bandera de la interrupción de Control Timer
 		banderaControlTimer = 0;
 
-	    //Encendemos led en color correspondiente
+	    //Encendemos led RGB en color correspondiente
 	    gpio_WritePin(&ledGreen, SET);
 	    gpio_WritePin(&ledRed, SET);
 	    gpio_WritePin(&ledBlue, RESET);
@@ -1146,7 +1146,7 @@ void counterEncoderAction(void){
 	//Igualamos variable de counterConfig con la variable getDigitToShow
 	counter_i = counterEncoder;
 
-	//Encendemos led en color correspondiente
+	//Encendemos led RGB en color correspondiente
     gpio_WritePin(&ledRed, SET);
     gpio_WritePin(&ledBlue, SET);
     gpio_WritePin(&ledGreen, RESET);
@@ -1209,6 +1209,8 @@ void ADCValueConfig(uint8_t modoADC){
 
 		//Cargamos configuración del trimmer
 		adc_ConfigSingleChannel(&adcTrimmer);
+
+		//Encendemos peripheral ADC
 		adc_peripheralOnOFF(ADC_ON);
 		break;
 	}
@@ -1218,11 +1220,14 @@ void ADCValueConfig(uint8_t modoADC){
 
 		//Cargamos configuración de la foto resistencia
 		adc_ConfigSingleChannel(&adcFotoResistencia);
+
+		//Encendemos peripheral ADC
 		adc_peripheralOnOFF(ADC_ON);
 		break;
 	}
 	default:{
 
+		//Apagamos peripheral ADC
 		adc_peripheralOnOFF(ADC_OFF);
 		break;
 	}
@@ -1240,7 +1245,7 @@ void ADCTrimmerAction(void){
 		//Bajamos la bandera de la interrupción de ADC
 	    banderaADC = 0;
 
-	    //Encendemos led en color correspondiente
+	    //Encendemos led RGB en color correspondiente
 	    gpio_WritePin(&ledGreen, SET);
 	    gpio_WritePin(&ledBlue, RESET);
 	    gpio_WritePin(&ledRed, RESET);
@@ -1254,7 +1259,7 @@ void ADCTrimmerAction(void){
 	    //Llamamos al valor de la conversión
 	    counterTrimmer = adc_Get_Value();
 
-	    //Cargamos valor de conversión ADC en la variable a representar
+	    //Cargamos valor promedio de conversión ADC en la variable a representar
 	    promedio(counterTrimmer);
 
 	}
@@ -1270,7 +1275,7 @@ void ADCFotoResistenciaAction(void){
 		//Bajamos la bandera de la interrupción de ADC
 	    banderaADC = 0;
 
-	    //Encendemos led en color correspondiente
+	    //Encendemos led RGB en color correspondiente
 	    gpio_WritePin(&ledRed, SET);
 	    gpio_WritePin(&ledBlue, RESET);
 	    gpio_WritePin(&ledGreen, RESET);
@@ -1284,7 +1289,7 @@ void ADCFotoResistenciaAction(void){
 	    //Cargamos valor de conversión ADC en la variable a representar
 	    counterFotoResistencia = adc_Get_Value();
 
-	    //Cargamos valor de conversión ADC en la variable a representar
+	    //Cargamos valor promedio de conversión ADC en la variable a representar
 	    promedio(counterFotoResistencia);
 
 	}
@@ -1308,6 +1313,7 @@ void switchConfig(void){
 	 * */
 	if(numberSwitch == 6){
 
+		//En caso de superar el caso límite superior se reinicia el ciclo de selección de modos
 		numberSwitch = 0;
 	}
 }
@@ -1335,45 +1341,65 @@ void analyzeUSART(void){
 	if(banderaUSARTTx){
 
 
+		//Bajamos bandera de la interrupción
 		banderaUSARTTx = 0;
+
+		//Evaluamos cuál es el caso específico a representar en USART
 		switch(numberSwitch){
+
+		//Caso de sleepMode
 		case SleepMode:{
 
+			//Se representa el texto de presentación del sleep mode y se asigna el valor del último valor cargado a counter_i
 			sprintf(bufferMsg, "Sleep mode is active. Last value saved: %d\n\r",counter_i);
 			usart_writeMsg(&usart2, bufferMsg);
 
 			break;
 		}
+		//Caso counterMode
 		case CounterMode: {
 
+			//Se representa el texto de presentación del counter mode y se asigna valor del valor constantemente cambiante
+			//del contador
 			sprintf(bufferMsg, "Counter mode is active. Value: %d\n\r",counter_i);
 			usart_writeMsg(&usart2, bufferMsg);
 
 			break;
 		}
+		//Caso del counterEncoderMode
 		case CounterEncoderMode:{
 
+			//Se representa el texto de presentación del counter encoder mode y se asigna el valor que constantemente
+			//cambia del counter encoder
 			sprintf(bufferMsg, "Counter Encoder mode is active. Value: %d\n\r",counter_i);
 			usart_writeMsg(&usart2, bufferMsg);
 
 			break;
 		}
+		//Caso adc trimmer mode
 		case AdcTrimmerMode:{
 
+			//Se representa el texto de presentación del convertidor ADC del trimmer y se asigna el valor constantemente
+			//cambiante de dicha conversión
 			sprintf(bufferMsg, "ADC converter for trimmer is active. Value: %d\n\r",counter_i);
 			usart_writeMsg(&usart2, bufferMsg);
 
 			break;
 		}
+		//Caso saving mode
 		case SavingMode:{
 
+			//Se representa el texto de presentacion del saving mode y se asigna el valor del último valor cargado a counter_i
 			sprintf(bufferMsg, "Saving mode is active. Last value saved: %d\n\r",counter_i);
 			usart_writeMsg(&usart2, bufferMsg);
 
 			break;
 		}
+		//Caso adc Foto resistencia mode
 		case AdcFotoResistenciaMode:{
 
+			//Se representa el texto de presentación del convertidor del ADC de la foto resistencia y se asigna el valor
+			//constantemente cambiante de dicha conversión
 			sprintf(bufferMsg, "ADC converter for Photoresistence is active. Value: %d\n\r",counter_i);
 			usart_writeMsg(&usart2, bufferMsg);
 
@@ -1386,23 +1412,24 @@ void analyzeUSART(void){
 //Función para configuración SavingMode
 void savingModeConfig(void){
 
-    //Encendemos led en color correspondiente
+    //Encendemos led RGB en color correspondiente
     gpio_WritePin(&ledBlue, SET);
     gpio_WritePin(&ledRed, RESET);
     gpio_WritePin(&ledGreen, RESET);
 
-	//Igualamos variable de counterConfig con la variable getDigitToShow
+	//Igualamos el último valor de counterTrimmerProm (última medida en modo anterior) con la variable a representar
 	counter_i = counterTrimmerProm;
 }
 
 //Función para configuración sleepMode
 void sleepModeConfig(void){
-    //Encendemos led en color correspondiente
+
+	//Encendemos led RGB en color correspondiente
     gpio_WritePin(&ledBlue, RESET);
     gpio_WritePin(&ledRed, RESET);
     gpio_WritePin(&ledGreen, RESET);
 
-	//Igualamos variable de counterConfig con la variable getDigitToShow
+    //Igualamos el último valor de counterEncoder (última medida en modo anterior) con la variable a representar
 	counter_i = counterEncoder;
 }
 /*
@@ -1421,6 +1448,7 @@ void Timer2_Callback(void){
 	//Activamos bandera correspondiente a USART para transmisión
 	banderaUSARTTx = 1;
 
+	//ACtivamos bandera correspondiente a representación de valores promedio en conversión ADC
 	banderaPromADC = 1;
 }
 /*
@@ -1460,6 +1488,9 @@ void callback_ExtInt2(void){
 	//correcta en la lectura del dato.
 	directionClock = gpio_ReadPin(&userCKenc);
 	directionData = gpio_ReadPin(&userData);
+
+	//La siguiente función se estableció para poder evaluar como están cambiando los valores de las variables directionClk
+	//y directionData  dependiento de la dirección de giro en el encoder
 	__NOP();
 
 }
@@ -1467,12 +1498,14 @@ void callback_ExtInt2(void){
  * Overwrite function for ADC
  * */
 void adc_CompleteCallback(void){
+
+	//Activamos bandera de la interrupción
 	banderaADC = 1;
 }
 
 void usart2_RxCallback(void){
 
-	banderaUSARTRx     = 1;
+	banderaUSARTRx     = 1; // ==== REVISAR SI ES NECESARIO USAR ====
 
 }
 
