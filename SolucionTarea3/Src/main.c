@@ -224,10 +224,6 @@ int main(void)
 		//Evaluamos si el estado del switch indica si se debe representar medida conversión ADC trimmer
 		case (AdcTrimmerMode):{
 
-			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
-			//se atiende esta interrupción
-			banderaClockExti = 0; //=== REVISAR SI ES NECESARIO O NO DEJARLO
-
 			//Evaluamos si la bandera de la interrupción responsable del ADC
 			//está levantada y en caso de ser asi se ejecuta configuración del trimmer
 			ADCTrimmerAction();
@@ -249,10 +245,6 @@ int main(void)
 		//Evaluamos si el estado del switch indica si se debe representar medida conversión ADC foto resistencia
 		case (AdcFotoResistenciaMode):{
 
-			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
-			//se atiende esta interrupción
-			banderaClockExti = 0; //=== REVISAR SI ES NECESARIO O NO DEJARLO
-
 			//Evaluamos si la bandera de la interrupción responsable del ADC
 			//está levantada y en caso de ser asi se ejecuta la configuración de la foto resistencia
 			ADCFotoResistenciaAction();
@@ -266,11 +258,7 @@ int main(void)
 
 			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
 			//se atiende esta interrupción
-			banderaClockExti = 0;  //=== REVISAR SI ES NECESARIO O NO DEJARLO
-
-			//Bajamos la bandera de la interrupción de Counter encoder para detener medida trimmer mientras
-			//se atiende esta interrupción
-			banderaADC = 0;  //=== REVISAR SI ES NECESARIO O NO DEJARLO
+			banderaClockExti = 0;
 
 			//Evaluamos si la bandera de la interrupción responsable del control del tiempo
 			//está levantada y en caso de que si se ejecuta la configuración del counter
@@ -281,10 +269,6 @@ int main(void)
 
 		//Evaluamos si el estado del switch indica si se debe representar el counter encoder
 		case (CounterEncoderMode):{
-
-			//Bajamos la bandera de la interrupción de Counter encoder para detener medida trimmer mientras
-			//se atiende esta interrupción
-			banderaADC = 0;  //=== REVISAR SI ES NECESARIO O NO DEJARLO
 
 			//Evaluamos si la bandera de la interrupción responsable del counter encoder
 			//está levantada y en caso de ser asi se ejecuta la configuración del counter encoder
