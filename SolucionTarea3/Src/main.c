@@ -38,7 +38,9 @@ GPIO_Handler_t userData      = {0};//Pin B15 //Data encoder (conociendo clock ya
 GPIO_Handler_t userSWenc     = {0};//Pin B1  //EXTI switch --> interrupción
 
 //Definimos pines a utilizar para USART
-GPIO_Handler_t   userUsart2  = {0};//Pin A2 //USART pin
+GPIO_Handler_t   userUsart2Tx  = {0};//Pin A2 //USART pin
+//Definimos pines a utilizar para USART
+GPIO_Handler_t   userUsart2Rx  = {0};//Pin A3 //USART pin
 
 //Definimos pines a usar para led RGB
 GPIO_Handler_t ledRed      = {0};
@@ -63,6 +65,9 @@ USART_Handler_t   usart2    = {0};
 
 //Definimos el caracter para ejecución del USART
 char bufferMsg[128]             = {0};
+
+//Definimos variable para recibir el valor del received char en snálisis USART
+uint8_t   receivedChar = 0;
 
 // Definimos variable para activar representación numero en siete segmentos
 uint16_t counter_i = 0;
@@ -218,6 +223,10 @@ int main(void)
 			//garantizar inicio de acción de interrupción ADC de los modos a continuación
 			banderaADC = 1;
 
+			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
+			//se atiende esta interrupción
+			banderaClockExti = 0;
+
 			 break;
 		}
 
@@ -228,6 +237,10 @@ int main(void)
 			//está levantada y en caso de ser asi se ejecuta configuración del trimmer
 			ADCTrimmerAction();
 
+			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
+			//se atiende esta interrupción
+			banderaClockExti = 0;
+
 			break;
 
 		}
@@ -237,6 +250,10 @@ int main(void)
 
 			//Llamamos la función de configuración para savingMode
 			savingModeConfig();
+
+			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
+			//se atiende esta interrupción
+			banderaClockExti = 0;
 
 			break;
 
@@ -249,6 +266,10 @@ int main(void)
 			//está levantada y en caso de ser asi se ejecuta la configuración de la foto resistencia
 			ADCFotoResistenciaAction();
 
+			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
+			//se atiende esta interrupción
+			banderaClockExti = 0;
+
 			break;
 
 		}
@@ -256,13 +277,13 @@ int main(void)
 		//Evaluamos si el estado del switch indica si se debe representar el counter
 		case (CounterMode):{
 
-			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
-			//se atiende esta interrupción
-			banderaClockExti = 0;
-
 			//Evaluamos si la bandera de la interrupción responsable del control del tiempo
 			//está levantada y en caso de que si se ejecuta la configuración del counter
 			counterAction();
+
+			//Bajamos la bandera de la interrupción de Counter encoder para detener contador mientras
+			//se atiende esta interrupción
+			banderaClockExti = 0;
 
 			break;
 		}
@@ -628,16 +649,28 @@ void initialConfig(){
 		//A continuación se está realizando configuración del puerto serial
 
 		/* Pin sobre los que funciona el USART2 (TX)*/
-		userUsart2.pGPIOx                          = GPIOA;
-		userUsart2.pinConfig.GPIO_PinNumber        = PIN_2;
-		userUsart2.pinConfig.GPIO_PinMode          = GPIO_MODE_ALTFN;
-		userUsart2.pinConfig.GPIO_PinOutputType    = GPIO_OTYPE_PUSHPULL;
-		userUsart2.pinConfig.GPIO_PinOutputSpeed   = GPIO_OSPEED_MEDIUM;
-		userUsart2.pinConfig.GPIO_PinPuPdControl   = GPIO_PUPDR_NOTHING;
-		userUsart2.pinConfig.GPIO_PinAltFunMode    = AF7;
+		userUsart2Tx.pGPIOx                          = GPIOA;
+		userUsart2Tx.pinConfig.GPIO_PinNumber        = PIN_2;
+		userUsart2Tx.pinConfig.GPIO_PinMode          = GPIO_MODE_ALTFN;
+		userUsart2Tx.pinConfig.GPIO_PinOutputType    = GPIO_OTYPE_PUSHPULL;
+		userUsart2Tx.pinConfig.GPIO_PinOutputSpeed   = GPIO_OSPEED_MEDIUM;
+		userUsart2Tx.pinConfig.GPIO_PinPuPdControl   = GPIO_PUPDR_NOTHING;
+		userUsart2Tx.pinConfig.GPIO_PinAltFunMode    = AF7;
 
 		//Cargamos la configuración en los registros que gobiernan el puerto
-		gpio_Config(&userUsart2);
+		gpio_Config(&userUsart2Tx);
+
+		/* Pin sobre los que funciona el USART2 (TX)*/
+		userUsart2Rx.pGPIOx                          = GPIOA;
+		userUsart2Rx.pinConfig.GPIO_PinNumber        = PIN_3;
+		userUsart2Rx.pinConfig.GPIO_PinMode          = GPIO_MODE_ALTFN;
+		userUsart2Rx.pinConfig.GPIO_PinOutputType    = GPIO_OTYPE_PUSHPULL;
+		userUsart2Rx.pinConfig.GPIO_PinOutputSpeed   = GPIO_OSPEED_MEDIUM;
+		userUsart2Rx.pinConfig.GPIO_PinPuPdControl   = GPIO_PUPDR_NOTHING;
+		userUsart2Rx.pinConfig.GPIO_PinAltFunMode    = AF7;
+
+		//Cargamos la configuración en los registros que gobiernan el puerto
+		gpio_Config(&userUsart2Rx);
 
 		/* Configuramos el puerto serial USART2 */
 		usart2.ptrUSARTx                  = USART2;
@@ -1331,21 +1364,12 @@ void analyzeUSART(void){
 		//Evaluamos cuál es el caso específico a representar en USART
 		switch(numberSwitch){
 
-		//Caso de sleepMode
-		case SleepMode:{
-
-			//Se representa el texto de presentación del sleep mode y se asigna el valor del último valor cargado a counter_i
-			sprintf(bufferMsg, "Sleep mode is active. Last value saved: %d\n\r",counter_i);
-			usart_writeMsg(&usart2, bufferMsg);
-
-			break;
-		}
 		//Caso counterMode
 		case CounterMode: {
 
 			//Se representa el texto de presentación del counter mode y se asigna valor del valor constantemente cambiante
 			//del contador
-			sprintf(bufferMsg, "Counter mode is active. Value: %d\n\r",counter_i);
+			sprintf(bufferMsg, "Counter mode: %d\n\r",counter_i);
 			usart_writeMsg(&usart2, bufferMsg);
 
 			break;
@@ -1355,7 +1379,7 @@ void analyzeUSART(void){
 
 			//Se representa el texto de presentación del counter encoder mode y se asigna el valor que constantemente
 			//cambia del counter encoder
-			sprintf(bufferMsg, "Counter Encoder mode is active. Value: %d\n\r",counter_i);
+			sprintf(bufferMsg, "Counter Encoder: %d\n\r",counter_i);
 			usart_writeMsg(&usart2, bufferMsg);
 
 			break;
@@ -1365,16 +1389,7 @@ void analyzeUSART(void){
 
 			//Se representa el texto de presentación del convertidor ADC del trimmer y se asigna el valor constantemente
 			//cambiante de dicha conversión
-			sprintf(bufferMsg, "ADC converter for trimmer is active. Value: %d\n\r",counter_i);
-			usart_writeMsg(&usart2, bufferMsg);
-
-			break;
-		}
-		//Caso saving mode
-		case SavingMode:{
-
-			//Se representa el texto de presentacion del saving mode y se asigna el valor del último valor cargado a counter_i
-			sprintf(bufferMsg, "Saving mode is active. Last value saved: %d\n\r",counter_i);
+			sprintf(bufferMsg, "ADC converter Trimmer: %d\n\r",counter_i);
 			usart_writeMsg(&usart2, bufferMsg);
 
 			break;
@@ -1384,11 +1399,26 @@ void analyzeUSART(void){
 
 			//Se representa el texto de presentación del convertidor del ADC de la foto resistencia y se asigna el valor
 			//constantemente cambiante de dicha conversión
-			sprintf(bufferMsg, "ADC converter for Photoresistence is active. Value: %d\n\r",counter_i);
+			sprintf(bufferMsg, "ADC converter for Photoresistor: %d\n\r",counter_i);
 			usart_writeMsg(&usart2, bufferMsg);
 
 			break;
 		}
+		}
+	}
+
+	//Configuramos USART para caso por recepción
+	if(banderaUSARTRx){
+
+		//Bajamos la bandera correspondiente
+		banderaUSARTRx = 0;
+
+		// Asignamos es valor de la función que llama usrt_getRxData, puesto que esta toma el
+		//valor que está cargado en el DR
+		receivedChar = usart_getRxData();
+
+		if(receivedChar == 'm'){
+			usart_writeMsg(&usart2,"Taller V Rocks!!!\n\r"  );
 		}
 	}
 }
