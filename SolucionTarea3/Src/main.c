@@ -38,9 +38,9 @@ GPIO_Handler_t userData      = {0};//Pin B15 //Data encoder (conociendo clock ya
 GPIO_Handler_t userSWenc     = {0};//Pin B1  //EXTI switch --> interrupción
 
 //Definimos pines a utilizar para USART
-GPIO_Handler_t   userUsart2Tx  = {0};//Pin A2 //USART pin
+GPIO_Handler_t   userUsart2Tx  = {0};//Pin A2 //USART pin de transmisón
 //Definimos pines a utilizar para USART
-GPIO_Handler_t   userUsart2Rx  = {0};//Pin A3 //USART pin
+GPIO_Handler_t   userUsart2Rx  = {0};//Pin A3 //USART pin de recepción
 
 //Definimos pines a usar para led RGB
 GPIO_Handler_t ledRed      = {0};
