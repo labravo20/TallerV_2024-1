@@ -64,7 +64,7 @@ void pwm_Config(PWM_Handler_t *ptrPwmHandler){
 
 		//Activamos la funcionalidad de pre-load
 		ptrPwmHandler->ptrTIMx->CCMR1 |= TIM_CCMR1_OC1PE;
-		ptrPwmHandler->ptrTIMx->CCMR1 |= TIM_CCMR1_OC1FE /*Porqué este también se activa???*/;
+		ptrPwmHandler->ptrTIMx->CCMR1 |= TIM_CCMR1_OC1FE;
 
 		break;
 	}
@@ -82,7 +82,7 @@ void pwm_Config(PWM_Handler_t *ptrPwmHandler){
 
 		//Activamos la funcionalidad de pre-load
 		ptrPwmHandler->ptrTIMx->CCMR1 |= TIM_CCMR1_OC2PE;
-		ptrPwmHandler->ptrTIMx->CCMR1 |= TIM_CCMR1_OC2FE /*Porqué este también se activa???*/;
+		ptrPwmHandler->ptrTIMx->CCMR1 |= TIM_CCMR1_OC2FE;
 
 		break;
 	}
@@ -100,7 +100,7 @@ void pwm_Config(PWM_Handler_t *ptrPwmHandler){
 
 		//Activamos la funcionalidad de pre-load
 		ptrPwmHandler->ptrTIMx->CCMR2 |= TIM_CCMR2_OC3PE;
-		ptrPwmHandler->ptrTIMx->CCMR2 |= TIM_CCMR2_OC3FE /*Porqué este también se activa???*/;
+		ptrPwmHandler->ptrTIMx->CCMR2 |= TIM_CCMR2_OC3FE;
 
 		break;
 	}
@@ -118,7 +118,7 @@ void pwm_Config(PWM_Handler_t *ptrPwmHandler){
 
 		//Activamos la funcionalidad de pre-load
 		ptrPwmHandler->ptrTIMx->CCMR2 |= TIM_CCMR2_OC4PE;
-		ptrPwmHandler->ptrTIMx->CCMR2 |= TIM_CCMR2_OC4FE /*Porqué este también se activa???*/;
+		ptrPwmHandler->ptrTIMx->CCMR2 |= TIM_CCMR2_OC4FE;
 
 		break;
 	}
@@ -160,10 +160,10 @@ void pwm_Change_OutputPolarity(PWM_Handler_t *ptrPwmHandler){
 		if(ptrPwmHandler->config.polarity == PWM_ACTIVE_HIGH){
 
 			//Configuramos polaridad en high para el canal configurado en output
-			ptrPwmHandler->ptrTIMx->CCER |= (TIM_CCER_CC1P);
+			ptrPwmHandler->ptrTIMx->CCER &= (~TIM_CCER_CC1P);
 		}else{
 			//Configuramos polaridad en low para el canal configurado en output
-			ptrPwmHandler->ptrTIMx->CCER &= (~TIM_CCER_CC1P);
+			ptrPwmHandler->ptrTIMx->CCER |= (TIM_CCER_CC1P);
 		}
 
 		break;
@@ -173,11 +173,11 @@ void pwm_Change_OutputPolarity(PWM_Handler_t *ptrPwmHandler){
 		if(ptrPwmHandler->config.polarity == PWM_ACTIVE_HIGH){
 
 			//Configuramos polaridad en high para el canal configurado en output
-			ptrPwmHandler->ptrTIMx->CCER |= (TIM_CCER_CC2P);
+			ptrPwmHandler->ptrTIMx->CCER &= (~TIM_CCER_CC2P);
 
 		}else{
 			//Configuramos polaridad en high para el canal configurado en output
-			ptrPwmHandler->ptrTIMx->CCER &= (~TIM_CCER_CC2P);
+			ptrPwmHandler->ptrTIMx->CCER |= (TIM_CCER_CC2P);
 		}
 
 		break;
@@ -187,11 +187,11 @@ void pwm_Change_OutputPolarity(PWM_Handler_t *ptrPwmHandler){
 		if(ptrPwmHandler->config.polarity == PWM_ACTIVE_HIGH){
 
 			//Configuramos polaridad en high para el canal configurado en output
-			ptrPwmHandler->ptrTIMx->CCER |= TIM_CCER_CC3P; /*no debe ser 0 para active high??*/
+			ptrPwmHandler->ptrTIMx->CCER &= (~TIM_CCER_CC3P);
 
 		}else{
 			//Configuramos polaridad en high para el canal configurado en output
-			ptrPwmHandler->ptrTIMx->CCER &= (~TIM_CCER_CC3P);
+			ptrPwmHandler->ptrTIMx->CCER |= (TIM_CCER_CC3P);
 		}
 
 		break;
@@ -201,10 +201,10 @@ void pwm_Change_OutputPolarity(PWM_Handler_t *ptrPwmHandler){
 		if(ptrPwmHandler->config.polarity == PWM_ACTIVE_HIGH){
 
 			//Configuramos polaridad en high para el canal configurado en output
-			ptrPwmHandler->ptrTIMx->CCER |= (TIM_CCER_CC4P);
+			ptrPwmHandler->ptrTIMx->CCER &= (~TIM_CCER_CC4P);
 
 		}else{
-			ptrPwmHandler->ptrTIMx->CCER &= (~TIM_CCER_CC4P); /*no debe ser 1 para active low????*/
+			ptrPwmHandler->ptrTIMx->CCER |= (TIM_CCER_CC4P);
 		}
 
 		break;
@@ -278,7 +278,7 @@ void pwm_Enable_Event(PWM_Handler_t *ptrPwmHandler){
 	switch(ptrPwmHandler->config.channel){
 	case PWM_CHANNEL_1:{
 		//Activamos el evento del canal 1
-		ptrPwmHandler->ptrTIMx->CR1 &= (~TIM_CR1_UDIS);  /*Porqué usamos esta sección del registro? --> profundizar*/
+		ptrPwmHandler->ptrTIMx->CR1 &= (~TIM_CR1_UDIS);
 		break;
 	}
 	case PWM_CHANNEL_2:{
@@ -307,7 +307,7 @@ void pwm_Disable_Event(PWM_Handler_t *ptrPwmHandler){
 	switch(ptrPwmHandler->config.channel){
 	case PWM_CHANNEL_1:{
 		//Desactivamos el evento del canal 1
-		ptrPwmHandler->ptrTIMx->CR1 |= (TIM_CR1_UDIS);  /*Porqué usamos esta sección del registro? --> profundizar*/
+		ptrPwmHandler->ptrTIMx->CR1 |= (TIM_CR1_UDIS);
 		break;
 	}
 	case PWM_CHANNEL_2:{
@@ -375,7 +375,7 @@ void pwm_Set_DuttyCycle(PWM_Handler_t *ptrPwmHandler){
 	switch(ptrPwmHandler->config.channel){
 	case PWM_CHANNEL_1:{
 
-		ptrPwmHandler->ptrTIMx->CCR1 = auxDutty; /*Porqué queremos cargar específicamente esa variable?*/
+		ptrPwmHandler->ptrTIMx->CCR1 = auxDutty; /*Poner valor en porcentaje del duty cicle*/
 
 		break;
 	}
