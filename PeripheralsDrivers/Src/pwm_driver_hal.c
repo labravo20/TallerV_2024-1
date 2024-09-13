@@ -357,43 +357,47 @@ void pwm_Update_Frequency(PWM_Handler_t *ptrPwmHandler, uint16_t newFreq){
 /*El valor del dutty debe estar dado en valores de %, entre 0% y 100%*/
 void pwm_Set_DuttyCycle(PWM_Handler_t *ptrPwmHandler){
 
-	uint32_t auxDutty = 0;
-
-	//Verificamos que los valores estan en los limites adecuados
-	if(ptrPwmHandler->config.duttyCicle > PWM_DUTTY_100_PERCENT){
-
-		ptrPwmHandler->config.duttyCicle = PWM_DUTTY_100_PERCENT;
-	}
-	else if(ptrPwmHandler->config.duttyCicle < PWM_DUTTY_0_PERCENT){
-
-		ptrPwmHandler->config.duttyCicle = PWM_DUTTY_0_PERCENT;
-	}
-
-	auxDutty = (ptrPwmHandler->config.periodo *ptrPwmHandler->config.duttyCicle) / PWM_DUTTY_100_PERCENT;
+//	uint32_t auxDutty = 0;
+//
+//	//Verificamos que los valores estan en los limites adecuados
+//	if(ptrPwmHandler->config.duttyCicle > PWM_DUTTY_100_PERCENT){
+//
+//		ptrPwmHandler->config.duttyCicle = PWM_DUTTY_100_PERCENT;
+//	}
+//	else if(ptrPwmHandler->config.duttyCicle < PWM_DUTTY_0_PERCENT){
+//
+//		ptrPwmHandler->config.duttyCicle = PWM_DUTTY_0_PERCENT;
+//	}
+//
+//	auxDutty = (ptrPwmHandler->config.periodo *ptrPwmHandler->config.duttyCicle) / PWM_DUTTY_100_PERCENT;
 
 	//Seleccionamos el canal para configurar su dutty
 	switch(ptrPwmHandler->config.channel){
 	case PWM_CHANNEL_1:{
 
-		ptrPwmHandler->ptrTIMx->CCR1 = auxDutty; /*Poner valor en porcentaje del duty cicle*/
+		//ptrPwmHandler->ptrTIMx->CCR1 = auxDutty; /*Poner valor en porcentaje del duty cicle*/
+		ptrPwmHandler->ptrTIMx->CCR1 = ptrPwmHandler->config.duttyCicle;
 
 		break;
 	}
 	case PWM_CHANNEL_2:{
 
-		ptrPwmHandler->ptrTIMx->CCR2 = auxDutty;
+		//ptrPwmHandler->ptrTIMx->CCR2 = auxDutty;
+		ptrPwmHandler->ptrTIMx->CCR1 = ptrPwmHandler->config.duttyCicle;
 
 		break;
 	}
 	case PWM_CHANNEL_3:{
 
-		ptrPwmHandler->ptrTIMx->CCR3 = auxDutty;
+		//ptrPwmHandler->ptrTIMx->CCR3 = auxDutty;
+		ptrPwmHandler->ptrTIMx->CCR1 = ptrPwmHandler->config.duttyCicle;
 
 		break;
 	}
 	case PWM_CHANNEL_4:{
 
-		ptrPwmHandler->ptrTIMx->CCR4 = auxDutty;
+		//ptrPwmHandler->ptrTIMx->CCR4 = auxDutty;
+		ptrPwmHandler->ptrTIMx->CCR1 = ptrPwmHandler->config.duttyCicle;
 
 		break;
 	}

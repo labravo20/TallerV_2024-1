@@ -43,9 +43,9 @@ typedef struct
 /* Prototipos de las funciones púlicas */
 void i2c_Config(I2C_Handler_t *pHandlerI2C);
 uint8_t i2c_ReadSingleRegister(I2C_Handler_t *pHandlerI2C, uint8_t regToRead);
-uint8_t i2c_ReadManyRegisters(I2C_Handler_t *pHandlerI2C, uint8_t regToRead, uint8_t *bufferData, uint8_t numberOfBytes);
+uint8_t i2c_ReadManyRegisters(I2C_Handler_t *pHandlerI2C, uint8_t regToRead, uint8_t *bufferRxData, uint8_t numberOfBytes);
 void i2c_WriteSingleRegister(I2C_Handler_t *pHandlerI2C, uint8_t regToWrite, uint8_t newValue);
-void i2c_WriteManyRegisters(I2C_Handler_t *pHandlerI2C, uint8_t regToWrite, uint8_t *bufferData, uint8_t numberOfBytes);
+void i2c_WriteManyRegisters(I2C_Handler_t *pHandlerI2C, uint8_t regToWrite, uint8_t *bufferRXData, uint8_t numberOfBytes);
 
 
 //void i2c_SetPins(GPIO_Handler_t *setSdaPin, GPIO_Handler_t *setSclPin);
