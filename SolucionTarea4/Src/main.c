@@ -2,7 +2,7 @@
  ******************************************************************************
  * @file           : main.c
  * @author         : labravo (Laura Sofia Bravo Revelo)
- * @brief          : Configuración básica PWM.
+ * @brief          : Solución Tarea 4.
  ******************************************************************************
  */
 
@@ -13,28 +13,32 @@
 #include "timer_driver_hal.h"
 #include "usart_driver_hal.h"
 #include "i2c_driver_hal.h"
+#include "pwm_driver_hal.h"
 
-//Definición de los handlers necesarios
+//Definición de los pines necesarios para led de estado
 GPIO_Handler_t   blinkyPin       = {0};
 
+//Definición de los pines necesarios para led RGB
 GPIO_Handler_t ledRed       = {0};
 GPIO_Handler_t ledGreen     = {0};
 GPIO_Handler_t ledBlue      = {0};
 
-//Timers a utilizar
+//Timers a utilizar para funcionamiento del led de estado
 Timer_Handler_t  blinkyTimer       = {0};
 
 //Comunicación RS-232 con el PC, ya habilitada en la board Nucleo
 //Hace uso de la conexión USB
 USART_Handler_t  usart2commSerial = {0};
 
-//Definición de elementos para realizar la comunicación serial
+//Definición de pines a usar  para realizar la comunicación serial
 GPIO_Handler_t   pinTx            = {0};
 GPIO_Handler_t   pinRx            = {0};
 
-//Pines a usar para el I2C
+//Pines a usar para funcionamiento del I2C
 GPIO_Handler_t  pinSCL      = {0};
 GPIO_Handler_t  pinSDA      = {0};
+
+//Definició
 I2C_Handler_t   accelSensor = {0};
 uint8_t i2c_AuxBuffer    = 0;
 
@@ -179,7 +183,7 @@ int main(void)
 
 }
 
-
+//Función para configuración inicial
 void initialSystem(void){
 
 	/* Configuramos el pin A5*/
@@ -246,7 +250,7 @@ void initialSystem(void){
 
 }
 
-
+//Función configuración de caracterśiticas para I2C
 void config_I2C(void){
 
 	pinSCL.pGPIOx                          = GPIOB;
@@ -277,12 +281,12 @@ void config_I2C(void){
 	i2c_Config(&accelSensor);
 }
 
-
+//Función configuración del led RGB
 void config_RGB(void){
 
 
-	ledRed.pGPIOx                         = GPIOC;
-	ledRed.pinConfig.GPIO_PinNumber       = PIN_7;
+	ledRed.pGPIOx                         = GPIOB;
+	ledRed.pinConfig.GPIO_PinNumber       = PIN_0;
 	ledRed.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
 	ledRed.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
 	ledRed.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_FAST;
@@ -293,7 +297,7 @@ void config_RGB(void){
 	gpio_WritePin(&ledRed, RESET);
 
 	ledGreen.pGPIOx                         = GPIOC;
-	ledGreen.pinConfig.GPIO_PinNumber       = PIN_9;
+	ledGreen.pinConfig.GPIO_PinNumber       = PIN_1;
 	ledGreen.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
 	ledGreen.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
 	ledGreen.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_FAST;
@@ -304,7 +308,7 @@ void config_RGB(void){
 	gpio_WritePin(&ledGreen, RESET);
 
 	ledBlue.pGPIOx                         = GPIOC;
-	ledBlue.pinConfig.GPIO_PinNumber       = PIN_8;
+	ledBlue.pinConfig.GPIO_PinNumber       = PIN_0;
 	ledBlue.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
 	ledBlue.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
 	ledBlue.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_FAST;
