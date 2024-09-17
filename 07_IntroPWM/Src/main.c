@@ -2,7 +2,7 @@
  ******************************************************************************
  * @file           : main.c
  * @author         : labravo (Laura Sofia Bravo Revelo)
- * @brief          : Configuración básica commSerial.
+ * @brief          : Configuración básica PWM.
  ******************************************************************************
  */
 
@@ -11,84 +11,153 @@
 #include "stm32_assert.h"
 #include "gpio_driver_hal.h"
 #include "timer_driver_hal.h"
-#include "adc_driver_hal.h"
+#include "exti_driver_hal.h"
+#include "usart_driver_hal.h"
+#include "pwm_driver_hal.h"
 
-//Definimos pin de prueba
-GPIO_Handler_t userLed    = {0}; //PinA5
+//Definición de los handlers necesarios
+GPIO_Handler_t   blinkyPin       = {0};
+//GPIO_Handler_t   userButton      = {0};  //VERIFICAR SI ES NECESARIO
+//EXTI_Config_t    userBUttonExti  = {0}; //VERIFICAR SI ES NECESARIO
+Timer_Handler_t  blinkyTimer     = {0};
 
-//Blinky timer
-Timer_Handler_t blinkTimer = {0};
+//Definición de elementos para realizar la comunicación serial
+GPIO_Handler_t   pinTx            = {0};
+GPIO_Handler_t   pinRx            = {0};
+USART_Handler_t  usart2commSerial = {0};
+uint8_t          sendMsg          = {0};
+uint8_t          usart2DataRecv   = {0};
 
-//Variables a usar
-uint16_t conversionValue    = 0;
-uint8_t  banderaTimer       = 0;
+//Elementos para el PWM
+GPIO_Handler_t   pinPWMChannel    = {0};
+PWM_Handler_t    signalPWM        = {0};
 
-//Definimos ADC channel a usar
-ADC_Config_t adcValue       = {0};
+uint16_t   duttyValue     = 500;
 
+char bufferMsg[64]  = {0};
 
-//Definición de las cabeceras de las funciones del main
+//Definición de cabeceras de las funciones main
 void initialSystem(void);
 
 
 /*  Main function  */
 int main(void)
 {
-	//Inicialización de los elementos del sistema
 	initialSystem();
 
     /* Loop forever */
 	while(1){
 
-		if(banderaTimer == 1){
-			banderaTimer = 0;
-			adc_StartSingleConv();
+		//Verificando el PWM
+		if(usart2DataRecv != '\0'){
+
+			if(usart2DataRecv == 'D'){
+
+				//Down..
+				duttyValue -= 10;
+				pwm_Update_DuttyCycle(&signalPWM, duttyValue);
+			}
+
+			//Para probar el seno
+			if(usart2DataRecv == 'U'){
+
+				//Up
+				duttyValue += 10;
+				pwm_Update_DuttyCycle(&signalPWM, duttyValue);
+			}
+
+			//Imprimimos el mensaje
+			sprintf(bufferMsg, "dutty = %u \n", (unsigned int)duttyValue);
+			usart_writeMsg(&usart2commSerial, bufferMsg);
+
+			//Cambiamos el estado del elemento que controla la entrada
+			usart2DataRecv = '\0';
 		}
 
 	}
 
+	return 0;
+
 }
 
-//Definimos función para configuración inicial
+
 void initialSystem(void){
 
 	/* Configuramos el pin A5*/
-	userLed.pGPIOx                         = GPIOA;
-	userLed.pinConfig.GPIO_PinNumber       = PIN_5;
-	userLed.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
-	userLed.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
-	userLed.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
-	userLed.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+	blinkyPin.pGPIOx                         = GPIOA;
+	blinkyPin.pinConfig.GPIO_PinNumber       = PIN_5;
+	blinkyPin.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+	blinkyPin.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+	blinkyPin.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+	blinkyPin.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
 
 	//Cargamos la configuración en los registros que gobiernan el puerto
-	gpio_Config(&userLed);
+	gpio_Config(&blinkyPin);
 
 	//Ejecutamos la configuración realizada en A5
-	//gpio_WritePin(&userLed, SET);
+	//gpio_WritePin(&blinkyPIn, SET);
 
 
 	/* Configuramos el timer del blinky*/
-	blinkTimer.pTIMx                             = TIM2;
-	blinkTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 1 ms
-	blinkTimer.TIMx_Config.TIMx_Period           = 1000;     //De la mano con el prescaler, genera int ada 500 ms
-	blinkTimer.TIMx_Config.TIMx_mode             = TIMER_UP_COUNTER;
-	blinkTimer.TIMx_Config.TIMx_InterruptEnable  = TIMER_INT_ENABLE;
+	blinkyTimer.pTIMx                             = TIM2;
+	blinkyTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 1 ms
+	blinkyTimer.TIMx_Config.TIMx_Period           = 1000;     //De la mano con el prescaler, genera int ada 500 ms
+	blinkyTimer.TIMx_Config.TIMx_mode             = TIMER_UP_COUNTER;
+	blinkyTimer.TIMx_Config.TIMx_InterruptEnable  = TIMER_INT_ENABLE;
 
 	/* Configuramos el Timer */
-	timer_Config(&blinkTimer);
+	timer_Config(&blinkyTimer);
 
 	//Encendemos el Timer
-	timer_SetState(&blinkTimer, TIMER_ON);
+	timer_SetState(&blinkyTimer, TIMER_ON);
 
-	/* Configuramos ADC*/
-	adcValue.channel             = CHANNEL_0;
-	adcValue.resolution          = RESOLUTION_12_BIT;
-	adcValue.dataAlignment       = ALIGNMENT_RIGHT;
-	adcValue.interrupState       = ADC_INT_ENABLE;
-	adcValue.samplingPeriod      = SAMPLING_PERIOD_84_CYCLES;
+	/*Configuración Comm serial*/
+	pinTx.pGPIOx                           = GPIOA;
+	pinTx.pinConfig.GPIO_PinNumber         = PIN_2;
+	pinTx.pinConfig.GPIO_PinMode           = GPIO_MODE_ALTFN;
+	pinTx.pinConfig.GPIO_PinAltFunMode     = AF7;
 
-	adc_ConfigSingleChannel(&adcValue);
-	adc_peripheralOnOFF(ADC_ON);
+	gpio_Config(&pinTx);
+
+	pinRx.pGPIOx                           = GPIOA;
+	pinRx.pinConfig.GPIO_PinNumber         = PIN_3;
+	pinRx.pinConfig.GPIO_PinMode           = GPIO_MODE_ALTFN;
+	pinRx.pinConfig.GPIO_PinAltFunMode     = AF7;
+
+	gpio_Config(&pinRx);
+
+	usart2commSerial.ptrUSARTx                = USART2;
+	usart2commSerial.USART_Config.baudrate    = USART_BAUDRATE_19200;
+	usart2commSerial.USART_Config.datasize    = USART_DATASIZE_8BIT;
+	usart2commSerial.USART_Config.parity      = USART_PARITY_NONE;
+	usart2commSerial.USART_Config.stopbits    = USART_STOPBIT_1;
+	usart2commSerial.USART_Config.mode        = USART_MODE_RXTX;
+	usart2commSerial.USART_Config.enableIntRX = USART_RX_INTERRUP_ENABLE;
+	usart2commSerial.USART_Config.enableIntTX = USART_TX_INTERRUP_DISABLE;
+
+	usart_Config(&usart2commSerial);
+
+	/*Configuración PWM*/
+	pinPWMChannel.pGPIOx                        = GPIOC;
+	pinPWMChannel.pinConfig.GPIO_PinNumber      = PIN_7;
+	pinPWMChannel.pinConfig.GPIO_PinMode        = GPIO_MODE_ALTFN;
+	pinPWMChannel.pinConfig.GPIO_PinOutputType  = GPIO_OTYPE_PUSHPULL;
+	pinPWMChannel.pinConfig.GPIO_PinPuPdControl = GPIO_PUPDR_NOTHING;
+	pinPWMChannel.pinConfig.GPIO_PinOutputSpeed = GPIO_OSPEED_FAST;
+	pinPWMChannel.pinConfig.GPIO_PinAltFunMode  = AF2;
+
+	gpio_Config(&pinPWMChannel);
+
+	/*Configuración timer para generar señal pwm*/
+	signalPWM.ptrTIMx                = TIM3;
+	signalPWM.config.channel         = PWM_CHANNEL_2;
+	signalPWM.config.duttyCicle      = duttyValue;
+	signalPWM.config.periodo         = 1000;
+	signalPWM.config.prescaler       = 16000;
+
+	pwm_Config(&signalPWM);
+	pwm_Enable_Output(&signalPWM);
+	pwm_Start_Signal(&signalPWM);
 
 
 }
@@ -97,13 +166,16 @@ void initialSystem(void){
  * Overwrite function for A5
  * */
 void Timer2_Callback(void){
-	gpio_TooglePin(&userLed);
-	banderaTimer = 1;
+	gpio_TooglePin(&blinkyPin);
+	sendMsg++;;
 }
 
+void usart2_RxCallback(void){
 
-void adc_CompleteCallback(void){
-	conversionValue = adc_Get_Value();
+	//Importante!!!
+	// Asignamos es valor de la función que llama usrt_getRxData, puesto que esta toma el
+	//valor que está cargado en el DR
+	usart2DataRecv = usart_getRxData();
 }
 
 /*
