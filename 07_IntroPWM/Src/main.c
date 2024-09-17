@@ -32,9 +32,9 @@ uint8_t          usart2DataRecv   = {0};
 GPIO_Handler_t   pinPWMChannel    = {0};
 PWM_Handler_t    signalPWM        = {0};
 
-uint16_t   duttyValue     = 500;
+uint16_t   duttyValue    	= 500;
 
-char bufferMsg[64]  = {0};
+char bufferMsg[64]  		= {0};
 
 //Definición de cabeceras de las funciones main
 void initialSystem(void);
@@ -48,31 +48,31 @@ int main(void)
     /* Loop forever */
 	while(1){
 
-		//Verificando el PWM
-		if(usart2DataRecv != '\0'){
-
-			if(usart2DataRecv == 'D'){
-
-				//Down..
-				duttyValue -= 10;
-				pwm_Update_DuttyCycle(&signalPWM, duttyValue);
-			}
-
-			//Para probar el seno
-			if(usart2DataRecv == 'U'){
-
-				//Up
-				duttyValue += 10;
-				pwm_Update_DuttyCycle(&signalPWM, duttyValue);
-			}
-
-			//Imprimimos el mensaje
-			sprintf(bufferMsg, "dutty = %u \n", (unsigned int)duttyValue);
-			usart_writeMsg(&usart2commSerial, bufferMsg);
-
-			//Cambiamos el estado del elemento que controla la entrada
-			usart2DataRecv = '\0';
-		}
+//		//Verificando el PWM
+//		if(usart2DataRecv != '\0'){
+//
+//			if(usart2DataRecv == 'D'){
+//
+//				//Down..
+//				duttyValue -= 10;
+//				pwm_Update_DuttyCycle(&signalPWM, duttyValue);
+//			}
+//
+//			//Para probar el seno
+//			if(usart2DataRecv == 'U'){
+//
+//				//Up
+//				duttyValue += 10;
+//				pwm_Update_DuttyCycle(&signalPWM, duttyValue);
+//			}
+//
+//			//Imprimimos el mensaje
+//			sprintf(bufferMsg, "dutty = %u \n", (unsigned int)duttyValue);
+//			usart_writeMsg(&usart2commSerial, bufferMsg);
+//
+//			//Cambiamos el estado del elemento que controla la entrada
+//			usart2DataRecv = '\0';
+//		}
 
 	}
 
@@ -84,8 +84,8 @@ int main(void)
 void initialSystem(void){
 
 	/* Configuramos el pin A5*/
-	blinkyPin.pGPIOx                         = GPIOA;
-	blinkyPin.pinConfig.GPIO_PinNumber       = PIN_5;
+	blinkyPin.pGPIOx                         = GPIOH;
+	blinkyPin.pinConfig.GPIO_PinNumber       = PIN_1;
 	blinkyPin.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
 	blinkyPin.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
 	blinkyPin.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
