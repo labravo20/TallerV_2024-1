@@ -63,8 +63,8 @@ void pwm_Config(PWM_Handler_t *ptrPwmHandler){
 		ptrPwmHandler->ptrTIMx->CCMR1 |= (TIM_CCMR1_OC1M_2);
 
 		//Activamos la funcionalidad de pre-load
-		ptrPwmHandler->ptrTIMx->CCMR1 |= TIM_CCMR1_OC1PE;
 		ptrPwmHandler->ptrTIMx->CCMR1 |= TIM_CCMR1_OC1FE;
+		ptrPwmHandler->ptrTIMx->CCMR1 |= TIM_CCMR1_OC1PE;
 
 		break;
 	}
@@ -81,8 +81,8 @@ void pwm_Config(PWM_Handler_t *ptrPwmHandler){
 		ptrPwmHandler->ptrTIMx->CCMR1 |= (TIM_CCMR1_OC2M_2);
 
 		//Activamos la funcionalidad de pre-load
-		ptrPwmHandler->ptrTIMx->CCMR1 |= TIM_CCMR1_OC2PE;
 		ptrPwmHandler->ptrTIMx->CCMR1 |= TIM_CCMR1_OC2FE;
+		ptrPwmHandler->ptrTIMx->CCMR1 |= TIM_CCMR1_OC2PE;
 
 		break;
 	}
@@ -99,8 +99,8 @@ void pwm_Config(PWM_Handler_t *ptrPwmHandler){
 		ptrPwmHandler->ptrTIMx->CCMR2 |= (TIM_CCMR2_OC3M_2);
 
 		//Activamos la funcionalidad de pre-load
-		ptrPwmHandler->ptrTIMx->CCMR2 |= TIM_CCMR2_OC3PE;
 		ptrPwmHandler->ptrTIMx->CCMR2 |= TIM_CCMR2_OC3FE;
+		ptrPwmHandler->ptrTIMx->CCMR2 |= TIM_CCMR2_OC3PE;
 
 		break;
 	}
@@ -117,8 +117,8 @@ void pwm_Config(PWM_Handler_t *ptrPwmHandler){
 		ptrPwmHandler->ptrTIMx->CCMR2 |= (TIM_CCMR2_OC4M_2);
 
 		//Activamos la funcionalidad de pre-load
-		ptrPwmHandler->ptrTIMx->CCMR2 |= TIM_CCMR2_OC4PE;
 		ptrPwmHandler->ptrTIMx->CCMR2 |= TIM_CCMR2_OC4FE;
+		ptrPwmHandler->ptrTIMx->CCMR2 |= TIM_CCMR2_OC4PE;
 
 		break;
 	}
@@ -413,11 +413,5 @@ void pwm_Update_DuttyCycle(PWM_Handler_t *ptrPwmHandler, uint16_t newDutty){
 
 	pwm_Set_DuttyCycle(ptrPwmHandler);
 }
-
-
-
-
-
-
 
 
