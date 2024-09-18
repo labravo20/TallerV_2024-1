@@ -12,7 +12,6 @@
 #include "stm32_assert.h"
 #include "gpio_driver_hal.h"
 #include "timer_driver_hal.h"
-#include "exti_driver_hal.h"
 #include "usart_driver_hal.h"
 #include "pwm_driver_hal.h"
 
@@ -85,8 +84,8 @@ int main(void)
 void initialSystem(void){
 
 	/* Configuramos el pin A5*/
-	blinkyPin.pGPIOx                         = GPIOA;
-	blinkyPin.pinConfig.GPIO_PinNumber       = PIN_5;
+	blinkyPin.pGPIOx                         = GPIOH;
+	blinkyPin.pinConfig.GPIO_PinNumber       = PIN_1;
 	blinkyPin.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
 	blinkyPin.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
 	blinkyPin.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;

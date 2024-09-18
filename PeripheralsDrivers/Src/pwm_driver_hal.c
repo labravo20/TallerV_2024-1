@@ -383,21 +383,21 @@ void pwm_Set_DuttyCycle(PWM_Handler_t *ptrPwmHandler){
 	case PWM_CHANNEL_2:{
 
 		//ptrPwmHandler->ptrTIMx->CCR2 = auxDutty;
-		ptrPwmHandler->ptrTIMx->CCR1 = ptrPwmHandler->config.duttyCicle;
+		ptrPwmHandler->ptrTIMx->CCR2 = ptrPwmHandler->config.duttyCicle;
 
 		break;
 	}
 	case PWM_CHANNEL_3:{
 
 		//ptrPwmHandler->ptrTIMx->CCR3 = auxDutty;
-		ptrPwmHandler->ptrTIMx->CCR1 = ptrPwmHandler->config.duttyCicle;
+		ptrPwmHandler->ptrTIMx->CCR3 = ptrPwmHandler->config.duttyCicle;
 
 		break;
 	}
 	case PWM_CHANNEL_4:{
 
 		//ptrPwmHandler->ptrTIMx->CCR4 = auxDutty;
-		ptrPwmHandler->ptrTIMx->CCR1 = ptrPwmHandler->config.duttyCicle;
+		ptrPwmHandler->ptrTIMx->CCR4 = ptrPwmHandler->config.duttyCicle;
 
 		break;
 	}
