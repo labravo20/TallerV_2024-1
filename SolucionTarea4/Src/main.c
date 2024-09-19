@@ -22,20 +22,25 @@ GPIO_Handler_t   blinkyPin   = {0};
 Timer_Handler_t  blinkyTimer       = {0};
 
 //Definición de los pines necesarios para led RGB
-GPIO_Handler_t ledRed     = {0};
-GPIO_Handler_t ledGreen   = {0};
-GPIO_Handler_t ledBlue    = {0};
+//GPIO_Handler_t ledRed     = {0};
+//GPIO_Handler_t ledGreen   = {0};
+//GPIO_Handler_t ledBlue    = {0};
 
 //Definición pines para configuración del PWM
-GPIO_Handler_t   pinPWMChannel  = {0};
+GPIO_Handler_t   ledRed_PWMChannel_1    = {0};
+GPIO_Handler_t   ledGreen_PWMChannel_3  = {0};
+GPIO_Handler_t   ledBlue_PWMChannel_4   = {0};
 
 //Definición de canal a usar para hacer uso de PWM
 PWM_Handler_t    signalPWM    = {0};
 
 //Definición de variable para asignar el valor del duttyCycle
-uint16_t   duttyValue   = 0;
+uint16_t   duttyValue        = 0;
+uint16_t   duttyValueRed     = 0;
+uint16_t   duttyValueGreen   = 0;
+uint16_t   duttyValueBlue    = 0;
 
-//Definición de canal USART a usar
+//Definición de canal USART a utilizar
 USART_Handler_t  usart2commSerial = {0};
 
 //Definición de pines a usar  para realizar la comunicación serial
@@ -53,9 +58,9 @@ GPIO_Handler_t  pinSDA    = {0};
 I2C_Handler_t   accelSensor   = {0};
 
 //Definición de variable auxiliar para lectura de WHO_AM_I dispositivo accel
-uint8_t i2c_AuxBuffer     = 0;
+//uint8_t i2c_AuxBuffer     = 0;
 
-//Definición variable bandera para timer acelerómetro
+//Definición variable bandera para timer control MEASURE acelerómetro
 uint8_t banderaTimerAccel = 0;
 
 /*Registros y valores relacionados con el Acelerómetro*/
@@ -116,7 +121,7 @@ int main(void)
 	config_Accel();
 
 	//Se ejecuta función para configuracipon del led RGB
-	//config_RGB();
+	config_RGB();
 
 	//Se ejecuta función para configuración del PWM
 	//config_PWM();
@@ -125,7 +130,7 @@ int main(void)
     /* Loop forever */
 	while(1){
 
-		//Verificamos si la bandera asociada al timer que controla acelerómetro está activa
+		//Verificamos si la bandera asociada al timer que controla MEASURE acelerómetro está activa
 		if(banderaTimerAccel){
 
 			//Se ejecuta función para buscar datos del acelerómetro
@@ -206,10 +211,14 @@ void initialSystem(void){
 	//Inicializamos el valor en comm serial
 	usart_WriteChar(&usart2commSerial, '\0');
 
-	/* Configuramos el timer para mostrar datos del acelerómetro*/
+	/* Configuramos el timer de control MEASURA del acelerómetro*/
+	//The number of samples averaged is a choice of the system designer, but a
+	//recommended starting point is 0.1 sec worth of data for data
+	//rates of 100 Hz or greater. This corresponds to 10 samples at
+	//the 100 Hz data rate.
 	accelTimer.pTIMx                             = TIM5;
-	accelTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 1000 ms
-	accelTimer.TIMx_Config.TIMx_Period           = 100;     //De la mano con el prescaler, genera int ada 500 ms
+	accelTimer.TIMx_Config.TIMx_Prescaler        = 16000;
+	accelTimer.TIMx_Config.TIMx_Period           = 100;   //De la mano con el prescaler, genera int cada 0.1 s
 	accelTimer.TIMx_Config.TIMx_mode             = TIMER_UP_COUNTER;
 	accelTimer.TIMx_Config.TIMx_InterruptEnable  = TIMER_INT_ENABLE;
 
@@ -224,17 +233,41 @@ void initialSystem(void){
 //Función configuración de PWM
 void config_PWM(void){
 
-//	/*Configuración PWM*/
-//	pinPWMChannel.pGPIOx                        = GPIOC;
-//	pinPWMChannel.pinConfig.GPIO_PinNumber      = PIN_7;
-//	pinPWMChannel.pinConfig.GPIO_PinMode        = GPIO_MODE_ALTFN;
-//	pinPWMChannel.pinConfig.GPIO_PinOutputType  = GPIO_OTYPE_PUSHPULL;
-//	pinPWMChannel.pinConfig.GPIO_PinPuPdControl = GPIO_PUPDR_NOTHING;
-//	pinPWMChannel.pinConfig.GPIO_PinOutputSpeed = GPIO_OSPEED_FAST;
-//	pinPWMChannel.pinConfig.GPIO_PinAltFunMode  = AF2;
+//	/*Configuración PWM -> Channel 1*/
+//	pinPWMChannel_1.pGPIOx                        = GPIOC;
+//	pinPWMChannel_1.pinConfig.GPIO_PinNumber      = PIN_6;
+//	pinPWMChannel_1.pinConfig.GPIO_PinMode        = GPIO_MODE_ALTFN;
+//	pinPWMChannel_1.pinConfig.GPIO_PinOutputType  = GPIO_OTYPE_PUSHPULL;
+//	pinPWMChannel_1.pinConfig.GPIO_PinPuPdControl = GPIO_PUPDR_NOTHING;
+//	pinPWMChannel_1.pinConfig.GPIO_PinOutputSpeed = GPIO_OSPEED_FAST;
+//	pinPWMChannel_1.pinConfig.GPIO_PinAltFunMode  = AF2;
 //
 //	//Cargamos la configuración en los registros
-//	gpio_Config(&pinPWMChannel);
+//	gpio_Config(&pinPWMChannel_1);
+//
+//	/*Configuración PWM -> Channel 3*/
+//	pinPWMChannel_3.pGPIOx                        = GPIOC;
+//	pinPWMChannel_3.pinConfig.GPIO_PinNumber      = PIN_8;
+//	pinPWMChannel_3.pinConfig.GPIO_PinMode        = GPIO_MODE_ALTFN;
+//	pinPWMChannel_3.pinConfig.GPIO_PinOutputType  = GPIO_OTYPE_PUSHPULL;
+//	pinPWMChannel_3.pinConfig.GPIO_PinPuPdControl = GPIO_PUPDR_NOTHING;
+//	pinPWMChannel_3.pinConfig.GPIO_PinOutputSpeed = GPIO_OSPEED_FAST;
+//	pinPWMChannel_3.pinConfig.GPIO_PinAltFunMode  = AF2;
+//
+//	//Cargamos la configuración en los registros
+//	gpio_Config(&pinPWMChannel_3);
+//
+//	/*Configuración PWM -> Channel 4*/
+//	pinPWMChannel_4.pGPIOx                        = GPIOC;
+//	pinPWMChannel_4.pinConfig.GPIO_PinNumber      = PIN_9;
+//	pinPWMChannel_4.pinConfig.GPIO_PinMode        = GPIO_MODE_ALTFN;
+//	pinPWMChannel_4.pinConfig.GPIO_PinOutputType  = GPIO_OTYPE_PUSHPULL;
+//	pinPWMChannel_4.pinConfig.GPIO_PinPuPdControl = GPIO_PUPDR_NOTHING;
+//	pinPWMChannel_4.pinConfig.GPIO_PinOutputSpeed = GPIO_OSPEED_FAST;
+//	pinPWMChannel_4.pinConfig.GPIO_PinAltFunMode  = AF2;
+//
+//	//Cargamos la configuración en los registros
+//	gpio_Config(&pinPWMChannel_4);
 //
 //	/*Configuración timer para generar señal pwm*/
 //	signalPWM.ptrTIMx                = TIM3;
@@ -257,6 +290,7 @@ void config_PWM(void){
 //Función configuración de caracterśiticas para I2C
 void config_I2C(void){
 
+	/*Configuración pin asociado a SCL--> Clock*/
 	pinSCL.pGPIOx                          = GPIOB;
 	pinSCL.pinConfig.GPIO_PinNumber        = PIN_8;
 	pinSCL.pinConfig.GPIO_PinMode          = GPIO_MODE_ALTFN;
@@ -265,8 +299,10 @@ void config_I2C(void){
 	pinSCL.pinConfig.GPIO_PinOutputSpeed   = GPIO_OSPEED_FAST;
 	pinSCL.pinConfig.GPIO_PinAltFunMode    = AF4;
 
+	/*Cargamos la configuración del pin*/
 	gpio_Config(&pinSCL);
 
+	/*Configuración del pin asociado a SDA --> Data*/
 	pinSDA.pGPIOx                          = GPIOB;
 	pinSDA.pinConfig.GPIO_PinNumber        = PIN_9;
 	pinSDA.pinConfig.GPIO_PinMode          = GPIO_MODE_ALTFN;
@@ -275,13 +311,16 @@ void config_I2C(void){
 	pinSDA.pinConfig.GPIO_PinOutputSpeed   = GPIO_OSPEED_FAST;
 	pinSDA.pinConfig.GPIO_PinAltFunMode    = AF4;
 
+	/*Cargamos la configuración del pin*/
 	gpio_Config(&pinSDA);
 
+	/*Configuración del canal I2C a utilizar*/
 	accelSensor.pI2Cx          = I2C1;
 	accelSensor.i2c_mainClock  = I2C_MAIN_CLOCK_16_MHz;
 	accelSensor.i2c_mode       = eI2C_MODE_SM;
 	accelSensor.slaveAddress   = ACCEL_ADDRESS;
 
+	/*Cargamos la configuración del canal I2C*/
 	i2c_Config(&accelSensor);
 }
 
@@ -302,63 +341,121 @@ void config_Accel(void){
 //Función configuración del led RGB
 void config_RGB(void){
 
-	//Configurando led RGB para vcc del ROJO
-	ledRed.pGPIOx                         = GPIOB;
-	ledRed.pinConfig.GPIO_PinNumber       = PIN_0;
-	ledRed.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
-	ledRed.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
-	ledRed.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_FAST;
-	ledRed.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+	/*Configuración PWM -> Channel 1*/
+	ledRed_PWMChannel_1.pGPIOx                        = GPIOC;
+	ledRed_PWMChannel_1.pinConfig.GPIO_PinNumber      = PIN_9;
+	ledRed_PWMChannel_1.pinConfig.GPIO_PinMode        = GPIO_MODE_ALTFN;
+	ledRed_PWMChannel_1.pinConfig.GPIO_PinOutputType  = GPIO_OTYPE_PUSHPULL;
+	ledRed_PWMChannel_1.pinConfig.GPIO_PinPuPdControl = GPIO_PUPDR_NOTHING;
+	ledRed_PWMChannel_1.pinConfig.GPIO_PinOutputSpeed = GPIO_OSPEED_FAST;
+	ledRed_PWMChannel_1.pinConfig.GPIO_PinAltFunMode  = AF2;
 
-	//Cargamos la configuración en los registros que gobiernan el puerto
-	gpio_Config(&ledRed);
+	//Cargamos la configuración en los registros
+	gpio_Config(&ledRed_PWMChannel_1);
 
 	//Se linicializa el pin en estado de APAGADO
-	gpio_WritePin(&ledRed, RESET);
+	gpio_WritePin(&ledRed_PWMChannel_1, SET);
+
+	/*Configuración PWM -> Channel 3*/
+	ledGreen_PWMChannel_3.pGPIOx                        = GPIOC;
+	ledGreen_PWMChannel_3.pinConfig.GPIO_PinNumber      = PIN_8;
+	ledGreen_PWMChannel_3.pinConfig.GPIO_PinMode        = GPIO_MODE_ALTFN;
+	ledGreen_PWMChannel_3.pinConfig.GPIO_PinOutputType  = GPIO_OTYPE_PUSHPULL;
+	ledGreen_PWMChannel_3.pinConfig.GPIO_PinPuPdControl = GPIO_PUPDR_NOTHING;
+	ledGreen_PWMChannel_3.pinConfig.GPIO_PinOutputSpeed = GPIO_OSPEED_FAST;
+	ledGreen_PWMChannel_3.pinConfig.GPIO_PinAltFunMode  = AF2;
+
+	//Cargamos la configuración en los registros
+	gpio_Config(&ledGreen_PWMChannel_3);
+
+	//Se linicializa el pin en estado de APAGADO
+	gpio_WritePin(&ledGreen_PWMChannel_3, RESET);
+
+	/*Configuración PWM -> Channel 4*/
+	ledBlue_PWMChannel_4.pGPIOx                        = GPIOC;
+	ledBlue_PWMChannel_4.pinConfig.GPIO_PinNumber      = PIN_6;
+	ledBlue_PWMChannel_4.pinConfig.GPIO_PinMode        = GPIO_MODE_ALTFN;
+	ledBlue_PWMChannel_4.pinConfig.GPIO_PinOutputType  = GPIO_OTYPE_PUSHPULL;
+	ledBlue_PWMChannel_4.pinConfig.GPIO_PinPuPdControl = GPIO_PUPDR_NOTHING;
+	ledBlue_PWMChannel_4.pinConfig.GPIO_PinOutputSpeed = GPIO_OSPEED_FAST;
+	ledBlue_PWMChannel_4.pinConfig.GPIO_PinAltFunMode  = AF2;
+
+	//Cargamos la configuración en los registros
+	gpio_Config(&ledBlue_PWMChannel_4);
+
+	//Se linicializa el pin en estado de APAGADO
+	gpio_WritePin(&ledBlue_PWMChannel_4, RESET);
+
+	/*Configuración timer para generar señal pwm*/
+	signalPWM.ptrTIMx                = TIM3;
+	signalPWM.config.channel         = PWM_CHANNEL_2;
+	signalPWM.config.duttyCicle      = duttyValue;
+	signalPWM.config.periodo         = 1000;
+	signalPWM.config.prescaler       = 16000;
+
+	//Cargamos la configuración en los registros
+	pwm_Config(&signalPWM);
+
+	//Se activa el output correspondiente a la salida señal PWM
+	pwm_Enable_Output(&signalPWM);
+
+	//Se activa la emisión de la señal PWM
+	pwm_Start_Signal(&signalPWM);
+	//Configurando led RGB para vcc del ROJO
+//	ledRed.pGPIOx                         = GPIOC;
+//	ledRed.pinConfig.GPIO_PinNumber       = PIN_9;
+//	ledRed.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+//	ledRed.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+//	ledRed.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_FAST;
+//	ledRed.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+//
+//	//Cargamos la configuración en los registros que gobiernan el puerto
+//	gpio_Config(&ledRed);
 
 	//Configurando led RGB para vcc del VERDE
-	ledGreen.pGPIOx                         = GPIOC;
-	ledGreen.pinConfig.GPIO_PinNumber       = PIN_1;
-	ledGreen.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
-	ledGreen.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
-	ledGreen.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_FAST;
-	ledGreen.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
-
-	//Cargamos la configuración en los registros que gobiernan el puerto
-	gpio_Config(&ledGreen);
-
-	//Se linicializa el pin en estado de APAGADO
-	gpio_WritePin(&ledGreen, RESET);
+//	ledGreen.pGPIOx                         = GPIOC;
+//	ledGreen.pinConfig.GPIO_PinNumber       = PIN_8;
+//	ledGreen.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+//	ledGreen.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+//	ledGreen.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_FAST;
+//	ledGreen.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+//
+//	//Cargamos la configuración en los registros que gobiernan el puerto
+//	gpio_Config(&ledGreen);
 
 	//Configurando led RGB para vcc del AZUL
-	ledBlue.pGPIOx                         = GPIOC;
-	ledBlue.pinConfig.GPIO_PinNumber       = PIN_0;
-	ledBlue.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
-	ledBlue.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
-	ledBlue.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_FAST;
-	ledBlue.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+//	ledBlue.pGPIOx                         = GPIOC;
+//	ledBlue.pinConfig.GPIO_PinNumber       = PIN_6;
+//	ledBlue.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+//	ledBlue.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+//	ledBlue.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_FAST;
+//	ledBlue.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+//
+//	//Cargamos la configuración en los registros que gobiernan el puerto
+//	gpio_Config(&ledBlue);
 
-	//Cargamos la configuración en los registros que gobiernan el puerto
-	gpio_Config(&ledBlue);
-
-	//Se linicializa el pin en estado de APAGADO
-	gpio_WritePin(&ledBlue, RESET);
 }
 
 //Función para obtener datos de aceleración en los tres ejes x.y,z
 void get_Accel(void){
 
+	//Se realiza la lectura de los resgistros correspondientes al eje X y sus valores High and Low
 	accelX_low  = i2c_ReadSingleRegister(&accelSensor, ACCEL_XOUT_L);
 	accelX_high = i2c_ReadSingleRegister(&accelSensor, ACCEL_XOUT_H);
+	//Asignamos en una variable el valor relacionado a la aceleración en el eje X
 	accelX = (accelX_high << 8) | accelX_low;
 
 
+	//Se realiza la lectura de los resgistros correspondientes al eje Y y sus valores High and Low
 	accelY_low  = i2c_ReadSingleRegister(&accelSensor, ACCEL_YOUT_L);
 	accelY_high = i2c_ReadSingleRegister(&accelSensor, ACCEL_YOUT_H);
+	//Asignamos en una variable el valor relacionado a la aceleración en el eje Y
 	accelY = (accelY_high << 8) | accelY_low;
 
+	//Se realiza la lectura de los resgistros correspondientes al eje Z y sus valores High and Low
 	accelZ_low  = i2c_ReadSingleRegister(&accelSensor, ACCEL_ZOUT_L);
 	accelZ_high = i2c_ReadSingleRegister(&accelSensor, ACCEL_ZOUT_H);
+	//Asignamos en una variable el valor relacionado a la aceleración en el eje Z
 	accelZ = (accelZ_high << 8) | accelZ_low;
 
 }
@@ -371,7 +468,7 @@ void Timer2_Callback(void){
 }
 
 /*
- * Overwrite function for show accel data
+ * Overwrite function for control Accel MEASURE
  * */
 void Timer5_Callback(void){
 
