@@ -458,16 +458,3 @@ void i2c_WriteManyRegisters(I2C_Handler_t *pHandlerI2C, uint8_t regToWrite, uint
 	i2c_send_close_comm(pHandlerI2C);
 }
 
-///**/
-//void i2c_SetPins(GPIO_Handler_t *setSdaPin, GPIO_Handler_t *setSclPin){
-//	sdaPin = setSdaPin;
-//	sclPin = setSclPin;
-//}
-
-///*
-// * Siguiendo la errata para cambiar el estado de los filtros análogos
-// * página 23.
-// * */
-//...
-
-

@@ -53,7 +53,10 @@ GPIO_Handler_t  pinSDA    = {0};
 I2C_Handler_t   accelSensor   = {0};
 
 //Definición de variable auxiliar para lectura de WHO_AM_I dispositivo accel
-uint8_t i2c_AuxBuffer    = 0;
+uint8_t i2c_AuxBuffer     = 0;
+
+//Definición variable bandera para timer acelerómetro
+uint8_t banderaTimerAccel = 0;
 
 /*Registros y valores relacionados con el Acelerómetro*/
 #define  ACCEL_ADDRESS       0x1D //Dirección del Accel GY-291 (ADXL345)
@@ -69,7 +72,7 @@ uint8_t i2c_AuxBuffer    = 0;
 #define  POWER_CTL           0x2D //Registro asociado al POWER SAVING FEATURES CONTROL
 
 /* Configuraciones iniciales que se configuran en el acelerómetro */
-#define DATA_FORMAT_CONFIG   0b10   //Resolucion configurada en +- 8g
+#define DATA_FORMAT_CONFIG   0b00   //Resolucion configurada en +- 2g
 #define BW_RATE_CONFIG       0x0A   //Data output rate a 100Hz --> Recomendación presentada en datasheet del accel.
 #define POWER_CTL_CONFIG     0b1000 //Activación modo MEASUREMENT
 
@@ -90,7 +93,6 @@ int16_t accelZ      = 0;
 uint8_t   getDataRecv   = '\0';
 
 //Mensaje que se imprimer
-char bufferMsg[64]  = "Accel MPU-6050 Testing...\n";
 char greelingMsg[]  = "Taller V Rocks!!!\n";
 
 //Definición de cabeceras de las funciones
@@ -99,6 +101,7 @@ void config_Accel(void);
 void config_RGB(void);
 void config_I2C(void);
 void config_PWM(void);
+void get_Accel(void);
 
 /*  Main function  */
 int main(void)
@@ -106,14 +109,14 @@ int main(void)
 	//Se ejecuta función para configuración inicial
 	initialSystem();
 
+	//Se ejecuta función para configuación del I2C
+	config_I2C();
+
 	//Se ejecuta función para configuración acelerómetro
 	config_Accel();
 
 	//Se ejecuta función para configuracipon del led RGB
-	config_RGB();
-
-	//Se ejecuta función para configuación del I2C
-	config_I2C();
+	//config_RGB();
 
 	//Se ejecuta función para configuración del PWM
 	//config_PWM();
@@ -122,20 +125,15 @@ int main(void)
     /* Loop forever */
 	while(1){
 
-		accelX_low  = i2c_ReadSingleRegister(&accelSensor, ACCEL_XOUT_L);
-		accelX_high = i2c_ReadSingleRegister(&accelSensor, ACCEL_XOUT_H);
-		accelX = accelX_high << 8 | accelX_low;
+		//Verificamos si la bandera asociada al timer que controla acelerómetro está activa
+		if(banderaTimerAccel){
 
+			//Se ejecuta función para buscar datos del acelerómetro
+			get_Accel();
 
-		accelY_low  = i2c_ReadSingleRegister(&accelSensor, ACCEL_YOUT_L);
-		accelY_high = i2c_ReadSingleRegister(&accelSensor, ACCEL_YOUT_H);
-		accelY = accelY_high << 8 | accelY_low;
-
-
-		accelZ_low  = i2c_ReadSingleRegister(&accelSensor, ACCEL_ZOUT_L);
-		accelZ_high = i2c_ReadSingleRegister(&accelSensor, ACCEL_ZOUT_H);
-		accelZ = accelZ_high << 8 | accelZ_low;
-
+			//Se desactiva la bandera
+			banderaTimerAccel = 0;
+		}
 
 	}
 
@@ -210,8 +208,8 @@ void initialSystem(void){
 
 	/* Configuramos el timer para mostrar datos del acelerómetro*/
 	accelTimer.pTIMx                             = TIM5;
-	accelTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 1 ms
-	accelTimer.TIMx_Config.TIMx_Period           = 500;     //De la mano con el prescaler, genera int ada 500 ms
+	accelTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 1000 ms
+	accelTimer.TIMx_Config.TIMx_Period           = 100;     //De la mano con el prescaler, genera int ada 500 ms
 	accelTimer.TIMx_Config.TIMx_mode             = TIMER_UP_COUNTER;
 	accelTimer.TIMx_Config.TIMx_InterruptEnable  = TIMER_INT_ENABLE;
 
@@ -221,19 +219,6 @@ void initialSystem(void){
 	//Encendemos el Timer
 	timer_SetState(&accelTimer, TIMER_ON);
 
-}
-
-//Función de configuración para acelerómetro
-void config_Accel(void){
-
-	//Se configura el registro respectivo del data format
-	i2c_WriteSingleRegister(&accelSensor, DATA_FORMAT, DATA_FORMAT_CONFIG);
-
-	//Se configura el registro responsable del baudrate
-	i2c_WriteSingleRegister(&accelSensor, BW_RATE, BW_RATE_CONFIG);
-
-	//Se configura el rergistro encargado del control de potencia
-	i2c_WriteSingleRegister(&accelSensor, POWER_CTL, POWER_CTL_CONFIG);
 }
 
 //Función configuración de PWM
@@ -300,6 +285,20 @@ void config_I2C(void){
 	i2c_Config(&accelSensor);
 }
 
+//Función de configuración para acelerómetro
+void config_Accel(void){
+
+	//Se configura el registro respectivo del data format
+	i2c_WriteSingleRegister(&accelSensor, DATA_FORMAT, DATA_FORMAT_CONFIG);
+
+	//Se configura el registro responsable del baudrate
+	i2c_WriteSingleRegister(&accelSensor, BW_RATE, BW_RATE_CONFIG);
+
+	//Se configura el rergistro encargado del control de potencia
+	i2c_WriteSingleRegister(&accelSensor, POWER_CTL, POWER_CTL_CONFIG);
+
+}
+
 //Función configuración del led RGB
 void config_RGB(void){
 
@@ -346,6 +345,24 @@ void config_RGB(void){
 	gpio_WritePin(&ledBlue, RESET);
 }
 
+//Función para obtener datos de aceleración en los tres ejes x.y,z
+void get_Accel(void){
+
+	accelX_low  = i2c_ReadSingleRegister(&accelSensor, ACCEL_XOUT_L);
+	accelX_high = i2c_ReadSingleRegister(&accelSensor, ACCEL_XOUT_H);
+	accelX = (accelX_high << 8) | accelX_low;
+
+
+	accelY_low  = i2c_ReadSingleRegister(&accelSensor, ACCEL_YOUT_L);
+	accelY_high = i2c_ReadSingleRegister(&accelSensor, ACCEL_YOUT_H);
+	accelY = (accelY_high << 8) | accelY_low;
+
+	accelZ_low  = i2c_ReadSingleRegister(&accelSensor, ACCEL_ZOUT_L);
+	accelZ_high = i2c_ReadSingleRegister(&accelSensor, ACCEL_ZOUT_H);
+	accelZ = (accelZ_high << 8) | accelZ_low;
+
+}
+
 /*
  * Overwrite function for H1
  * */
@@ -358,6 +375,8 @@ void Timer2_Callback(void){
  * */
 void Timer5_Callback(void){
 
+	//Se activa bandera encargada de generar tiempos de espera entre análisis de datos del accel
+	banderaTimerAccel = 1;
 }
 
 /*
