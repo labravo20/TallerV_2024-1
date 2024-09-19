@@ -280,15 +280,6 @@ static void i2c_send_slave_address_rw(I2C_Handler_t  *pHandlerI2C, uint8_t rw){
 	 * o en modo recepción, lo cual está definido por el tipo de selección de R/W que se envió
 	 * pag. 480 del manual.
 	 * */
-
-	/* Esperamos hasta que el byte sea montado en el DSR, quedando el DR libre de nuevo.
-	 * Este paso no es claramente especificado en el manual, pero es la forma de verificar
-	 * qué se puede continuar, ya que el DR quedará libre.
-	 * */
-//	while(!(pHandlerI2C->pI2Cx->SR1 & I2C_SR1_TXE)){
-//		__NOP();
-//	}
-	__NOP(); //Para verificar en modo debug
 }
 
 /**/

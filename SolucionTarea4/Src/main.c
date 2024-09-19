@@ -16,64 +16,86 @@
 #include "pwm_driver_hal.h"
 
 //Definición de los pines necesarios para led de estado
-GPIO_Handler_t   blinkyPin       = {0};
-
-//Definición de los pines necesarios para led RGB
-GPIO_Handler_t ledRed       = {0};
-GPIO_Handler_t ledGreen     = {0};
-GPIO_Handler_t ledBlue      = {0};
-
-//Definición pines para configuración del PWM
-GPIO_Handler_t   pinPWMChannel    = {0};
-
-//Definición de canal a usar para hacer uso de PWM
-PWM_Handler_t    signalPWM        = {0};
-
-//Definición de variable para asignar el valor del duttyCycle
-uint16_t   duttyValue     = 500;
+GPIO_Handler_t   blinkyPin   = {0};
 
 //Timers a utilizar para funcionamiento del led de estado
 Timer_Handler_t  blinkyTimer       = {0};
 
+//Definición de los pines necesarios para led RGB
+GPIO_Handler_t ledRed     = {0};
+GPIO_Handler_t ledGreen   = {0};
+GPIO_Handler_t ledBlue    = {0};
+
+//Definición pines para configuración del PWM
+GPIO_Handler_t   pinPWMChannel  = {0};
+
+//Definición de canal a usar para hacer uso de PWM
+PWM_Handler_t    signalPWM    = {0};
+
+//Definición de variable para asignar el valor del duttyCycle
+uint16_t   duttyValue   = 0;
+
 //Definición de canal USART a usar
 USART_Handler_t  usart2commSerial = {0};
 
-//Timers a utilizar para funcionamiento de muestra de datos del acelerometro
-Timer_Handler_t  accelTimer       = {0};
-
 //Definición de pines a usar  para realizar la comunicación serial
-GPIO_Handler_t   pinTx            = {0};
-GPIO_Handler_t   pinRx            = {0};
+GPIO_Handler_t   pinTx   = {0};
+GPIO_Handler_t   pinRx   = {0};
+
+//Timers a utilizar para funcionamiento de muestra de datos del acelerometro
+Timer_Handler_t  accelTimer   = {0};
 
 //Pines a usar para funcionamiento del I2C
-GPIO_Handler_t  pinSCL      = {0};
-GPIO_Handler_t  pinSDA      = {0};
+GPIO_Handler_t  pinSCL    = {0};
+GPIO_Handler_t  pinSDA    = {0};
 
-//Definició
-I2C_Handler_t   accelSensor = {0};
+//Definición de handlers de I2C a utilizar
+I2C_Handler_t   accelSensor   = {0};
+
+//Definición de variable auxiliar para lectura de WHO_AM_I dispositivo accel
 uint8_t i2c_AuxBuffer    = 0;
 
-/*Registros y valores relacionados con el MPU*/
-#define  ACCEL_ADDRESS       0b11101  //0x1D --> dirección del Accel GY-291 (ADXL345)
-#define  ACCEL_XOUT_H        59 //0x3B
-#define  ACCEL_XOUT_L        60 //0x3C
-#define  ACCEL_YOUT_H        61 //0x3D
-#define  ACCEL_YOUT_L        62 //0X3E
-#define  ACCEL_ZOUT_H        63 //0x3F
-#define  ACCEL_ZOUT_L        64 //0x40
-#define  PWR_MGMT_1          107
-#define  WHO_AM_I            117
+/*Registros y valores relacionados con el Acelerómetro*/
+#define  ACCEL_ADDRESS       0x1D //Dirección del Accel GY-291 (ADXL345)
+#define  ACCEL_XOUT_H        51
+#define  ACCEL_XOUT_L        50
+#define  ACCEL_YOUT_H        53
+#define  ACCEL_YOUT_L        52
+#define  ACCEL_ZOUT_H        55
+#define  ACCEL_ZOUT_L        54
+#define  WHO_AM_I            0x00 //Dirección asociada a DEVICE ID.
+#define  DATA_FORMAT         0x31 //Registro asociado a la RANGE SETTING
+#define  BW_RATE             0x2C //Registro asociado al BAUD RATE
+#define  POWER_CTL           0x2D //Registro asociado al POWER SAVING FEATURES CONTROL
 
-uint8_t          sendMsg          = {0};
-uint8_t          usart2DataRecv   = '\0';
+/* Configuraciones iniciales que se configuran en el acelerómetro */
+#define DATA_FORMAT_CONFIG   0b10   //Resolucion configurada en +- 8g
+#define BW_RATE_CONFIG       0x0A   //Data output rate a 100Hz --> Recomendación presentada en datasheet del accel.
+#define POWER_CTL_CONFIG     0b1000 //Activación modo MEASUREMENT
+
+//Definición de variables para cargar los datos de la aceleración en cada eje
+uint8_t accelX_low  = 0;
+uint8_t accelX_high = 0;
+int16_t accelX      = 0;
+
+uint8_t accelY_low  = 0;
+uint8_t accelY_high = 0;
+int16_t accelY      = 0;
+
+uint8_t accelZ_low  = 0;
+uint8_t accelZ_high = 0;
+int16_t accelZ      = 0;
+
+//Definición de variable para cargar datos de recepción USART
+uint8_t   getDataRecv   = '\0';
 
 //Mensaje que se imprimer
 char bufferMsg[64]  = "Accel MPU-6050 Testing...\n";
 char greelingMsg[]  = "Taller V Rocks!!!\n";
 
-
 //Definición de cabeceras de las funciones
 void initialSystem(void);
+void config_Accel(void);
 void config_RGB(void);
 void config_I2C(void);
 void config_PWM(void);
@@ -81,118 +103,41 @@ void config_PWM(void);
 /*  Main function  */
 int main(void)
 {
+	//Se ejecuta función para configuración inicial
 	initialSystem();
 
+	//Se ejecuta función para configuración acelerómetro
+	config_Accel();
+
+	//Se ejecuta función para configuracipon del led RGB
 	config_RGB();
 
+	//Se ejecuta función para configuación del I2C
 	config_I2C();
 
-	config_PWM();
+	//Se ejecuta función para configuración del PWM
+	//config_PWM();
 
-	usart_writeMsg(&usart2commSerial, greelingMsg);
 
     /* Loop forever */
 	while(1){
 
-		//El sistema siempre está verificando si el valor de rxData ha cambiado
-		//(lo cual sucede en la ISR de la recepción RX).
-		//Si este valor deja de ser '\0'significa que se recibió un caracter,
-		//por lo tanto entra en el bloque if para analizar que se recibió
-		if(usart2DataRecv != '\0'){
+		accelX_low  = i2c_ReadSingleRegister(&accelSensor, ACCEL_XOUT_L);
+		accelX_high = i2c_ReadSingleRegister(&accelSensor, ACCEL_XOUT_H);
+		accelX = accelX_high << 8 | accelX_low;
 
-			if(usart2DataRecv == 'm'){
-				usart_writeMsg(&usart2commSerial, bufferMsg);
-				usart2DataRecv = '\0';
-			}
 
-			if(usart2DataRecv == 'w'){
-				sprintf(bufferMsg, "WHO_AM_I? (r)\n");
-				usart_writeMsg(&usart2commSerial, bufferMsg);
+		accelY_low  = i2c_ReadSingleRegister(&accelSensor, ACCEL_YOUT_L);
+		accelY_high = i2c_ReadSingleRegister(&accelSensor, ACCEL_YOUT_H);
+		accelY = accelY_high << 8 | accelY_low;
 
-				i2c_AuxBuffer = i2c_ReadSingleRegister(&accelSensor, WHO_AM_I);
-				sprintf(bufferMsg,"dataRead = 0x%x \n", (unsigned int) i2c_AuxBuffer);
-				usart_writeMsg(&usart2commSerial, bufferMsg);
-				usart2DataRecv = '\0';
- 			}
 
-			else if(usart2DataRecv == 'p'){
-				sprintf(bufferMsg, "PWR_MGMT_1 state (r)\n");
-				usart_writeMsg(&usart2commSerial, bufferMsg);
-
-				i2c_AuxBuffer = i2c_ReadSingleRegister(&accelSensor, PWR_MGMT_1);
-				sprintf(bufferMsg,"dataRead = 0x%x \n", (unsigned int) i2c_AuxBuffer);
-				usart_writeMsg(&usart2commSerial, bufferMsg);
-				usart2DataRecv = '\0';
-			}
-
-			else if(usart2DataRecv == 'r'){
-				sprintf(bufferMsg, "PWR_MGMT_1 reset (r)\n");
-				usart_writeMsg(&usart2commSerial, bufferMsg);
-
-				i2c_WriteSingleRegister(&accelSensor, PWR_MGMT_1, 0x00);
-				usart2DataRecv = '\0';
-			}
-
-			else if(usart2DataRecv == 'x'){
-				sprintf(bufferMsg, "Axis X data (r)\n");
-				usart_writeMsg(&usart2commSerial, bufferMsg);
-
-				uint8_t AccelX_low  = i2c_ReadSingleRegister(&accelSensor, ACCEL_XOUT_L);
-				uint8_t AccelX_high = i2c_ReadSingleRegister(&accelSensor, ACCEL_XOUT_H);
-				int16_t AccelX = AccelX_high << 8 | AccelX_low;
-
-				sprintf(bufferMsg, "AccelX = %d \n", (int) AccelX);
-				usart_writeMsg(&usart2commSerial, bufferMsg);
-				usart2DataRecv = '\0';
-			}
-
-			else if(usart2DataRecv == 'y'){
-				sprintf(bufferMsg, "Axis Y data (r)\n");
-				usart_writeMsg(&usart2commSerial, bufferMsg);
-
-				uint8_t AccelY_low  = i2c_ReadSingleRegister(&accelSensor, ACCEL_YOUT_L);
-				uint8_t AccelY_high = i2c_ReadSingleRegister(&accelSensor, ACCEL_YOUT_H);
-				int16_t AccelY = AccelY_high << 8 | AccelY_low;
-
-				sprintf(bufferMsg, "AccelY = %d \n", (int) AccelY);
-				usart_writeMsg(&usart2commSerial, bufferMsg);
-				usart2DataRecv = '\0';
-			}
-
-			else if(usart2DataRecv == 'z'){
-				sprintf(bufferMsg, "Axis Z data (r)\n");
-				usart_writeMsg(&usart2commSerial, bufferMsg);
-
-				uint8_t AccelZ_low  = i2c_ReadSingleRegister(&accelSensor, ACCEL_ZOUT_L);
-				uint8_t AccelZ_high = i2c_ReadSingleRegister(&accelSensor, ACCEL_ZOUT_H);
-				int16_t AccelZ = AccelZ_high << 8 | AccelZ_low;
-
-				sprintf(bufferMsg, "AccelZ = %d \n", (int) AccelZ);
-				usart_writeMsg(&usart2commSerial, bufferMsg);
-				usart2DataRecv = '\0';
-			}
-
-			else if(usart2DataRecv == 'q'){
-				sprintf(bufferMsg, "All 3 Axis(r)\n");
-				usart_writeMsg(&usart2commSerial, bufferMsg);
-
-				uint8_t AccelData[6]  = {0};
-				i2c_ReadManyRegisters(&accelSensor, ACCEL_XOUT_H, AccelData, 6);
-				int16_t AccelX = AccelData[0] << 8 | AccelData[1];
-				int16_t AccelY = AccelData[2] << 8 | AccelData[3];
-				int16_t AccelZ = AccelData[4] << 8 | AccelData[5];
-				sprintf(bufferMsg, "Accel x, y, z -> %d; %d; %d \n", (int) AccelX,(int) AccelY,(int) AccelZ );
-				usart_writeMsg(&usart2commSerial, bufferMsg);
-				usart2DataRecv = '\0';
-			}
-
-			usart2DataRecv = '\0';
-		}
+		accelZ_low  = i2c_ReadSingleRegister(&accelSensor, ACCEL_ZOUT_L);
+		accelZ_high = i2c_ReadSingleRegister(&accelSensor, ACCEL_ZOUT_H);
+		accelZ = accelZ_high << 8 | accelZ_low;
 
 
 	}
-
-	return 0;
 
 }
 
@@ -278,36 +223,49 @@ void initialSystem(void){
 
 }
 
+//Función de configuración para acelerómetro
+void config_Accel(void){
+
+	//Se configura el registro respectivo del data format
+	i2c_WriteSingleRegister(&accelSensor, DATA_FORMAT, DATA_FORMAT_CONFIG);
+
+	//Se configura el registro responsable del baudrate
+	i2c_WriteSingleRegister(&accelSensor, BW_RATE, BW_RATE_CONFIG);
+
+	//Se configura el rergistro encargado del control de potencia
+	i2c_WriteSingleRegister(&accelSensor, POWER_CTL, POWER_CTL_CONFIG);
+}
+
 //Función configuración de PWM
 void config_PWM(void){
 
-	/*Configuración PWM*/
-	pinPWMChannel.pGPIOx                        = GPIOC;
-	pinPWMChannel.pinConfig.GPIO_PinNumber      = PIN_7;
-	pinPWMChannel.pinConfig.GPIO_PinMode        = GPIO_MODE_ALTFN;
-	pinPWMChannel.pinConfig.GPIO_PinOutputType  = GPIO_OTYPE_PUSHPULL;
-	pinPWMChannel.pinConfig.GPIO_PinPuPdControl = GPIO_PUPDR_NOTHING;
-	pinPWMChannel.pinConfig.GPIO_PinOutputSpeed = GPIO_OSPEED_FAST;
-	pinPWMChannel.pinConfig.GPIO_PinAltFunMode  = AF2;
-
-	//Cargamos la configuración en los registros
-	gpio_Config(&pinPWMChannel);
-
-	/*Configuración timer para generar señal pwm*/
-	signalPWM.ptrTIMx                = TIM3;
-	signalPWM.config.channel         = PWM_CHANNEL_2;
-	signalPWM.config.duttyCicle      = duttyValue;
-	signalPWM.config.periodo         = 1000;
-	signalPWM.config.prescaler       = 16000;
-
-	//Cargamos la configuración en los registros
-	pwm_Config(&signalPWM);
-
-	//Se activa el output correspondiente a la salida señal PWM
-	pwm_Enable_Output(&signalPWM);
-
-	//Se activa la emisión de la señal PWM
-	pwm_Start_Signal(&signalPWM);
+//	/*Configuración PWM*/
+//	pinPWMChannel.pGPIOx                        = GPIOC;
+//	pinPWMChannel.pinConfig.GPIO_PinNumber      = PIN_7;
+//	pinPWMChannel.pinConfig.GPIO_PinMode        = GPIO_MODE_ALTFN;
+//	pinPWMChannel.pinConfig.GPIO_PinOutputType  = GPIO_OTYPE_PUSHPULL;
+//	pinPWMChannel.pinConfig.GPIO_PinPuPdControl = GPIO_PUPDR_NOTHING;
+//	pinPWMChannel.pinConfig.GPIO_PinOutputSpeed = GPIO_OSPEED_FAST;
+//	pinPWMChannel.pinConfig.GPIO_PinAltFunMode  = AF2;
+//
+//	//Cargamos la configuración en los registros
+//	gpio_Config(&pinPWMChannel);
+//
+//	/*Configuración timer para generar señal pwm*/
+//	signalPWM.ptrTIMx                = TIM3;
+//	signalPWM.config.channel         = PWM_CHANNEL_2;
+//	signalPWM.config.duttyCicle      = duttyValue;
+//	signalPWM.config.periodo         = 1000;
+//	signalPWM.config.prescaler       = 16000;
+//
+//	//Cargamos la configuración en los registros
+//	pwm_Config(&signalPWM);
+//
+//	//Se activa el output correspondiente a la salida señal PWM
+//	pwm_Enable_Output(&signalPWM);
+//
+//	//Se activa la emisión de la señal PWM
+//	pwm_Start_Signal(&signalPWM);
 
 }
 
@@ -393,7 +351,6 @@ void config_RGB(void){
  * */
 void Timer2_Callback(void){
 	gpio_TooglePin(&blinkyPin);
-	sendMsg++;;
 }
 
 /*
@@ -411,7 +368,7 @@ void usart2_RxCallback(void){
 	//Importante!!!
 	// Asignamos es valor de la función que llama usrt_getRxData, puesto que esta toma el
 	//valor que está cargado en el DR
-	usart2DataRecv = usart_getRxData();
+	getDataRecv = usart_getRxData();
 }
 
 /*
