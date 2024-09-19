@@ -90,6 +90,9 @@ uint8_t accelZ_low  = 0;
 uint8_t accelZ_high = 0;
 int16_t accelZ      = 0;
 
+//Se establece un offset para garantizar valores positivos en el Dutty
+#define  OFFSET_ACCEL    20000
+
 //Definición de variable para cargar datos de recepción USART
 uint8_t   getDataRecv   = '\0';
 
@@ -140,8 +143,8 @@ int main(void)
 			//Se ejecuta función para buscar datos del acelerómetro
 			get_Accel();
 
-			//Se actualiza el valor del dutty
-			updateDutty_RGB();
+			//Se actualiza el valor del dutty del PWM relacionado con led RGB
+		    updateDutty_RGB();
 
 			//Se desactiva la bandera
 			banderaTimerAccel = 0;
@@ -295,8 +298,8 @@ void configPWM_RGB(void){
 	redPWM_Channel4.ptrTIMx                = TIM3;
 	redPWM_Channel4.config.channel         = PWM_CHANNEL_4;
 	redPWM_Channel4.config.duttyCicle      = duttyValueRed;
-	redPWM_Channel4.config.periodo         = 1000;
-	redPWM_Channel4.config.prescaler       = 16000;
+	redPWM_Channel4.config.periodo         = 20000; //Cant. en ms del periodo
+	redPWM_Channel4.config.prescaler       = 16;
 
 	//Cargamos la configuración en los registros
 	pwm_Config(&redPWM_Channel4);
@@ -323,8 +326,8 @@ void configPWM_RGB(void){
 	greenPWM_Channel3.ptrTIMx                = TIM3;
 	greenPWM_Channel3.config.channel         = PWM_CHANNEL_3;
 	greenPWM_Channel3.config.duttyCicle      = duttyValueGreen;
-	greenPWM_Channel3.config.periodo         = 1000;
-	greenPWM_Channel3.config.prescaler       = 16000;
+	greenPWM_Channel3.config.periodo         = 20000; //Cant. en ms del periodo
+	greenPWM_Channel3.config.prescaler       = 16;
 
 	//Cargamos la configuración en los registros
 	pwm_Config(&greenPWM_Channel3);
@@ -351,8 +354,8 @@ void configPWM_RGB(void){
 	bluePWM_Channel1.ptrTIMx                = TIM3;
 	bluePWM_Channel1.config.channel         = PWM_CHANNEL_1;
 	bluePWM_Channel1.config.duttyCicle      = duttyValueBlue;
-	bluePWM_Channel1.config.periodo         = 1000;
-	bluePWM_Channel1.config.prescaler       = 16000;
+	bluePWM_Channel1.config.periodo         = 20000; //Cant. en ms del periodo
+	bluePWM_Channel1.config.prescaler       = 16;
 
 	//Cargamos la configuración en los registros
 	pwm_Config(&bluePWM_Channel1);
@@ -404,18 +407,24 @@ void get_Accel(void){
 //Función para actualizar el dutty del pwm (RGB) en función de datos acelerómetro
 void updateDutty_RGB(void){
 
+	/*Al momento de realizar la actulización del Dutty se debe tener en cuenta que el PWM NO puede ser mayor a 15000
+	 * por este motivo se deben actualizar los valores tanto para respetar este límite, como también para garantizar
+	 * que no se carguen valores negativos al dutty del PWM:
+	 *
+	 * Se sumará en cada eje el aprox MAX_VALUE para garantizar dutty positivo, posteriormente se divide entre 6
+	 * para no superar el máximo establecido en el periodo de la configuración PWM */
 	//Asignamos: valor del acelerómetro en X -->  dutty value RED
-	duttyValueRed     = accelX;
+	duttyValueRed     = (accelX + OFFSET_ACCEL)/3;
 	//Actualizamos el valor del dutty dentro de la configuración del PWM
 	pwm_Update_DuttyCycle(&redPWM_Channel4, duttyValueRed);
 
 	//Asignamos: valor del acelerómetro en Y -->  dutty value GREEN
-	duttyValueGreen   = accelY;
+	duttyValueGreen   = (accelY + OFFSET_ACCEL)/3;
 	//Actualizamos el valor del dutty dentro de la configuración del PWM
 	pwm_Update_DuttyCycle(&greenPWM_Channel3, duttyValueGreen);
 
 	//Asignamos: valor del acelerómetro en Z -->  dutty value BLUE
-	duttyValueBlue    = accelZ;
+	duttyValueBlue    = (accelZ + OFFSET_ACCEL)/3;
 	//Actualizamos el valor del dutty dentro de la configuración del PWM
 	pwm_Update_DuttyCycle(&bluePWM_Channel1, duttyValueBlue);
 
