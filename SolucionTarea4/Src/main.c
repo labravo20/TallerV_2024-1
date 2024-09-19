@@ -72,7 +72,7 @@ uint8_t banderaTimerAccel = 0;
 #define  POWER_CTL           0x2D //Registro asociado al POWER SAVING FEATURES CONTROL
 
 /* Configuraciones iniciales que se configuran en el acelerómetro */
-#define DATA_FORMAT_CONFIG   0b00   //Resolucion configurada en +- 2g
+#define DATA_FORMAT_CONFIG   0b100   //Resolucion configurada en +- 2g y se activa justify
 #define BW_RATE_CONFIG       0x0A   //Data output rate a 100Hz --> Recomendación presentada en datasheet del accel.
 #define POWER_CTL_CONFIG     0b1000 //Activación modo MEASUREMENT
 
