@@ -15,23 +15,23 @@
 #include "i2c_driver_hal.h"
 #include "pwm_driver_hal.h"
 
-//Definición de los pines necesarios para led de estado
+//Definición de pin necesario para led de estado
 GPIO_Handler_t   blinkyPin   = {0};
 
-//Timers a utilizar para funcionamiento del led de estado
-Timer_Handler_t  blinkyTimer       = {0};
+//Timer a utilizar para funcionamiento del led de estado
+Timer_Handler_t  blinkyTimer  = {0};
 
 //Definición pines para configuración del PWM en led RGB
 GPIO_Handler_t   ledRed_PWMChannel_4    = {0};
 GPIO_Handler_t   ledGreen_PWMChannel_3  = {0};
 GPIO_Handler_t   ledBlue_PWMChannel_1   = {0};
 
-//Definición de canal a usar para hacer uso de PWM
+//Definición de canales a utilizar para hacer uso de PWM
 PWM_Handler_t    redPWM_Channel4       = {0};
 PWM_Handler_t    greenPWM_Channel3    = {0};
 PWM_Handler_t    bluePWM_Channel1      = {0};
 
-//Definición de variable para asignar el valor del duttyCycle
+//Definición de variables para asignar el valor del duttyCycle de cada canal PWM
 uint16_t   duttyValueRed     = 0;
 uint16_t   duttyValueGreen   = 0;
 uint16_t   duttyValueBlue    = 0;
@@ -43,20 +43,20 @@ USART_Handler_t  usart2commSerial = {0};
 GPIO_Handler_t   pinTx   = {0};
 GPIO_Handler_t   pinRx   = {0};
 
-//Timers a utilizar para funcionamiento de muestreo de datos del acelerometro
+//Timer a utilizar para funcionamiento de muestreo de datos del acelerometro
 Timer_Handler_t  accelTimer   = {0};
 
 //Pines a usar para funcionamiento del I2C
 GPIO_Handler_t  pinSCL    = {0};
 GPIO_Handler_t  pinSDA    = {0};
 
-//Definición de handlers de I2C a utilizar
+//Definición de handler de I2C a utilizar
 I2C_Handler_t   accelSensor   = {0};
 
 //Definición variable bandera para timer control muestreo acelerómetro
 uint8_t banderaTimerAccel = 0;
 
-//Definición variable bandera para timer blinky --> Mostrar en USART datos acelerómetro y PWM
+//Definición variables banderas para timer blinky --> Mostrar en USART datos acelerómetro y PWM
 uint8_t bandera_Accel_PWM_Tx = 0;
 uint8_t bandera_Accel_PWM_Rx = 0;
 
@@ -74,7 +74,7 @@ uint8_t bandera_Accel_PWM_Rx = 0;
 #define  POWER_CTL           0x2D //Registro asociado al POWER SAVING FEATURES CONTROL
 
 /* Configuraciones iniciales para el acelerómetro */
-#define DATA_FORMAT_CONFIG   0b100   //Resolucion configurada en +- 2g y se activa justify
+#define DATA_FORMAT_CONFIG   0b100   //Resolucion configurada en +- 2g, y también se activa justify
 #define BW_RATE_CONFIG       0x0A   //Data output rate a 100Hz --> Recomendación presentada en datasheet del accel.
 #define POWER_CTL_CONFIG     0b1000 //Activación modo MEASUREMENT
 
@@ -91,10 +91,10 @@ uint8_t accelZ_low  = 0;
 uint8_t accelZ_high = 0;
 int16_t accelZ      = 0;
 
-//Se establece un offset para garantizar valores positivos en el Dutty
-#define  OFFSET_ACCEL_X    17000 //Rango máximo aprox alcanzado en dirección negativa X
-#define  OFFSET_ACCEL_Y    19000 //Rango máximo aprox alcanzado en dirección negativa Y
-#define  OFFSET_ACCEL_Z    15000 //Rango máximo aprox alcanzado en dirección negativa Z
+//Se establece un offset para garantizar valores positivos en el Dutty --> Dutty depende del valor aceleración
+#define  OFFSET_ACCEL_X    17000 //Rango máximo aprox alcanzado por accel en dirección negativa X
+#define  OFFSET_ACCEL_Y    19000 //Rango máximo aprox alcanzado por accel en dirección negativa Y
+#define  OFFSET_ACCEL_Z    15000 //Rango máximo aprox alcanzado por accel en dirección negativa Z
 
 
 //Definición de variable para cargar datos de recepción USART
@@ -103,6 +103,7 @@ uint8_t   getDataRecv   = '\0';
 //Definición de variable auxiliar para lectura de l
 uint8_t i2c_AuxBuffer     = 0;
 
+//Definición de buffer para cargar información en aplicación de USART
 char bufferMsg[128] =  {0} ;
 
 /*Definición de cabeceras de las funciones*/
@@ -191,12 +192,12 @@ void initialSystem(void){
 
 	/* Configuramos el timer del blinky*/
 	blinkyTimer.pTIMx                             = TIM2;
-	blinkyTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 1 ms
+	blinkyTimer.TIMx_Config.TIMx_Prescaler        = 16000;
 	blinkyTimer.TIMx_Config.TIMx_Period           = 1000;     //De la mano con el prescaler, genera int cada 1000 ms
 	blinkyTimer.TIMx_Config.TIMx_mode             = TIMER_UP_COUNTER;
 	blinkyTimer.TIMx_Config.TIMx_InterruptEnable  = TIMER_INT_ENABLE;
 
-	/* Configuramos el Timer */
+	//Cargamos configuración en los registros del Timer
 	timer_Config(&blinkyTimer);
 
 	//Encendemos el Timer
@@ -216,7 +217,7 @@ void config_I2C(void){
 	pinSCL.pinConfig.GPIO_PinOutputSpeed   = GPIO_OSPEED_FAST;
 	pinSCL.pinConfig.GPIO_PinAltFunMode    = AF4;
 
-	/*Cargamos la configuración del pin*/
+	//Cargamos la configuración del pin SCL
 	gpio_Config(&pinSCL);
 
 	/*Configuración del pin asociado a SDA --> Data*/
@@ -228,7 +229,7 @@ void config_I2C(void){
 	pinSDA.pinConfig.GPIO_PinOutputSpeed   = GPIO_OSPEED_FAST;
 	pinSDA.pinConfig.GPIO_PinAltFunMode    = AF4;
 
-	/*Cargamos la configuración del pin*/
+	//Cargamos la configuración del pin SDA
 	gpio_Config(&pinSDA);
 
 	/*Configuración del canal I2C a utilizar*/
@@ -237,7 +238,7 @@ void config_I2C(void){
 	accelSensor.i2c_mode       = eI2C_MODE_SM;
 	accelSensor.slaveAddress   = ACCEL_ADDRESS;
 
-	/*Cargamos la configuración del canal I2C*/
+	//Cargamos la configuración del canal I2C
 	i2c_Config(&accelSensor);
 
 	/* Configuramos el timer de control de muestreo del acelerómetro*/
@@ -251,7 +252,7 @@ void config_I2C(void){
 	accelTimer.TIMx_Config.TIMx_mode             = TIMER_UP_COUNTER;
 	accelTimer.TIMx_Config.TIMx_InterruptEnable  = TIMER_INT_ENABLE;
 
-	/* Configuramos el Timer */
+	//Configuramos el Timer de muestreo Accel
 	timer_Config(&accelTimer);
 
 	//Encendemos el Timer
@@ -364,7 +365,7 @@ void configPWM_RGB(void){
 //Función para configuración USART
 void config_USART(void){
 
-	/*Configuración Comm serial*/
+	/*Configuración pines Comm serial*/
 	pinTx.pGPIOx                           = GPIOA;
 	pinTx.pinConfig.GPIO_PinNumber         = PIN_2;
 	pinTx.pinConfig.GPIO_PinMode           = GPIO_MODE_ALTFN;
@@ -372,7 +373,7 @@ void config_USART(void){
 	pinTx.pinConfig.GPIO_PinPuPdControl    = GPIO_PUPDR_NOTHING;
 	pinTx.pinConfig.GPIO_PinOutputSpeed    = GPIO_OSPEED_FAST;
 
-	//Cargamos la configuración en los registros
+	//Cargamos la configuración pin A2 (Tx) en los registros
 	gpio_Config(&pinTx);
 
 	pinRx.pGPIOx                           = GPIOA;
@@ -382,9 +383,10 @@ void config_USART(void){
 	pinRx.pinConfig.GPIO_PinPuPdControl    = GPIO_PUPDR_NOTHING;
 	pinRx.pinConfig.GPIO_PinOutputSpeed    = GPIO_OSPEED_FAST;
 
-	//Cargamos la configuración en los registros
+	//Cargamos la configuración pin A3 (Rx) en los registros
 	gpio_Config(&pinRx);
 
+	/*Configuración pines Comm serial --> USART2*/
 	usart2commSerial.ptrUSARTx                = USART2;
 	usart2commSerial.USART_Config.baudrate    = USART_BAUDRATE_19200;
 	usart2commSerial.USART_Config.datasize    = USART_DATASIZE_8BIT;
@@ -428,12 +430,12 @@ void get_Accel(void){
 //Función para actualizar el dutty del pwm (RGB) en función de datos acelerómetro
 void updateDutty_RGB(void){
 
-	/*Al momento de realizar la actulización del Dutty se debe tener en cuenta que el PWM NO puede ser mayor a 750
-	 * por este motivo se deben actualizar los valores tanto para respetar este límite, como también para garantizar
+	/*Al momento de realizar la actulización del Dutty se debe tener en cuenta que el PWM NO puede ser mayor a 750 (aprox se establece 75% de
+	 * max dutty cycle) por este motivo se deben actualizar los valores tanto para respetar este límite, como también para garantizar
 	 * que no se carguen valores negativos al dutty del PWM:
 	 *
-	 * Se sumará en cada eje el aprox MAX_VALUE para garantizar dutty positivo, posteriormente se divide entre 55
-	 * para no superar el máximo establecido en el periodo de la configuración PWM */
+	 * Se sumará en cada eje el aprox MAX_VALUE (en eje negativo) del Accel en cada eje para garantizar dutty positivo, posteriormente se divide entre 55
+	 * para no superar el máximo aprox establecido en el periodo de la configuración PWM */
 	//Asignamos: valor del acelerómetro en X -->  dutty value RED
 	duttyValueRed     = (accelX + OFFSET_ACCEL_X)/55;
 	//Actualizamos el valor del dutty dentro de la configuración del PWM
@@ -514,6 +516,7 @@ void show_USART(void){
  * Overwrite function for H1
  * */
 void Timer2_Callback(void){
+
 	gpio_TooglePin(&blinkyPin);
 
 	//Se activa la bandera asociada a USART Tx
