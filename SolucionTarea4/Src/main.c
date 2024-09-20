@@ -92,7 +92,10 @@ uint8_t accelZ_high = 0;
 int16_t accelZ      = 0;
 
 //Se establece un offset para garantizar valores positivos en el Dutty
-#define  OFFSET_ACCEL    20000
+#define  OFFSET_ACCEL_X    17000 //Rango máximo aprox alcanzado en dirección negativa X
+#define  OFFSET_ACCEL_Y    19000 //Rango máximo aprox alcanzado en dirección negativa Y
+#define  OFFSET_ACCEL_Z    15000 //Rango máximo aprox alcanzado en dirección negativa Z
+
 
 //Definición de variable para cargar datos de recepción USART
 uint8_t   getDataRecv   = '\0';
@@ -432,17 +435,17 @@ void updateDutty_RGB(void){
 	 * Se sumará en cada eje el aprox MAX_VALUE para garantizar dutty positivo, posteriormente se divide entre 55
 	 * para no superar el máximo establecido en el periodo de la configuración PWM */
 	//Asignamos: valor del acelerómetro en X -->  dutty value RED
-	duttyValueRed     = (accelX + OFFSET_ACCEL)/55;
+	duttyValueRed     = (accelX + OFFSET_ACCEL_X)/55;
 	//Actualizamos el valor del dutty dentro de la configuración del PWM
 	pwm_Update_DuttyCycle(&redPWM_Channel4, duttyValueRed);
 
 	//Asignamos: valor del acelerómetro en Y -->  dutty value GREEN
-	duttyValueGreen   = (accelY + OFFSET_ACCEL)/55;
+	duttyValueGreen   = (accelY + OFFSET_ACCEL_Y)/55;
 	//Actualizamos el valor del dutty dentro de la configuración del PWM
 	pwm_Update_DuttyCycle(&greenPWM_Channel3, duttyValueGreen);
 
 	//Asignamos: valor del acelerómetro en Z -->  dutty value BLUE
-	duttyValueBlue    = (accelZ + OFFSET_ACCEL)/55;
+	duttyValueBlue    = (accelZ + OFFSET_ACCEL_Z)/55;
 	//Actualizamos el valor del dutty dentro de la configuración del PWM
 	pwm_Update_DuttyCycle(&bluePWM_Channel1, duttyValueBlue);
 
@@ -462,7 +465,7 @@ void show_USART(void){
 		usart_writeMsg(&usart2commSerial, bufferMsg);
 
 		//Escribimos mensaje con valores del dutty asociado a cada eje/color RGB
-		sprintf(bufferMsg, "Dutty de señal PWM de led RGB en cada eje:\n X(Red) = %d, Y(Green) = %d,  Z(Blue) = %d \n\r", (uint) duttyValueRed,(uint) duttyValueGreen,(uint) duttyValueBlue );
+		sprintf(bufferMsg, "Dutty de señal PWM en led RGB en cada eje:\n X(Red) = %d, Y(Green) = %d,  Z(Blue) = %d \n\r", (uint) duttyValueRed,(uint) duttyValueGreen,(uint) duttyValueBlue );
 		usart_writeMsg(&usart2commSerial, bufferMsg);
 	}
 
