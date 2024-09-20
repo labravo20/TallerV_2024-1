@@ -189,7 +189,7 @@ void initialSystem(void){
 	/* Configuramos el timer del blinky*/
 	blinkyTimer.pTIMx                             = TIM2;
 	blinkyTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 1 ms
-	blinkyTimer.TIMx_Config.TIMx_Period           = 500;     //De la mano con el prescaler, genera int ada 500 ms
+	blinkyTimer.TIMx_Config.TIMx_Period           = 1000;     //De la mano con el prescaler, genera int cada 1000 ms
 	blinkyTimer.TIMx_Config.TIMx_mode             = TIMER_UP_COUNTER;
 	blinkyTimer.TIMx_Config.TIMx_InterruptEnable  = TIMER_INT_ENABLE;
 
@@ -456,6 +456,14 @@ void show_USART(void){
 
 		//Bajamos la bandera de la interrupción
 		bandera_Accel_PWM_Tx = 0;
+
+		//Escribimos mensaje con valores de aceleración en los tres ejes
+		sprintf(bufferMsg, "Valores aceleración en cada eje:\n X = %d, Y = %d,  Z = %d \n", (int) accelX,(int) accelY,(int) accelZ );
+		usart_writeMsg(&usart2commSerial, bufferMsg);
+
+		//Escribimos mensaje con valores del dutty asociado a cada eje/color RGB
+		sprintf(bufferMsg, "Dutty de señal PWM de led RGB en cada eje:\n X(Red) = %d, Y(Green) = %d,  Z(Blue) = %d \n\r", (uint) duttyValueRed,(uint) duttyValueGreen,(uint) duttyValueBlue );
+		usart_writeMsg(&usart2commSerial, bufferMsg);
 	}
 
 	//Verificamos si bandera de USART para recepción está activa
@@ -480,14 +488,14 @@ void show_USART(void){
 		else if(getDataRecv == 'w'){
 
 			//Se escribe que estamos dentro de la función de búsqueda WHO_AM_I
-			sprintf(bufferMsg, "WHO_AM_I? (r)\n");
+			sprintf(bufferMsg, "WHO_AM_I? \n");
 			usart_writeMsg(&usart2commSerial, bufferMsg);
 
 			//Leemos registro asociado a WHO_AM_I
 			i2c_AuxBuffer = i2c_ReadSingleRegister(&accelSensor, WHO_AM_I);
 
 			//Se escribe el resultado obtenido en la lectura
-			sprintf(bufferMsg,"dataRead = 0x%x \n", (unsigned int) i2c_AuxBuffer);
+			sprintf(bufferMsg,"dataRead = 0x%x \n\r", (unsigned int) i2c_AuxBuffer);
 			usart_writeMsg(&usart2commSerial, bufferMsg);
 
 			//Limpiamos variable de recepción
