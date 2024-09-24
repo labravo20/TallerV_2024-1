@@ -390,7 +390,7 @@ void config_USART(void){
 	usart2commSerial.ptrUSARTx                = USART2;
 	usart2commSerial.USART_Config.baudrate    = USART_BAUDRATE_19200;
 	usart2commSerial.USART_Config.datasize    = USART_DATASIZE_8BIT;
-	usart2commSerial.USART_Config.parity      = USART_PARITY_NONE;
+	usart2commSerial.USART_Config.parity      = USART_PARITY_EVEN;
 	usart2commSerial.USART_Config.stopbits    = USART_STOPBIT_1;
 	usart2commSerial.USART_Config.mode        = USART_MODE_RXTX;
 	usart2commSerial.USART_Config.enableIntRX = USART_RX_INTERRUP_ENABLE;
