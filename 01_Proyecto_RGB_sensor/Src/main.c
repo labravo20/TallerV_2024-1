@@ -73,6 +73,7 @@ uint8_t banderaUSARTRx            = 0;
 
 // Definimos variable para determinar el ancho de pulso del output del sensor RGB
 uint16_t pulseOutputSensor      = 0;
+uint16_t pulseWidthRed         = 0;
 
 //Definición función para configuración inicial
 void initialConfig(void);
@@ -101,11 +102,11 @@ int main(void)
     /* Loop forever */
 	while(1){
 
-		//counterTimerPulse();
-
+		//Inicializamos función para empezar a contar los rising edges de la señal en estudio
 		counterOutputSensorConfig();
 
-		pulseOutputSensorConfig();
+		//Llamamos función para establecer el ancho de pulso del color ROJO
+		pulseWidthRed = pulseOutputSensorConfig();
 
 
 	}//Fin ciclo while
@@ -362,17 +363,18 @@ uint16_t pulseOutputSensorConfig(void){
 		//Se inicia función para counter timer para determinar el periodo
 		counterTimerPulse();
 
-	}
-//	//Evaluamos final de contador del periodo cuandi se mide el tercer rising edge --> Se está cumpliendo tiempo equivalente a un periodo
-//	else if(counterOutputSensor == 3){
-//
 //		//Realizamos conversión para encontrar el valor del ancho del pulso
 //		/* RECORDAR--> Duty de la señal es siempre del 50% */
-//		pulseOutputSensor = (((counterPeriod)*10)/2)/1000;
-//		//Reiniciamos el counter del timer para no sobrepasar el valor correspondiente al periodo
-//		counterPeriod = 0;
-//	}
+//		pulseOutputSensor = counterPeriod/2;
+	}
+	else if(counterOutputSensor == 3){
+
+		//Realizamos conversión para encontrar el valor del ancho del pulso
+		/* RECORDAR--> Duty de la señal es siempre del 50% */
+		pulseOutputSensor = counterPeriod/2;
+	}
 	else{
+
 		//Reiniciamos el counter del timer para no sobrepasar el valor correspondiente al periodo
 		counterPeriod = 0;
 	}
