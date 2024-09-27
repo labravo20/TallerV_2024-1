@@ -18,6 +18,19 @@
 GPIO_Handler_t verificationLed    = {0}; //PinA5 (Led para verificación de correcto funcionamiento)
 GPIO_Handler_t stateLed           = {0}; //PinH1 (Led de estado)
 
+//Definición de pines a utilizar para S2 y S3 sensor --> Seleccionan qué color se va a analizar
+/*NOTA: Los pines asociados a S0 y S1 siempre mantendrán los valores de HIGH and LOW, respectivamente
+ * para asegurar que siempre se trabajará con un escalamiento del 20% de la frecuencia.*/
+GPIO_Handler_t sensorPinS2        = {0}; //Pin B5
+GPIO_Handler_t sensorPinS3        = {0}; //PIn A10
+
+//Definimos estructura para programar casos de análisis R,G o B
+enum{
+	FILTRO_RED    = 0,
+	FILTRO_GREEN,
+	FILTRO_BLUE
+};
+
 //Definimos pines a utilizar para EXTI
 GPIO_Handler_t userOutputSensor   = {0};//Pin B2  //EXTI output sensor RGB --> interrupción
 
@@ -27,7 +40,8 @@ GPIO_Handler_t   userUsart2Rx     = {0};//Pin A3 //USART pin de recepción
 
 //Definimos timers a utilizar
 Timer_Handler_t blinkTimer        = {0}; // Timer para el blinking
-Timer_Handler_t controlTimer      = {0}; // Timer asociado al control del tiempo
+Timer_Handler_t controlTimer      = {0}; // Timer asociado al control del tiempo entre mediciones del sensor --> Generamos delay de 200ms
+Timer_Handler_t pulseTimer        = {0}; // Timer asociado a contador del ancho de pulso de la señal PWM
 
 //Definición lineas EXTI que vamos a utilizar
 EXTI_Config_t outputSensorExti    = {0}; //EXTI linea 2 para el output del sensor RGB
@@ -44,24 +58,36 @@ uint8_t   receivedChar            = 0;
 // Definimos variable para contar rising edges en señal PWM output sensor
 uint16_t counterOutputSensor      = 0;
 
+// Definimos variable para contar tiempo en señal PWM output sensor
+uint16_t counterPeriod            = 0;
+
 // Definimos variables para cargar características de la señal PWM resultado del output del sensor RGB
-uint8_t outputSensorState            = 0;
+//uint8_t outputSensorState            = 0;
 
 //Definimos variables para asignar el estado de la bandera correspondiente a cada interrupción
 uint8_t banderaControlTimer       = 0;
 uint8_t banderaOutputSensorExti   = 0;
+uint8_t banderaPulseTimer         = 0;
 uint8_t banderaUSARTTx            = 0;
 uint8_t banderaUSARTRx            = 0;
+
+// Definimos variable para determinar el ancho de pulso del output del sensor RGB
+uint16_t pulseOutputSensor      = 0;
 
 //Definición función para configuración inicial
 void initialConfig(void);
 
-//Definición función para configuración counter encoder
+//Definición función para definir filtros de color a utilizar
+void sensorConfig(uint8_t filtroColor);
+
+//Definición función para contar rising edges de output sensor RGB
 void counterOutputSensorConfig(void);
 
-//Definición función para ejecutar counter encoder
-void counterOutputSensorAction(void);
+//Definición de función para counter timer
+void counterTimerPulse(void);
 
+//Definición función para determinar el ancho del pulso de la señal PWM
+uint16_t pulseOutputSensorConfig(void);
 
 /*  Main function  */
 int main(void)
@@ -69,12 +95,18 @@ int main(void)
 	//Llamamos función para realizar configuración inicial
 	initialConfig();
 
+	//Configuramos filtro rojo para análisis del sensor RGB
+	sensorConfig(FILTRO_RED);
+
     /* Loop forever */
 	while(1){
 
-		//Evaluamos si la bandera de la interrupción responsable del output sensor RGB
-		//está levantada y en caso de ser asi se ejecuta la configuración del counter output sensor
-		counterOutputSensorAction();
+		//counterTimerPulse();
+
+		counterOutputSensorConfig();
+
+		pulseOutputSensorConfig();
+
 
 	}//Fin ciclo while
 
@@ -134,7 +166,7 @@ void initialConfig(){
 		//Configuración Timer5 --> control del tiempo
 		controlTimer.pTIMx                             = TIM5;
 		controlTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 0.1 s
-		controlTimer.TIMx_Config.TIMx_Period           = 100;     //De la mano con el prescaler...
+		controlTimer.TIMx_Config.TIMx_Period           = 200;    //Periodo asociado a 0.2s
 		controlTimer.TIMx_Config.TIMx_mode             = TIMER_UP_COUNTER;
 		controlTimer.TIMx_Config.TIMx_InterruptEnable  = TIMER_INT_ENABLE;
 
@@ -143,6 +175,43 @@ void initialConfig(){
 
 		//Encendemos el Timer
 		timer_SetState(&controlTimer, TIMER_ON);
+
+		//Configuración Timer3 --> control del tiempo
+		pulseTimer.pTIMx                             = TIM3;
+		pulseTimer.TIMx_Config.TIMx_Prescaler        = 160;  //Genera incrementos de 0.1 s
+		pulseTimer.TIMx_Config.TIMx_Period           = 100;    //Periodo asociado a 0.001s
+		pulseTimer.TIMx_Config.TIMx_mode             = TIMER_UP_COUNTER;
+		pulseTimer.TIMx_Config.TIMx_InterruptEnable  = TIMER_INT_ENABLE;
+
+		/* Configuramos el Timer */
+		timer_Config(&pulseTimer);
+
+		//Encendemos el Timer
+		timer_SetState(&pulseTimer, TIMER_ON);
+
+		//A continuación se configuran los pines asociados a la selección de color a analizar
+
+		/* Configuramos el pin S2 */
+		sensorPinS2.pGPIOx                         = GPIOB;
+		sensorPinS2.pinConfig.GPIO_PinNumber       = PIN_5;
+		sensorPinS2.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+		sensorPinS2.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+		sensorPinS2.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+		sensorPinS2.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+
+		//Cargamos la configuración en los registros que gobiernan el puerto
+		gpio_Config(&sensorPinS2);
+
+		/* Configuramos el pin S3 */
+		sensorPinS3.pGPIOx                         = GPIOA;
+		sensorPinS3.pinConfig.GPIO_PinNumber       = PIN_10;
+		sensorPinS3.pinConfig.GPIO_PinMode         = GPIO_MODE_OUT;
+		sensorPinS3.pinConfig.GPIO_PinOutputType   = GPIO_OTYPE_PUSHPULL;
+		sensorPinS3.pinConfig.GPIO_PinOutputSpeed  = GPIO_OSPEED_MEDIUM;
+		sensorPinS3.pinConfig.GPIO_PinPuPdControl  = GPIO_PUPDR_NOTHING;
+
+		//Cargamos la configuración en los registros que gobiernan el puerto
+		gpio_Config(&sensorPinS3);
 
 		//A continuación se está realizando la configuración de las lineas para EXTI a usar
 
@@ -204,32 +273,114 @@ void initialConfig(){
 
 }
 
-//Función para configuración counter encoder
+//Función para definir filtros de color a utilizar
+void sensorConfig(uint8_t filtroColor){
+
+	//Evaluamos cuál es la configuración de los filtros para el color a analizar
+	switch(filtroColor){
+
+	case FILTRO_RED:{
+
+		//Configuración de pines S2 y S3 para analizar color ROJO
+		gpio_WritePin(&sensorPinS2, RESET);
+		gpio_WritePin(&sensorPinS3, RESET);
+
+		break;
+	}
+
+	case FILTRO_GREEN:{
+
+		//Configuración de pines S2 y S3 para analizar color VERDE
+		gpio_WritePin(&sensorPinS2, SET);
+		gpio_WritePin(&sensorPinS3, SET);
+
+		break;
+	}
+
+	case FILTRO_BLUE:{
+
+		//Configuración de pines S2 y S3 para analizar color AZUL
+		gpio_WritePin(&sensorPinS2, RESET);
+		gpio_WritePin(&sensorPinS3, SET);
+
+		break;
+	}
+
+	default:{
+
+		break;
+	}
+	}//Fin sel switch case
+
+}//Fin de la función
+
+//Función para contar rising edges de output sensor RGB
 void counterOutputSensorConfig(void){
 
-	if(outputSensorState == 1){
+	//Evaluamos si la bandera asociada a la interrupción está activa
+	if(banderaOutputSensorExti){
 
+		//Sumamos el valor de un contador que se irá sumado cada vez que la señal PWM tenga un rising edge
 		counterOutputSensor++;
-	}
 
+		//Definimos límite de la suma para reiniciar contador
+		if(counterOutputSensor == 4){
+
+			//En caso superarse el límite el contador se reinicia
+			counterOutputSensor = 0;
+
+		}//Fin del condicional
+
+		//Bajamos la bandera
+		banderaOutputSensorExti = 0;
+
+	} //Fin del condicional
+
+}//Fin de la función
+
+//Función para counter timer
+void counterTimerPulse(void){
+
+	//Verificamos si la bandera del timer está activa
+	if(banderaPulseTimer){
+
+		//Empezamos cuenta del tiempo
+		/*El valor correspondiente se interpreta planteando que 1 UNIDAD en counter Period equivale a 10ms*/
+		counterPeriod++;
+
+		//Bajamos la bandera
+		banderaPulseTimer = 0;
+	}
 }
 
-//Función para ejecutar counter encoder
-void counterOutputSensorAction(void){
+//Función para determinar el ancho del pulso de la señal PWM
+uint16_t pulseOutputSensorConfig(void){
 
-	//Evaluamos si la bandera de la interrupción responsable del counter encoder
-	//está levantada
-	if(banderaOutputSensorExti == 1){
+	//Evaluamos inicio de contador del periodo cuando se mide el segundo rising edge
+	if(counterOutputSensor == 2){
 
-	    //Llamamos a la función encargada del counter encoder
-	    counterOutputSensorConfig();
-
-		//Bajamos la bandera de la interrupción de Counter encoder
-	    banderaOutputSensorExti = 0;
+		//Se inicia función para counter timer para determinar el periodo
+		counterTimerPulse();
 
 	}
-}
+//	//Evaluamos final de contador del periodo cuandi se mide el tercer rising edge --> Se está cumpliendo tiempo equivalente a un periodo
+//	else if(counterOutputSensor == 3){
+//
+//		//Realizamos conversión para encontrar el valor del ancho del pulso
+//		/* RECORDAR--> Duty de la señal es siempre del 50% */
+//		pulseOutputSensor = (((counterPeriod)*10)/2)/1000;
+//		//Reiniciamos el counter del timer para no sobrepasar el valor correspondiente al periodo
+//		counterPeriod = 0;
+//	}
+	else{
+		//Reiniciamos el counter del timer para no sobrepasar el valor correspondiente al periodo
+		counterPeriod = 0;
+	}
 
+	//Retornamos variable asociada al ancho del pulso de la señal PWM en unidad de SEGUNDOS
+	return pulseOutputSensor;
+
+}//Fin de la función
 
 /*
  * Overwrite function for A5
@@ -246,6 +397,15 @@ void Timer2_Callback(void){
 
 	//Activamos bandera correspondiente a USART para transmisión
 	banderaUSARTTx = 1;
+}
+
+/*
+ * Overwrite function for pulse timer
+ * */
+void Timer3_Callback(void){
+
+	//Activamos bandera correspondiente
+	banderaPulseTimer = 1;
 }
 
 /*
@@ -269,7 +429,7 @@ void callback_ExtInt2(void){
 	//Almacenamos la informacion recibida por los datos de la señal clock y la señal data
 	//Es necesario establecer los valores en el callback para tener una velocidad
 	//correcta en la lectura del dato.
-	outputSensorState = gpio_ReadPin(&userOutputSensor);
+	//outputSensorState = gpio_ReadPin(&userOutputSensor);
 
 	//La siguiente función se estableció para poder evaluar como están cambiando los valores de la variable
 
