@@ -64,6 +64,9 @@ uint16_t counterPeriod            = 0;
 //Definimos variable para garantizar medida de ancho pulso en cada color
 uint8_t counterMeasure            = 0;
 
+//Definición variable para delay
+uint16_t counterDelay             = 0;
+
 //Definimos variables para asignar el estado de la bandera correspondiente a cada interrupción
 uint8_t banderaControlTimer       = 0;
 uint8_t banderaOutputSensorExti   = 0;
@@ -92,6 +95,9 @@ void counterOutputSensorConfig(void);
 
 //Definición de función para counter timer
 void counterTimerPulse(void);
+
+//Definición de función para comunicación de datos en usart
+void msgUsart(void);
 
 //Definición función para determinar el periodo de la señal PWM
 uint16_t pulseOutputSensorConfig(void);
@@ -125,6 +131,9 @@ int main(void)
 
 		//Generamos delay entre medición
 		delay();
+
+		//Llamamos a la función encargada de representación en USART
+		msgUsart();
 
 
 	}//Fin ciclo while
@@ -170,7 +179,7 @@ void initialConfig(){
 		//Configuración Timer2 --> blinking
 		blinkTimer.pTIMx                             = TIM2;
 		blinkTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 1 ms
-		blinkTimer.TIMx_Config.TIMx_Period           = 500;    //Periodo asociado a 0.5s
+		blinkTimer.TIMx_Config.TIMx_Period           = 1000;    //Periodo asociado a 1s
 		blinkTimer.TIMx_Config.TIMx_mode             = TIMER_UP_COUNTER;
 		blinkTimer.TIMx_Config.TIMx_InterruptEnable  = TIMER_INT_ENABLE;
 
@@ -372,6 +381,22 @@ void counterTimerPulse(void){
 	}
 }
 
+//Definición de función para comunicación de datos en usart
+void msgUsart(void){
+
+	//Evaluamos si la bandera asociada a la transmisión por USART está activa
+	if(banderaUSARTTx){
+
+		//Escribimos mensaje con los datos de anchos de pulso de las señales
+		sprintf(bufferMsg,"Valores de ancho de pulso de cada color: R = %d ms, G = %d ms, B = %d ms \n\r",pulseWidthRed,pulseWidthGreen,pulseWidthBlue);
+		usart_writeMsg(&usart2, bufferMsg);
+
+		//Bajamos la bandera
+		banderaUSARTTx = 0;
+
+	}
+}
+
 //Función para determinar el periodo de la señal PWM
 uint16_t pulseOutputSensorConfig(void){
 
@@ -430,7 +455,13 @@ void delay(void){
 	//Verificamos si la bandera del timer asociado al delay (control timer) está encendido
 	if(banderaControlTimer){
 
-		__NOP();
+		while(counterDelay < 11){
+
+			counterDelay++;
+		}
+
+		//Reiniciamos contador del delay
+		counterDelay = 0;
 
 		//Bajamos la bandera
 		banderaControlTimer = 0;
