@@ -61,8 +61,8 @@ uint16_t counterOutputSensor      = 0;
 // Definimos variable para contar tiempo en señal PWM output sensor
 uint16_t counterPeriod            = 0;
 
-// Definimos variables para cargar características de la señal PWM resultado del output del sensor RGB
-//uint8_t outputSensorState            = 0;
+//Definimos variable para garantizar medida de ancho pulso en cada color
+uint8_t counterMeasure            = 0;
 
 //Definimos variables para asignar el estado de la bandera correspondiente a cada interrupción
 uint8_t banderaControlTimer       = 0;
@@ -75,11 +75,15 @@ uint8_t banderaUSARTRx            = 0;
 uint16_t pulseOutputSensor        = 0;
 uint16_t pulseWidth               = 0;
 uint16_t pulseWidthRed            = 0;
+uint16_t pulseWidthGreen          = 0;
+uint16_t pulseWidthBlue           = 0;
 
 //Definición función para configuración inicial
 void initialConfig(void);
 
-//Definición función para generar DELAY entre
+//Definición función para generar DELAY
+void delay(void);
+
 //Definición función para definir filtros de color a utilizar
 void sensorConfig(uint8_t filtroColor);
 
@@ -106,6 +110,21 @@ int main(void)
 
 		//Llamamos a función encargada de obtener el valor del ancho de pulso del colo ROJO
 		pulseWidthRed = getPulseWidth(FILTRO_RED);
+
+		//Generamos delay entre medición
+		delay();
+
+		//Llamamos a función encargada de obtener el valor del ancho de pulso del colo ROJO
+		pulseWidthGreen = getPulseWidth(FILTRO_GREEN);
+
+		//Generamos delay entre medición
+		delay();
+
+		//Llamamos a función encargada de obtener el valor del ancho de pulso del colo ROJO
+		pulseWidthBlue = getPulseWidth(FILTRO_BLUE);
+
+		//Generamos delay entre medición
+		delay();
 
 
 	}//Fin ciclo while
@@ -378,21 +397,45 @@ uint16_t pulseOutputSensorConfig(void){
 
 }//Fin de la función
 
-//Definición función para obtener el ancho del pulso del colo RGB en estudio
+//Función para obtener el ancho del pulso del colo RGB en estudio
 uint16_t getPulseWidth(uint8_t filtroColor){
 
 	//Configuramos filtro rojo para análisis del sensor RGB
 	sensorConfig(filtroColor);
 
-	//Inicializamos función para empezar a contar los rising edges de la señal en estudio
-	counterOutputSensorConfig();
+	counterMeasure = 1;
 
-	//Llamamos función para establecer el periodo de la señal PWM del color en análisis
-	//Realizamos conversión para encontrar el valor del ancho del pulso (en ms)
-	/* RECORDAR--> Duty de la señal es siempre del 50% */
-	pulseWidth = (pulseOutputSensorConfig())/2;
+	while(counterMeasure != 0){
+
+		//Inicializamos función para empezar a contar los rising edges de la señal en estudio
+		counterOutputSensorConfig();
+
+		//Llamamos función para establecer el periodo de la señal PWM del color en análisis
+		//Realizamos conversión para encontrar el valor del ancho del pulso (en ms)
+		/* RECORDAR--> Duty de la señal es siempre del 50% */
+		pulseWidth = (pulseOutputSensorConfig())/2;
+
+		if(counterOutputSensor == 3){
+
+			counterMeasure = 0;
+		}
+	}
 
 	return pulseWidth;
+}
+
+//Definición función para generar DELAY
+void delay(void){
+
+	//Verificamos si la bandera del timer asociado al delay (control timer) está encendido
+	if(banderaControlTimer){
+
+		__NOP();
+
+		//Bajamos la bandera
+		banderaControlTimer = 0;
+	}
+
 }
 
 /*
@@ -417,7 +460,7 @@ void Timer2_Callback(void){
  * */
 void Timer3_Callback(void){
 
-	//Activamos bandera correspondiente
+	//Activamos bandera correspondiente a interrupción para pulse timer
 	banderaPulseTimer = 1;
 }
 
@@ -438,11 +481,6 @@ void callback_ExtInt2(void){
 
 	//Activamos bandera de la interrupción
 	banderaOutputSensorExti = 1;
-
-	//Almacenamos la informacion recibida por los datos de la señal clock y la señal data
-	//Es necesario establecer los valores en el callback para tener una velocidad
-	//correcta en la lectura del dato.
-	//outputSensorState = gpio_ReadPin(&userOutputSensor);
 
 	//La siguiente función se estableció para poder evaluar como están cambiando los valores de la variable
 
