@@ -149,7 +149,7 @@ int main(void)
 		//delay();
 
 		//Llamamos a la función encargada de representación en USART
-		//msgUsart();
+		msgUsart();
 
 
 	}//Fin ciclo while
@@ -222,8 +222,8 @@ void initialConfig(){
 
 		//Configuración Timer3 --> control del tiempo
 		pulseTimer.pTIMx                             = TIM3;
-		pulseTimer.TIMx_Config.TIMx_Prescaler        = 160;  //Genera incrementos de 0.1 s
-		pulseTimer.TIMx_Config.TIMx_Period           = 100;    //Periodo asociado a 0.001s
+		pulseTimer.TIMx_Config.TIMx_Prescaler        = 16;  //Genera incrementos de 0.1 s
+		pulseTimer.TIMx_Config.TIMx_Period           = 10;    //Periodo asociado a 0.00001s (10 us)
 		pulseTimer.TIMx_Config.TIMx_mode             = TIMER_UP_COUNTER;
 		pulseTimer.TIMx_Config.TIMx_InterruptEnable  = TIMER_INT_ENABLE;
 
@@ -437,7 +437,7 @@ void counterTimerPulseR(void){
 	if(banderaPulseTimer){
 
 		//Empezamos cuenta del tiempo
-		/*El valor correspondiente se interpreta planteando que 1 UNIDAD en counter Period equivale a 1ms*/
+		/*El valor correspondiente se interpreta planteando que 1 UNIDAD en counter Period equivale a 0.1ms*/
 		counterPeriodR++;
 
 		//Bajamos la bandera
@@ -452,7 +452,7 @@ void counterTimerPulseG(void){
 	if(banderaPulseTimer){
 
 		//Empezamos cuenta del tiempo
-		/*El valor correspondiente se interpreta planteando que 1 UNIDAD en counter Period equivale a 1ms*/
+		/*El valor correspondiente se interpreta planteando que 1 UNIDAD en counter Period equivale a 0.1ms*/
 		counterPeriodG++;
 
 		//Bajamos la bandera
@@ -467,7 +467,7 @@ void counterTimerPulseB(void){
 	if(banderaPulseTimer){
 
 		//Empezamos cuenta del tiempo
-		/*El valor correspondiente se interpreta planteando que 1 UNIDAD en counter Period equivale a 1ms*/
+		/*El valor correspondiente se interpreta planteando que 1 UNIDAD en counter Period equivale a 0.1ms*/
 		counterPeriodB++;
 
 		//Bajamos la bandera
@@ -570,7 +570,7 @@ uint16_t pulseOutputSensorConfigB(void){
 //Función para obtener el ancho del pulso del colo RGB en estudio
 void getPulseWidthRed(void){
 
-//	//Configuramos filtro rojo para análisis del sensor RGB
+	//Configuramos filtro rojo para análisis del sensor RGB
 	sensorConfig(FILTRO_RED);
 
 	counterMeasureR = 1;
