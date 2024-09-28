@@ -71,13 +71,15 @@ uint8_t banderaPulseTimer         = 0;
 uint8_t banderaUSARTTx            = 0;
 uint8_t banderaUSARTRx            = 0;
 
-// Definimos variable para determinar el ancho de pulso del output del sensor RGB
-uint16_t pulseOutputSensor      = 0;
-uint16_t pulseWidthRed         = 0;
+// Definimos variables herramienta para determinar el ancho de pulso del output del sensor RGB
+uint16_t pulseOutputSensor        = 0;
+uint16_t pulseWidth               = 0;
+uint16_t pulseWidthRed            = 0;
 
 //Definición función para configuración inicial
 void initialConfig(void);
 
+//Definición función para generar DELAY entre
 //Definición función para definir filtros de color a utilizar
 void sensorConfig(uint8_t filtroColor);
 
@@ -87,8 +89,11 @@ void counterOutputSensorConfig(void);
 //Definición de función para counter timer
 void counterTimerPulse(void);
 
-//Definición función para determinar el ancho del pulso de la señal PWM
+//Definición función para determinar el periodo de la señal PWM
 uint16_t pulseOutputSensorConfig(void);
+
+//Definición función para obtener el ancho del pulso del colo RGB en estudio
+uint16_t getPulseWidth(uint8_t filtroColor);
 
 /*  Main function  */
 int main(void)
@@ -96,17 +101,11 @@ int main(void)
 	//Llamamos función para realizar configuración inicial
 	initialConfig();
 
-	//Configuramos filtro rojo para análisis del sensor RGB
-	sensorConfig(FILTRO_RED);
-
     /* Loop forever */
 	while(1){
 
-		//Inicializamos función para empezar a contar los rising edges de la señal en estudio
-		counterOutputSensorConfig();
-
-		//Llamamos función para establecer el ancho de pulso del color ROJO
-		pulseWidthRed = pulseOutputSensorConfig();
+		//Llamamos a función encargada de obtener el valor del ancho de pulso del colo ROJO
+		pulseWidthRed = getPulseWidth(FILTRO_RED);
 
 
 	}//Fin ciclo while
@@ -164,7 +163,7 @@ void initialConfig(){
 
 		//A continuación se está realizando la configuración de los timers a usar
 
-		//Configuración Timer5 --> control del tiempo
+		//Configuración Timer5 --> control del tiempo (DELAY entre mediciones de color)
 		controlTimer.pTIMx                             = TIM5;
 		controlTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 0.1 s
 		controlTimer.TIMx_Config.TIMx_Period           = 200;    //Periodo asociado a 0.2s
@@ -346,7 +345,7 @@ void counterTimerPulse(void){
 	if(banderaPulseTimer){
 
 		//Empezamos cuenta del tiempo
-		/*El valor correspondiente se interpreta planteando que 1 UNIDAD en counter Period equivale a 10ms*/
+		/*El valor correspondiente se interpreta planteando que 1 UNIDAD en counter Period equivale a 1ms*/
 		counterPeriod++;
 
 		//Bajamos la bandera
@@ -354,7 +353,7 @@ void counterTimerPulse(void){
 	}
 }
 
-//Función para determinar el ancho del pulso de la señal PWM
+//Función para determinar el periodo de la señal PWM
 uint16_t pulseOutputSensorConfig(void){
 
 	//Evaluamos inicio de contador del periodo cuando se mide el segundo rising edge
@@ -362,16 +361,11 @@ uint16_t pulseOutputSensorConfig(void){
 
 		//Se inicia función para counter timer para determinar el periodo
 		counterTimerPulse();
-
-//		//Realizamos conversión para encontrar el valor del ancho del pulso
-//		/* RECORDAR--> Duty de la señal es siempre del 50% */
-//		pulseOutputSensor = counterPeriod/2;
 	}
 	else if(counterOutputSensor == 3){
 
-		//Realizamos conversión para encontrar el valor del ancho del pulso
-		/* RECORDAR--> Duty de la señal es siempre del 50% */
-		pulseOutputSensor = counterPeriod/2;
+		//Asignamos el valor del periodo a una variable que retornará la función
+		pulseOutputSensor = counterPeriod;
 	}
 	else{
 
@@ -379,10 +373,27 @@ uint16_t pulseOutputSensorConfig(void){
 		counterPeriod = 0;
 	}
 
-	//Retornamos variable asociada al ancho del pulso de la señal PWM en unidad de SEGUNDOS
+	//Retornamos variable asociada al ancho del pulso de la señal PWM en unidad de ms
 	return pulseOutputSensor;
 
 }//Fin de la función
+
+//Definición función para obtener el ancho del pulso del colo RGB en estudio
+uint16_t getPulseWidth(uint8_t filtroColor){
+
+	//Configuramos filtro rojo para análisis del sensor RGB
+	sensorConfig(filtroColor);
+
+	//Inicializamos función para empezar a contar los rising edges de la señal en estudio
+	counterOutputSensorConfig();
+
+	//Llamamos función para establecer el periodo de la señal PWM del color en análisis
+	//Realizamos conversión para encontrar el valor del ancho del pulso (en ms)
+	/* RECORDAR--> Duty de la señal es siempre del 50% */
+	pulseWidth = (pulseOutputSensorConfig())/2;
+
+	return pulseWidth;
+}
 
 /*
  * Overwrite function for A5
