@@ -56,13 +56,19 @@ char bufferMsg[128]               = {0};
 uint8_t   receivedChar            = 0;
 
 // Definimos variable para contar rising edges en señal PWM output sensor
-uint16_t counterOutputSensor      = 0;
+uint16_t counterOutputSensorR      = 0;
+uint16_t counterOutputSensorG      = 0;
+uint16_t counterOutputSensorB      = 0;
 
 // Definimos variable para contar tiempo en señal PWM output sensor
-uint16_t counterPeriod            = 0;
+uint16_t counterPeriodR            = 0;
+uint16_t counterPeriodG            = 0;
+uint16_t counterPeriodB            = 0;
 
 //Definimos variable para garantizar medida de ancho pulso en cada color
-uint8_t counterMeasure            = 0;
+uint8_t counterMeasureR            = 0;
+uint8_t counterMeasureG            = 0;
+uint8_t counterMeasureB            = 0;
 
 //Definición variable para delay
 uint16_t counterDelay             = 0;
@@ -75,7 +81,9 @@ uint8_t banderaUSARTTx            = 0;
 uint8_t banderaUSARTRx            = 0;
 
 // Definimos variables herramienta para determinar el ancho de pulso del output del sensor RGB
-uint16_t pulseOutputSensor        = 0;
+uint16_t pulseOutputSensorR        = 0;
+uint16_t pulseOutputSensorG        = 0;
+uint16_t pulseOutputSensorB        = 0;
 uint16_t pulseWidth               = 0;
 uint16_t pulseWidthRed            = 0;
 uint16_t pulseWidthGreen          = 0;
@@ -91,19 +99,27 @@ void delay(void);
 void sensorConfig(uint8_t filtroColor);
 
 //Definición función para contar rising edges de output sensor RGB
-void counterOutputSensorConfig(void);
+void counterOutputSensorConfigR(void);
+void counterOutputSensorConfigG(void);
+void counterOutputSensorConfigB(void);
 
 //Definición de función para counter timer
-void counterTimerPulse(void);
+void counterTimerPulseR(void);
+void counterTimerPulseG(void);
+void counterTimerPulseB(void);
 
 //Definición de función para comunicación de datos en usart
 void msgUsart(void);
 
 //Definición función para determinar el periodo de la señal PWM
-uint16_t pulseOutputSensorConfig(void);
+uint16_t pulseOutputSensorConfigR(void);
+uint16_t pulseOutputSensorConfigG(void);
+uint16_t pulseOutputSensorConfigB(void);
 
 //Definición función para obtener el ancho del pulso del colo RGB en estudio
-uint16_t getPulseWidth(uint8_t filtroColor);
+void getPulseWidthRed(void);
+void getPulseWidthGreen(void);
+void getPulseWidthBlue(void);
 
 /*  Main function  */
 int main(void)
@@ -115,25 +131,25 @@ int main(void)
 	while(1){
 
 		//Llamamos a función encargada de obtener el valor del ancho de pulso del colo ROJO
-		pulseWidthRed = getPulseWidth(FILTRO_RED);
+		getPulseWidthRed();
 
 		//Generamos delay entre medición
-		delay();
+		//delay();
 
 		//Llamamos a función encargada de obtener el valor del ancho de pulso del colo ROJO
-		pulseWidthGreen = getPulseWidth(FILTRO_GREEN);
+		getPulseWidthGreen();
 
 		//Generamos delay entre medición
-		delay();
+		//delay();
 
 		//Llamamos a función encargada de obtener el valor del ancho de pulso del colo ROJO
-		pulseWidthBlue = getPulseWidth(FILTRO_BLUE);
+		getPulseWidthBlue();
 
 		//Generamos delay entre medición
-		delay();
+		//delay();
 
 		//Llamamos a la función encargada de representación en USART
-		msgUsart();
+		//msgUsart();
 
 
 	}//Fin ciclo while
@@ -194,7 +210,7 @@ void initialConfig(){
 		//Configuración Timer5 --> control del tiempo (DELAY entre mediciones de color)
 		controlTimer.pTIMx                             = TIM5;
 		controlTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 0.1 s
-		controlTimer.TIMx_Config.TIMx_Period           = 200;    //Periodo asociado a 0.2s
+		controlTimer.TIMx_Config.TIMx_Period           = 1000;    //Periodo asociado a 1s
 		controlTimer.TIMx_Config.TIMx_mode             = TIMER_UP_COUNTER;
 		controlTimer.TIMx_Config.TIMx_InterruptEnable  = TIMER_INT_ENABLE;
 
@@ -343,19 +359,67 @@ void sensorConfig(uint8_t filtroColor){
 }//Fin de la función
 
 //Función para contar rising edges de output sensor RGB
-void counterOutputSensorConfig(void){
+void counterOutputSensorConfigR(void){
 
 	//Evaluamos si la bandera asociada a la interrupción está activa
 	if(banderaOutputSensorExti){
 
 		//Sumamos el valor de un contador que se irá sumado cada vez que la señal PWM tenga un rising edge
-		counterOutputSensor++;
+		counterOutputSensorR++;
 
 		//Definimos límite de la suma para reiniciar contador
-		if(counterOutputSensor == 4){
+		if(counterOutputSensorR == 4){
 
 			//En caso superarse el límite el contador se reinicia
-			counterOutputSensor = 0;
+			counterOutputSensorR = 0;
+
+		}//Fin del condicional
+
+		//Bajamos la bandera
+		banderaOutputSensorExti = 0;
+
+	} //Fin del condicional
+
+}//Fin de la función
+/**/
+//Función para contar rising edges de output sensor RGB
+void counterOutputSensorConfigG(void){
+
+	//Evaluamos si la bandera asociada a la interrupción está activa
+	if(banderaOutputSensorExti){
+
+		//Sumamos el valor de un contador que se irá sumado cada vez que la señal PWM tenga un rising edge
+		counterOutputSensorG++;
+
+		//Definimos límite de la suma para reiniciar contador
+		if(counterOutputSensorG == 4){
+
+			//En caso superarse el límite el contador se reinicia
+			counterOutputSensorG = 0;
+
+		}//Fin del condicional
+
+		//Bajamos la bandera
+		banderaOutputSensorExti = 0;
+
+	} //Fin del condicional
+
+}//Fin de la función
+/**/
+//Función para contar rising edges de output sensor RGB
+void counterOutputSensorConfigB(void){
+
+	//Evaluamos si la bandera asociada a la interrupción está activa
+	if(banderaOutputSensorExti){
+
+		//Sumamos el valor de un contador que se irá sumado cada vez que la señal PWM tenga un rising edge
+		counterOutputSensorB++;
+
+		//Definimos límite de la suma para reiniciar contador
+		if(counterOutputSensorB == 4){
+
+			//En caso superarse el límite el contador se reinicia
+			counterOutputSensorB = 0;
 
 		}//Fin del condicional
 
@@ -367,19 +431,50 @@ void counterOutputSensorConfig(void){
 }//Fin de la función
 
 //Función para counter timer
-void counterTimerPulse(void){
+void counterTimerPulseR(void){
 
 	//Verificamos si la bandera del timer está activa
 	if(banderaPulseTimer){
 
 		//Empezamos cuenta del tiempo
 		/*El valor correspondiente se interpreta planteando que 1 UNIDAD en counter Period equivale a 1ms*/
-		counterPeriod++;
+		counterPeriodR++;
 
 		//Bajamos la bandera
 		banderaPulseTimer = 0;
 	}
 }
+/**/
+//Función para counter timer
+void counterTimerPulseG(void){
+
+	//Verificamos si la bandera del timer está activa
+	if(banderaPulseTimer){
+
+		//Empezamos cuenta del tiempo
+		/*El valor correspondiente se interpreta planteando que 1 UNIDAD en counter Period equivale a 1ms*/
+		counterPeriodG++;
+
+		//Bajamos la bandera
+		banderaPulseTimer = 0;
+	}
+}
+/**/
+//Función para counter timer
+void counterTimerPulseB(void){
+
+	//Verificamos si la bandera del timer está activa
+	if(banderaPulseTimer){
+
+		//Empezamos cuenta del tiempo
+		/*El valor correspondiente se interpreta planteando que 1 UNIDAD en counter Period equivale a 1ms*/
+		counterPeriodB++;
+
+		//Bajamos la bandera
+		banderaPulseTimer = 0;
+	}
+}
+
 
 //Definición de función para comunicación de datos en usart
 void msgUsart(void){
@@ -398,55 +493,162 @@ void msgUsart(void){
 }
 
 //Función para determinar el periodo de la señal PWM
-uint16_t pulseOutputSensorConfig(void){
+uint16_t pulseOutputSensorConfigR(void){
 
 	//Evaluamos inicio de contador del periodo cuando se mide el segundo rising edge
-	if(counterOutputSensor == 2){
+	if(counterOutputSensorR == 2){
 
 		//Se inicia función para counter timer para determinar el periodo
-		counterTimerPulse();
+		counterTimerPulseR();
 	}
-	else if(counterOutputSensor == 3){
+	else if(counterOutputSensorR == 3){
 
 		//Asignamos el valor del periodo a una variable que retornará la función
-		pulseOutputSensor = counterPeriod;
+		pulseOutputSensorR = counterPeriodR;
 	}
 	else{
 
 		//Reiniciamos el counter del timer para no sobrepasar el valor correspondiente al periodo
-		counterPeriod = 0;
+		counterPeriodR = 0;
 	}
 
 	//Retornamos variable asociada al ancho del pulso de la señal PWM en unidad de ms
-	return pulseOutputSensor;
+	return pulseOutputSensorR;
+
+}//Fin de la función
+/**/
+//Función para determinar el periodo de la señal PWM
+uint16_t pulseOutputSensorConfigG(void){
+
+	//Evaluamos inicio de contador del periodo cuando se mide el segundo rising edge
+	if(counterOutputSensorG == 2){
+
+		//Se inicia función para counter timer para determinar el periodo
+		counterTimerPulseG();
+	}
+	else if(counterOutputSensorG == 3){
+
+		//Asignamos el valor del periodo a una variable que retornará la función
+		pulseOutputSensorG = counterPeriodG;
+	}
+	else{
+
+		//Reiniciamos el counter del timer para no sobrepasar el valor correspondiente al periodo
+		counterPeriodG = 0;
+	}
+
+	//Retornamos variable asociada al ancho del pulso de la señal PWM en unidad de ms
+	return pulseOutputSensorG;
+
+}//Fin de la función
+/**/
+//Función para determinar el periodo de la señal PWM
+uint16_t pulseOutputSensorConfigB(void){
+
+	//Evaluamos inicio de contador del periodo cuando se mide el segundo rising edge
+	if(counterOutputSensorB == 2){
+
+		//Se inicia función para counter timer para determinar el periodo
+		counterTimerPulseB();
+	}
+	else if(counterOutputSensorB == 3){
+
+		//Asignamos el valor del periodo a una variable que retornará la función
+		pulseOutputSensorB = counterPeriodB;
+	}
+	else{
+
+		//Reiniciamos el counter del timer para no sobrepasar el valor correspondiente al periodo
+		counterPeriodB = 0;
+	}
+
+	//Retornamos variable asociada al ancho del pulso de la señal PWM en unidad de ms
+	return pulseOutputSensorB;
 
 }//Fin de la función
 
 //Función para obtener el ancho del pulso del colo RGB en estudio
-uint16_t getPulseWidth(uint8_t filtroColor){
+void getPulseWidthRed(void){
 
-	//Configuramos filtro rojo para análisis del sensor RGB
-	sensorConfig(filtroColor);
+//	//Configuramos filtro rojo para análisis del sensor RGB
+	sensorConfig(FILTRO_RED);
 
-	counterMeasure = 1;
+	counterMeasureR = 1;
 
-	while(counterMeasure != 0){
+	while(counterMeasureR != 0){
 
 		//Inicializamos función para empezar a contar los rising edges de la señal en estudio
-		counterOutputSensorConfig();
+		counterOutputSensorConfigR();
 
 		//Llamamos función para establecer el periodo de la señal PWM del color en análisis
 		//Realizamos conversión para encontrar el valor del ancho del pulso (en ms)
 		/* RECORDAR--> Duty de la señal es siempre del 50% */
-		pulseWidth = (pulseOutputSensorConfig())/2;
 
-		if(counterOutputSensor == 3){
 
-			counterMeasure = 0;
+		pulseWidthRed = (pulseOutputSensorConfigR())/2;
+
+		if(counterOutputSensorR == 3){
+
+			counterMeasureR = 0;
 		}
 	}
 
-	return pulseWidth;
+}
+/**/
+//Función para obtener el ancho del pulso del colo RGB en estudio
+void getPulseWidthGreen(void){
+
+//	//Configuramos filtro rojo para análisis del sensor RGB
+	sensorConfig(FILTRO_GREEN);
+
+	counterMeasureG = 1;
+
+	while(counterMeasureG != 0){
+
+		//Inicializamos función para empezar a contar los rising edges de la señal en estudio
+		counterOutputSensorConfigG();
+
+		//Llamamos función para establecer el periodo de la señal PWM del color en análisis
+		//Realizamos conversión para encontrar el valor del ancho del pulso (en ms)
+		/* RECORDAR--> Duty de la señal es siempre del 50% */
+
+
+		pulseWidthGreen = (pulseOutputSensorConfigG())/2;
+
+		if(counterOutputSensorG == 3){
+
+			counterMeasureG = 0;
+		}
+	}
+
+}
+/**/
+//Función para obtener el ancho del pulso del colo RGB en estudio
+void getPulseWidthBlue(void){
+
+//	//Configuramos filtro rojo para análisis del sensor RGB
+	sensorConfig(FILTRO_BLUE);
+
+	counterMeasureB = 1;
+
+	while(counterMeasureB != 0){
+
+		//Inicializamos función para empezar a contar los rising edges de la señal en estudio
+		counterOutputSensorConfigB();
+
+		//Llamamos función para establecer el periodo de la señal PWM del color en análisis
+		//Realizamos conversión para encontrar el valor del ancho del pulso (en ms)
+		/* RECORDAR--> Duty de la señal es siempre del 50% */
+
+
+		pulseWidthBlue = (pulseOutputSensorConfigB())/2;
+
+		if(counterOutputSensorB == 3){
+
+			counterMeasureB = 0;
+		}
+	}
+
 }
 
 //Definición función para generar DELAY
