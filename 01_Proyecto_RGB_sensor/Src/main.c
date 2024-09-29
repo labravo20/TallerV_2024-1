@@ -92,12 +92,14 @@ uint16_t pulseWidthBlue           = 0;
 
 
 //Definición de valores máximos y mínimos de medición de cada filtro de color
-#define    MIN_APORTE_RED      11310  //Aporte de filtro RED cuando hay menor frecuencia (mayor ancho pulso) --> ANALIZANDO COLOR NEGRO
-#define    MAX_APORTE_RED      136    //Aporte de filtro RED cuando hay mayor frecuencia (menor ancho pulso) --> ANALIZANDO COLOR BLANCO
-#define    MIN_APORTE_GREEN    14950 //Aporte de filtro GREEN cuando hay menor frecuencia (mayor ancho pulso) --> ANALIZANDO COLOR NEGRO
-#define    MAX_APORTE_GREEN    182   //Aporte de filtro GREEN cuando hay mayor frecuencia (menor ancho pulso) --> ANALIZANDO COLOR BLANCO
-#define    MIN_APORTE_BLUE     14580 //Aporte de filtro BLUE cuando hay menor frecuencia (mayor ancho pulso) --> ANALIZANDO COLOR NEGRO
-#define    MAX_APORTE_BLUE     176   //Aporte de filtro BLUE cuando hay mayor frecuencia (menor ancho pulso) --> ANALIZANDO COLOR BLANCO
+
+/*NOTA --> Terminar de optimizar la calibración para obtener mejor diferenciación entre colores*/
+#define    MIN_APORTE_RED      16000  //Aporte de filtro RED cuando hay menor frecuencia (mayor ancho pulso) --> ANALIZANDO COLOR NEGRO
+#define    MAX_APORTE_RED      2000    //Aporte de filtro RED cuando hay mayor frecuencia (menor ancho pulso) --> ANALIZANDO COLOR BLANCO
+#define    MIN_APORTE_GREEN    14000   //Aporte de filtro GREEN cuando hay menor frecuencia (mayor ancho pulso) --> ANALIZANDO COLOR NEGRO
+#define    MAX_APORTE_GREEN    3000   //Aporte de filtro GREEN cuando hay mayor frecuencia (menor ancho pulso) --> ANALIZANDO COLOR BLANCO
+#define    MIN_APORTE_BLUE     16000 //Aporte de filtro BLUE cuando hay menor frecuencia (mayor ancho pulso) --> ANALIZANDO COLOR NEGRO
+#define    MAX_APORTE_BLUE     3000   //Aporte de filtro BLUE cuando hay mayor frecuencia (menor ancho pulso) --> ANALIZANDO COLOR BLANCO
 
 //Definición de variables para pendientes de escalamiento de medidas en cada filtro del sensor RGB
 uint8_t pendienteRed    = 0;
@@ -164,20 +166,11 @@ int main(void)
 		//Llamamos a función encargada de obtener el valor del ancho de pulso del colo ROJO
 		getPulseWidthRed();
 
-		//Generamos delay entre medición
-		delay();
-
 		//Llamamos a función encargada de obtener el valor del ancho de pulso del colo ROJO
 		getPulseWidthGreen();
 
-		//Generamos delay entre medición
-		delay();
-
 		//Llamamos a función encargada de obtener el valor del ancho de pulso del colo ROJO
 		getPulseWidthBlue();
-
-		//Generamos delay entre medición
-		delay();
 
 		//Llamamos a la función encargada de representación en USART
 		msgUsart();
@@ -244,7 +237,7 @@ void initialConfig(){
 		//Configuración Timer5 --> control del tiempo (DELAY entre mediciones de color)
 		controlTimer.pTIMx                             = TIM3;
 		controlTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 0.1 s
-		controlTimer.TIMx_Config.TIMx_Period           = 100;    //Periodo asociado a 0.1s
+		controlTimer.TIMx_Config.TIMx_Period           = 3000;    //Periodo asociado a 3s
 		controlTimer.TIMx_Config.TIMx_mode             = TIMER_UP_COUNTER;
 		controlTimer.TIMx_Config.TIMx_InterruptEnable  = TIMER_INT_ENABLE;
 
@@ -518,11 +511,11 @@ void msgUsart(void){
 	if(banderaUSARTTx){
 
 		//Escribimos mensaje con los datos de anchos de pulso de las señales
-		sprintf(bufferMsg,"Valores de ancho de pulso de cada color: R = %d ms, G = %d ms, B = %d ms \n",pulseWidthRed,pulseWidthGreen,pulseWidthBlue);
-		usart_writeMsg(&usart2, bufferMsg);
+//		sprintf(bufferMsg,"Valores de ancho de pulso de cada color: R = %d ms, G = %d ms, B = %d ms \n",pulseWidthRed,pulseWidthGreen,pulseWidthBlue);
+//		usart_writeMsg(&usart2, bufferMsg);
 
 		//Escribimos mensaje con los datos de aporte de cada color
-		sprintf(bufferMsg,"Valores de ancho de pulso de cada color: R = %d /1000, G = %d /1000, B = %d /1000 \n\r",aporteRed,aporteGreen,aporteBlue);
+		sprintf(bufferMsg,"Aporte PORCENTUAL de cada color RGB en la medida: R = %d , G = %d , B = %d  \n\r",(aporteRed/10),(aporteGreen/10),(aporteBlue/10));
 		usart_writeMsg(&usart2, bufferMsg);
 
 		//Bajamos la bandera
@@ -693,27 +686,6 @@ void getPulseWidthBlue(void){
 
 }
 
-//Definición función para generar DELAY
-void delay(void){
-
-	//Verificamos si la bandera del timer asociado al delay (control timer) está encendido
-	if(banderaControlTimer){
-
-		//Con el siguiente ciclo while se está garantizando delay de aprox 0.5s
-		while(counterDelay < 6){
-
-			counterDelay++;
-		}
-
-		//Reiniciamos contador del delay
-		counterDelay = 0;
-
-		//Bajamos la bandera
-		banderaControlTimer = 0;
-	}
-
-}
-
 //Función para respetar los límites del intervalo de escalamiento
 uint16_t scaleLimit(uint16_t scaleValue){
 
@@ -800,10 +772,9 @@ void getPulseScale(void){
  * Overwrite function for H1
  * */
 void Timer2_Callback(void){
+
 	gpio_TooglePin(&stateLed);
 
-	//Activamos bandera correspondiente a USART para transmisión
-	banderaUSARTTx = 1;
 }
 
 /*
@@ -811,8 +782,8 @@ void Timer2_Callback(void){
  * */
 void Timer3_Callback(void){
 
-	//Subimos la bandera de la interrupción de Control Timer
-	banderaControlTimer = 1;
+	//Activamos bandera correspondiente a USART para transmisión
+	banderaUSARTTx = 1;
 }
 
 /*
