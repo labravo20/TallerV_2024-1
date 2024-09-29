@@ -90,6 +90,30 @@ uint16_t pulseWidthRed            = 0;
 uint16_t pulseWidthGreen          = 0;
 uint16_t pulseWidthBlue           = 0;
 
+
+//Definición de valores máximos y mínimos de medición de cada filtro de color
+#define    MIN_APORTE_RED      11310  //Aporte de filtro RED cuando hay menor frecuencia (mayor ancho pulso) --> ANALIZANDO COLOR NEGRO
+#define    MAX_APORTE_RED      136    //Aporte de filtro RED cuando hay mayor frecuencia (menor ancho pulso) --> ANALIZANDO COLOR BLANCO
+#define    MIN_APORTE_GREEN    14950 //Aporte de filtro GREEN cuando hay menor frecuencia (mayor ancho pulso) --> ANALIZANDO COLOR NEGRO
+#define    MAX_APORTE_GREEN    182   //Aporte de filtro GREEN cuando hay mayor frecuencia (menor ancho pulso) --> ANALIZANDO COLOR BLANCO
+#define    MIN_APORTE_BLUE     14580 //Aporte de filtro BLUE cuando hay menor frecuencia (mayor ancho pulso) --> ANALIZANDO COLOR NEGRO
+#define    MAX_APORTE_BLUE     176   //Aporte de filtro BLUE cuando hay mayor frecuencia (menor ancho pulso) --> ANALIZANDO COLOR BLANCO
+
+//Definición de variables para pendientes de escalamiento de medidas en cada filtro del sensor RGB
+uint8_t pendienteRed    = 0;
+uint8_t pendienteGreen  = 0;
+uint8_t pendienteBlue   = 0;
+
+//Definición de variables para cargar el valor medido escalado
+uint16_t scaleValueRed   = 0;
+uint16_t scaleValueGreen = 0;
+uint16_t scaleValueBlue  = 0;
+
+//Definición de variables para cargar el valor resultante del escalamiento y el ajuste del aporte
+uint16_t aporteRed   = 0;
+uint16_t aporteGreen = 0;
+uint16_t aporteBlue  = 0;
+
 //Definición función para configuración inicial
 void initialConfig(void);
 
@@ -122,6 +146,12 @@ void getPulseWidthRed(void);
 void getPulseWidthGreen(void);
 void getPulseWidthBlue(void);
 
+//Definición función para escalamiento de resultados
+void getPulseScale(void);
+
+//Definición función para respetar los límites del intervalo de escalamiento
+uint16_t scaleLimit(uint16_t scaleValue);
+
 /*  Main function  */
 int main(void)
 {
@@ -135,22 +165,25 @@ int main(void)
 		getPulseWidthRed();
 
 		//Generamos delay entre medición
-		//delay();
+		delay();
 
 		//Llamamos a función encargada de obtener el valor del ancho de pulso del colo ROJO
 		getPulseWidthGreen();
 
 		//Generamos delay entre medición
-		//delay();
+		delay();
 
 		//Llamamos a función encargada de obtener el valor del ancho de pulso del colo ROJO
 		getPulseWidthBlue();
 
 		//Generamos delay entre medición
-		//delay();
+		delay();
 
 		//Llamamos a la función encargada de representación en USART
 		msgUsart();
+
+		//Llamamos función para calcular el aporte de cada color RGB en la medición
+		getPulseScale();
 
 
 	}//Fin ciclo while
@@ -211,7 +244,7 @@ void initialConfig(){
 		//Configuración Timer5 --> control del tiempo (DELAY entre mediciones de color)
 		controlTimer.pTIMx                             = TIM3;
 		controlTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 0.1 s
-		controlTimer.TIMx_Config.TIMx_Period           = 1000;    //Periodo asociado a 1s
+		controlTimer.TIMx_Config.TIMx_Period           = 100;    //Periodo asociado a 0.1s
 		controlTimer.TIMx_Config.TIMx_mode             = TIMER_UP_COUNTER;
 		controlTimer.TIMx_Config.TIMx_InterruptEnable  = TIMER_INT_ENABLE;
 
@@ -478,7 +511,6 @@ void counterTimerPulseB(void){
 	}
 }
 
-
 //Definición de función para comunicación de datos en usart
 void msgUsart(void){
 
@@ -486,7 +518,11 @@ void msgUsart(void){
 	if(banderaUSARTTx){
 
 		//Escribimos mensaje con los datos de anchos de pulso de las señales
-		sprintf(bufferMsg,"Valores de ancho de pulso de cada color: R = %d ms, G = %d ms, B = %d ms \n\r",pulseWidthRed,pulseWidthGreen,pulseWidthBlue);
+		sprintf(bufferMsg,"Valores de ancho de pulso de cada color: R = %d ms, G = %d ms, B = %d ms \n",pulseWidthRed,pulseWidthGreen,pulseWidthBlue);
+		usart_writeMsg(&usart2, bufferMsg);
+
+		//Escribimos mensaje con los datos de aporte de cada color
+		sprintf(bufferMsg,"Valores de ancho de pulso de cada color: R = %d /1000, G = %d /1000, B = %d /1000 \n\r",aporteRed,aporteGreen,aporteBlue);
 		usart_writeMsg(&usart2, bufferMsg);
 
 		//Bajamos la bandera
@@ -576,6 +612,7 @@ void getPulseWidthRed(void){
 	//Configuramos filtro rojo para análisis del sensor RGB
 	sensorConfig(FILTRO_RED);
 
+	//Inicializamos variable para entrar al ciclo while
 	counterMeasureR = 1;
 
 	while(counterMeasureR != 0){
@@ -588,8 +625,10 @@ void getPulseWidthRed(void){
 		/* RECORDAR--> Duty de la señal es siempre del 50% */
 		pulseWidthRed = (pulseOutputSensorConfigR())/2;
 
+		//Definimos máximo del ciclo while en valor que permite contar y medir el ancho de pulso
 		if(counterOutputSensorR == 3){
 
+			//Reiniciamos variable para salir del ciclo
 			counterMeasureR = 0;
 		}
 	}
@@ -602,6 +641,7 @@ void getPulseWidthGreen(void){
 //	//Configuramos filtro rojo para análisis del sensor RGB
 	sensorConfig(FILTRO_GREEN);
 
+	//Inicializamos variable para entrar al ciclo while
 	counterMeasureG = 1;
 
 	while(counterMeasureG != 0){
@@ -614,8 +654,10 @@ void getPulseWidthGreen(void){
 		/* RECORDAR--> Duty de la señal es siempre del 50% */
 		pulseWidthGreen = (pulseOutputSensorConfigG())/2;
 
+		//Definimos máximo del ciclo while en valor que permite contar y medir el ancho de pulso
 		if(counterOutputSensorG == 3){
 
+			//Reiniciamos variable para salir del ciclo
 			counterMeasureG = 0;
 		}
 	}
@@ -628,6 +670,7 @@ void getPulseWidthBlue(void){
 //	//Configuramos filtro rojo para análisis del sensor RGB
 	sensorConfig(FILTRO_BLUE);
 
+	//Inicializamos variable para entrar al ciclo while
 	counterMeasureB = 1;
 
 	while(counterMeasureB != 0){
@@ -640,8 +683,10 @@ void getPulseWidthBlue(void){
 		/* RECORDAR--> Duty de la señal es siempre del 50% */
 		pulseWidthBlue = (pulseOutputSensorConfigB())/2;
 
+		//Definimos máximo del ciclo while en valor que permite contar y medir el ancho de pulso
 		if(counterOutputSensorB == 3){
 
+			//Reiniciamos variable para salir del ciclo
 			counterMeasureB = 0;
 		}
 	}
@@ -654,7 +699,8 @@ void delay(void){
 	//Verificamos si la bandera del timer asociado al delay (control timer) está encendido
 	if(banderaControlTimer){
 
-		while(counterDelay < 11){
+		//Con el siguiente ciclo while se está garantizando delay de aprox 0.5s
+		while(counterDelay < 6){
 
 			counterDelay++;
 		}
@@ -666,6 +712,81 @@ void delay(void){
 		banderaControlTimer = 0;
 	}
 
+}
+
+//Función para respetar los límites del intervalo de escalamiento
+uint16_t scaleLimit(uint16_t scaleValue){
+
+	uint16_t scaleAdjust = 0;
+
+	//Se evalua si el valor cumple las condiciones del intervalo
+	if(scaleValue > 1000){
+
+		//Se establece el valor justo en el máximo en caso de el original sobrepasarlo
+		scaleAdjust = 1000;
+	}
+	else if(scaleValue < 1){
+
+		//Se establece el valor justo en el mínimo en caso de el original sobrepasarlo
+		scaleAdjust = 0;
+	}
+	else{
+		scaleAdjust = scaleValue;
+	}
+
+	return scaleAdjust;
+
+}
+
+//Función para escalar el ancho de pulso de cada señal
+void getPulseScale(void){
+
+	/* Para poder lograr una mejor interpretación de los datos de aporte de cada uno de los colores
+	 * respecto a la medida definitiva del sensor se propone un escalamiento en el rango de 0 a 1000 (LINEA RECTA)
+	 * para cada uno de los colores -> Para poder cumplir con este objetivo se analizó cuales fueron
+	 * los valores máximos y mínimos medidos por cada filtro del sensor (analizando el color negro y blanco)
+	 * */
+	//ESCALA: 1000 -> Max contribución del color en el análisis === 0 -> Min contribución del color en el análisis
+
+	/*1. Determinamos el valor de la pendiente de escalamiento para cada uno de los filtros*/
+	//NOTA: Dado que NO queremos trabajar con datos de punto flotante se aproxima a considerar hasta el orden del tercer decimal
+	//para lograrlo se multiplica por 1000 el valor real de cada pendiente
+
+	//Calculamos pendiente escalamiento filtro RED
+	pendienteRed = ((1000000)/(MIN_APORTE_RED-MAX_APORTE_RED));
+
+	//Calculamos pendiente escalamiento filtro GREEN
+	pendienteGreen = ((1000000)/(MIN_APORTE_GREEN-MAX_APORTE_GREEN));
+
+	//Calculamos pendiente escalamiento filtro BLUE
+	pendienteBlue = ((1000000)/(MIN_APORTE_BLUE-MAX_APORTE_BLUE));
+
+	/*2. Aplicamos multiplicación de la pendiente por el respectivo valor medido.. para conocer el valor escalado resultante*/
+	//NOTA: Se divide el resultado entre 1000 para volver a valor real del escalamiento
+
+	//Calulamos el valor escalado RED
+	scaleValueRed = (pendienteRed*pulseWidthRed)/1000;
+
+	//Calulamos el valor escalado GREEN
+	scaleValueGreen = (pendienteGreen*pulseWidthGreen)/1000;
+
+	//Calulamos el valor escalado BLUE
+	scaleValueBlue = (pendienteBlue*pulseWidthBlue)/1000;
+
+	/*2.1 Es necesario NO sobrepasar los límites del intervalo de escalamiento, por lo tanto se ejecuta una función
+	 * para garantizar el cumplimiento de esta condición en los tres filtros de color R,G y B  --> POR ESTO SE LLAMA A scaleLimit()
+	 * en el siguiente item*/
+
+	/*3. Reajustamos resultado para garantizar que entre mayor el valor escalado, mayor el aporte del color respectivo en la medición*/
+
+	//Reajustando aporte respectivo escalado de RED
+	aporteRed = 1000 - scaleLimit(scaleValueRed);
+
+	//Reajustando aporte respectivo escalado de GREEN
+	aporteGreen = 1000 - scaleLimit(scaleValueGreen);
+
+	//Reajustando aporte respectivo escalado de BLUE
+	aporteBlue = 1000 - scaleLimit(scaleValueBlue);
 }
 
 /*
