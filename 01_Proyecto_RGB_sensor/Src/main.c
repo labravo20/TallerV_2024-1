@@ -397,7 +397,7 @@ void counterOutputSensorConfigR(void){
 		counterOutputSensorR++;
 
 		//Definimos límite de la suma para reiniciar contador
-		if(counterOutputSensorR == 4){
+		if(counterOutputSensorR == 3){
 
 			//En caso superarse el límite el contador se reinicia
 			counterOutputSensorR = 0;
@@ -421,7 +421,7 @@ void counterOutputSensorConfigG(void){
 		counterOutputSensorG++;
 
 		//Definimos límite de la suma para reiniciar contador
-		if(counterOutputSensorG == 4){
+		if(counterOutputSensorG == 3){
 
 			//En caso superarse el límite el contador se reinicia
 			counterOutputSensorG = 0;
@@ -445,7 +445,7 @@ void counterOutputSensorConfigB(void){
 		counterOutputSensorB++;
 
 		//Definimos límite de la suma para reiniciar contador
-		if(counterOutputSensorB == 4){
+		if(counterOutputSensorB == 3){
 
 			//En caso superarse el límite el contador se reinicia
 			counterOutputSensorB = 0;
@@ -528,12 +528,12 @@ void msgUsart(void){
 uint32_t pulseOutputSensorConfigR(void){
 
 	//Evaluamos inicio de contador del periodo cuando se mide el segundo rising edge
-	if(counterOutputSensorR == 2){
+	if(counterOutputSensorR == 1){
 
 		//Se inicia función para counter timer para determinar el periodo
 		counterTimerPulseR();
 	}
-	else if(counterOutputSensorR == 3){
+	else if(counterOutputSensorR == 2){
 
 		//Asignamos el valor del periodo a una variable que retornará la función
 		pulseOutputSensorR = counterPeriodR;
@@ -553,12 +553,12 @@ uint32_t pulseOutputSensorConfigR(void){
 uint32_t pulseOutputSensorConfigG(void){
 
 	//Evaluamos inicio de contador del periodo cuando se mide el segundo rising edge
-	if(counterOutputSensorG == 2){
+	if(counterOutputSensorG == 1){
 
 		//Se inicia función para counter timer para determinar el periodo
 		counterTimerPulseG();
 	}
-	else if(counterOutputSensorG == 3){
+	else if(counterOutputSensorG == 2){
 
 		//Asignamos el valor del periodo a una variable que retornará la función
 		pulseOutputSensorG = counterPeriodG;
@@ -578,12 +578,12 @@ uint32_t pulseOutputSensorConfigG(void){
 uint32_t pulseOutputSensorConfigB(void){
 
 	//Evaluamos inicio de contador del periodo cuando se mide el segundo rising edge
-	if(counterOutputSensorB == 2){
+	if(counterOutputSensorB == 1){
 
 		//Se inicia función para counter timer para determinar el periodo
 		counterTimerPulseB();
 	}
-	else if(counterOutputSensorB == 3){
+	else if(counterOutputSensorB == 2){
 
 		//Asignamos el valor del periodo a una variable que retornará la función
 		pulseOutputSensorB = counterPeriodB;
@@ -619,7 +619,7 @@ void getPulseWidthRed(void){
 		pulseWidthRed = (pulseOutputSensorConfigR())/2;
 
 		//Definimos máximo del ciclo while en valor que permite contar y medir el ancho de pulso
-		if(counterOutputSensorR == 3){
+		if(counterOutputSensorR == 2){
 
 			//Reiniciamos variable para salir del ciclo
 			counterMeasureR = 0;
@@ -648,7 +648,7 @@ void getPulseWidthGreen(void){
 		pulseWidthGreen = (pulseOutputSensorConfigG())/2;
 
 		//Definimos máximo del ciclo while en valor que permite contar y medir el ancho de pulso
-		if(counterOutputSensorG == 3){
+		if(counterOutputSensorG == 2){
 
 			//Reiniciamos variable para salir del ciclo
 			counterMeasureG = 0;
@@ -677,7 +677,7 @@ void getPulseWidthBlue(void){
 		pulseWidthBlue = (pulseOutputSensorConfigB())/2;
 
 		//Definimos máximo del ciclo while en valor que permite contar y medir el ancho de pulso
-		if(counterOutputSensorB == 3){
+		if(counterOutputSensorB == 2){
 
 			//Reiniciamos variable para salir del ciclo
 			counterMeasureB = 0;
@@ -775,6 +775,8 @@ void Timer2_Callback(void){
 
 	gpio_TooglePin(&stateLed);
 
+	//Activamos bandera correspondiente a USART para transmisión
+	banderaUSARTTx = 1;
 }
 
 /*
@@ -782,8 +784,6 @@ void Timer2_Callback(void){
  * */
 void Timer3_Callback(void){
 
-	//Activamos bandera correspondiente a USART para transmisión
-	banderaUSARTTx = 1;
 }
 
 /*
