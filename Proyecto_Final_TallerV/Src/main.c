@@ -2,7 +2,7 @@
  ******************************************************************************
  * @file           : main.c
  * @author         : Laura Sofia Bravo Revelo (labravo)
- * @brief          : Solución Tarea 3
+ * @brief          : Proyecto Final Taller V
  ******************************************************************************
  */
 
@@ -13,6 +13,7 @@
 #include "timer_driver_hal.h"
 #include "exti_driver_hal.h"
 #include "usart_driver_hal.h"
+#include "pwm_driver_hal.h"
 
 //Definimos pines a utilizar para verificación
 GPIO_Handler_t verificationLed    = {0}; //PinA5 (Led para verificación de correcto funcionamiento)
@@ -38,10 +39,16 @@ GPIO_Handler_t userOutputSensor   = {0};//Pin B2  //EXTI output sensor RGB --> i
 GPIO_Handler_t   userUsart2Tx     = {0};//Pin A2 //USART pin de transmisón
 GPIO_Handler_t   userUsart2Rx     = {0};//Pin A3 //USART pin de recepción
 
+//Definimos pines a utilizar para PWM
+GPIO_Handler_t   pinPWMChannel   = {0};
+
 //Definimos timers a utilizar
 Timer_Handler_t blinkTimer        = {0}; // Timer para el blinking
 Timer_Handler_t controlTimer      = {0}; // Timer asociado al control del tiempo entre mediciones del sensor --> Generamos delay de 200ms
 Timer_Handler_t pulseTimer        = {0}; // Timer asociado a contador del ancho de pulso de la señal PWM
+
+//Definición de canal PWM a usar
+PWM_Handler_t    signalPWM       = {0};
 
 //Definición lineas EXTI que vamos a utilizar
 EXTI_Config_t outputSensorExti    = {0}; //EXTI linea 2 para el output del sensor RGB
@@ -116,6 +123,34 @@ uint16_t aporteRed   = 0;
 uint16_t aporteGreen = 0;
 uint16_t aporteBlue  = 0;
 
+//Definición de variable para cargar el aporte DEFINITIVO de los tres colores en cada medida
+uint32_t aporteRGB   = 0;
+
+//Definición de variable para pendiente de escalamiento para la frecuencia de entrada al buzzer
+uint8_t pendienteFrec = 0;
+
+//Definición de variable para asignar el valor del dutty de la señal PWM que ingresa al buzzer
+uint16_t duttyValue  = 0;
+
+//Definición de variable para asignar el valor del periodo de la señal PWM que ingresa al buzzer
+uint16_t periodValue = 0;
+
+//Definición de variable para asignar la frecuencia de la señal PWM que ingresa al buzzer
+uint16_t  frecValue  = 0;
+
+/*Rango de frecuencias a utilizar
+ *
+ * == Cuarta octava del piano de 262 Hz hasta 494 Hz aprox    ==
+ * == Quinta octava del piano de 524 Hz hasta 988 Hz aprox    ==
+ * == Sexta octava del piano de 1046 Hz hasta 1976 Hz aprox   ==
+ * == Septima octava del piano de 2094 Hz hasta 3952 Hz aprox ==
+ * INICIO --> 300  Hz aprox
+ * FIN    --> 3952 Hz aprox
+ *
+ * */
+#define  MAX_FREQUENCY  3952
+#define  MIN_FREQUENCY  300
+
 //Definición función para configuración inicial
 void initialConfig(void);
 
@@ -148,11 +183,14 @@ void getPulseWidthRed(void);
 void getPulseWidthGreen(void);
 void getPulseWidthBlue(void);
 
-//Definición función para escalamiento de resultados
+//Definición función para escalamiento de resultados RGB
 void getPulseScale(void);
 
 //Definición función para respetar los límites del intervalo de escalamiento
 uint16_t scaleLimit(uint16_t scaleValue);
+
+//Definición de función para escalamiento de resultados RGB a frecuencia
+void getFrequency(void);
 
 /*  Main function  */
 int main(void)
@@ -177,6 +215,9 @@ int main(void)
 
 		//Llamamos función para calcular el aporte de cada color RGB en la medición
 		getPulseScale();
+
+		//Llamamos a función para calcular valor de frecuencia a calcular
+		getFrequency();
 
 
 	}//Fin ciclo while
@@ -235,7 +276,7 @@ void initialConfig(){
 		//A continuación se está realizando la configuración de los timers a usar
 
 		//Configuración Timer5 --> control del tiempo (DELAY entre mediciones de color)
-		controlTimer.pTIMx                             = TIM3;
+		controlTimer.pTIMx                             = TIM4;
 		controlTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 0.1 s
 		controlTimer.TIMx_Config.TIMx_Period           = 3000;    //Periodo asociado a 3s
 		controlTimer.TIMx_Config.TIMx_mode             = TIMER_UP_COUNTER;
@@ -343,6 +384,30 @@ void initialConfig(){
 
 		//Cargamos la configuración en los registros que gobiernan el puerto
 		usart_Config(&usart2);
+
+		//A continuación se hace la configuración para los canales PWM a utilizar
+
+		/*Configuración timer para generar señal pwm*/
+		signalPWM.ptrTIMx                = TIM3;
+		signalPWM.config.channel         = PWM_CHANNEL_1;
+		signalPWM.config.duttyCicle      = duttyValue; //Se debe asegurar PWM siempre tendrá un dutty del 50%
+		signalPWM.config.prescaler       = 1600;
+		signalPWM.config.periodo         = periodValue; //Periodo es de (2*duttyValue)/10000
+
+		pwm_Config(&signalPWM);
+		pwm_Enable_Output(&signalPWM);
+		pwm_Start_Signal(&signalPWM);
+
+		/*Configuración PWM*/
+		pinPWMChannel.pGPIOx                        = GPIOC;
+		pinPWMChannel.pinConfig.GPIO_PinNumber      = PIN_6;
+		pinPWMChannel.pinConfig.GPIO_PinMode        = GPIO_MODE_ALTFN;
+		pinPWMChannel.pinConfig.GPIO_PinOutputType  = GPIO_OTYPE_PUSHPULL;
+		pinPWMChannel.pinConfig.GPIO_PinPuPdControl = GPIO_PUPDR_NOTHING;
+		pinPWMChannel.pinConfig.GPIO_PinOutputSpeed = GPIO_OSPEED_FAST;
+		pinPWMChannel.pinConfig.GPIO_PinAltFunMode  = AF2;
+
+		gpio_Config(&pinPWMChannel);
 
 }
 
@@ -759,6 +824,31 @@ void getPulseScale(void){
 
 	//Reajustando aporte respectivo escalado de BLUE
 	aporteBlue = 1000 - scaleLimit(scaleValueBlue);
+
+	//Calculamos el valor del aporte TOTAL de los tres filtros de color
+	/* Esta valor va a ser de utilidad para asignar el respectivo valor de frecuencia para reproducir.
+	 * Cada medida, considerando el aporte RGB, va a tener un valor dentro del rango [0-111000] (*Este valor
+	 * pensando en lograr asignar a diferentes colores diferentes tonos, sin importar que el porcentaje de
+	 * aporte RGB total pueda ser el mismo entre dos colores distintos, importará también el aporte específico
+	 * de cada filtro de color para determinar la tonalidad específica*), el porcentaje asociado a este
+	 * valor/111000 va a escalar el valor de frecuencia a reproducir*/
+
+	aporteRGB = (aporteBlue*100) + (aporteGreen*10) + (aporteRed);
+}
+
+//Función para escalamiento de resultados RGB a frecuencia
+void getFrequency(void){
+
+	/*Para poder asignar un resultado de frecuencia relacionado con los valores de aporte de cada uno de los filtros RGB se propone
+	 * un escalamiento (LINEA RECTA) que irá dentro del rango aprox [300 Hz,3950 Hz] que corresponde a gran parte de las notas presentes en los
+	 * espacios de la cuarta a séptima octava de un piano.*/
+
+	/*1. Determinamos el valor de la pendiente de escalamiento*/
+	//NOTA: Dado que NO queremos trabajar con datos de punto flotante se aproxima a considerar hasta el orden del tercer decimal
+	//para lograrlo se multiplica por 1000 el valor real de cada pendiente
+
+	pendienteFrec = (1000*(MAX_FREQUENCY-MIN_FREQUENCY))/(111000);
+
 }
 
 /*
@@ -779,15 +869,9 @@ void Timer2_Callback(void){
 	banderaUSARTTx = 1;
 }
 
+
 /*
  * Overwrite function for pulse timer
- * */
-void Timer3_Callback(void){
-
-}
-
-/*
- * Overwrite function for control del tiempo
  * */
 void Timer5_Callback(void){
 
