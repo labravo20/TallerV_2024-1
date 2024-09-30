@@ -150,6 +150,33 @@ uint16_t periodValue = 0;
  * INICIO --> 300  Hz aprox
  * FIN    --> 3952 Hz aprox
  *
+ * NOTAS PARA ASIGNAR INTERVALOS
+ *
+ * ==CUARTA OCTAVA==
+ * Re#/Mib    311 Hz --> 160 Dutty
+ * Mi         330 Hz --> 152 Dutty
+ * Fa         349 Hz --> 143 Dutty
+ * Fa#/Solb   370 Hz --> 135 Dutty
+ * Sol        392 Hz --> 128 Dutty
+ * Sol#/Lab   415 Hz --> 120 Dutty
+ * La         440 Hz --> 114 Dutty
+ * La#/Sib    466 Hz --> 107 Dutty
+ * Si         494 Hz --> 101 Dutty
+ *
+ *  * ==QUINTA OCTAVA==
+ * Do         523 Hz -->  96 Dutty
+ * Do#/Reb    554 Hz -->  90 Dutty
+ * Re         587 Hz -->  85 Dutty
+ * Re#/Mib    622 Hz -->  80 Dutty
+ * Mi         659 Hz -->  76 Dutty
+ * Fa         698 Hz -->  72 Dutty
+ * Fa#/Solb   740 Hz -->  68 Dutty
+ * Sol        784 Hz -->  64 Dutty
+ * Sol#/Lab   830 Hz -->  60 Dutty
+ * La         880 Hz -->  57 Dutty
+ * La#/Sib    932 Hz -->  54 Dutty
+ * Si         988 Hz -->  51 Dutty
+ *
  * */
 #define  MAX_FREQUENCY  3000
 #define  MIN_FREQUENCY  300
@@ -895,19 +922,18 @@ void getFrequency(void){
 	//Evaluamos si el numero es par o impar para poder mejorar el cálculo del Dutty correctamente
 	if((periodValue % 2) != 0){
 
-		periodValue = periodValue + 1;
+		//Determinamos el valor de dutty en el 50% constante para todos los casos de frecuencia
+		duttyValue = ((periodValue + 1)/2) ;
 	}
 	else{
 
-		periodValue = periodValue;
+		//Determinamos el valor de dutty en el 50% constante para todos los casos de frecuencia
+		duttyValue = (periodValue/2) ;
 	}
 
-	//Determinamos el valor de dutty en el 50% constante para todos los casos de frecuencia
-	duttyValue = (periodValue/2) ;
-
 	//Se actualiza el valor del periodo y el dutty en configuración del PWM
-	pwm_Update_Frequency(&signalPWM, periodValue);
-	pwm_Update_DuttyCycle(&signalPWM, duttyValue);
+	pwm_Update_Frequency(&signalPWM, 101);
+	pwm_Update_DuttyCycle(&signalPWM, 51);
 
 	//Inicializando la señal PWM
 	pwm_Start_Signal(&signalPWM);
