@@ -135,6 +135,9 @@ uint16_t scaleValueFrec = 0;
 //Definición de variable para asignar la frecuencia de la señal PWM que ingresa al buzzer
 uint16_t  frecValue  = 0;
 
+//Definición de variable para asignar la frecuencia de la señal PWM que ingresa al buzzer en funión de intervalos notas musicales
+uint16_t  noteFrecValue  = 0;
+
 //Definición de variable para asignar el valor del dutty de la señal PWM que ingresa al buzzer
 uint16_t duttyValue  = 0;
 
@@ -1245,12 +1248,12 @@ void getFrequency(void){
 
 	/*2.2 Establecemos intervalos para las frecuencias de modo que siempre se de saltos entre las notas musicales en consideración*/
 
-	frecValue = noteLimitFrec(frecValue);
+	noteFrecValue = noteLimitFrec(frecValue);
 
 	/*3. Determinamos los valores del Dutty y del periodo que deben ir en la configuración del PWM*/
 
 	//Determinamos el valor del "periodo" que se asigna en la configuración teniendo en cuenta velocidad micro 16MHz y prescaler en 1600Hz
-	periodValue = (100000/frecValue);
+	periodValue = (100000/noteFrecValue);
 
 	//Evaluamos si el numero es par o impar para poder mejorar el cálculo del Dutty correctamente
 	if((periodValue % 2) != 0){
