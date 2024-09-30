@@ -129,14 +129,17 @@ uint32_t aporteRGB   = 0;
 //Definición de variable para pendiente de escalamiento para la frecuencia de entrada al buzzer
 uint8_t pendienteFrec = 0;
 
+//Definición de variable para cargar el valor medido escalado
+uint16_t scaleValueFrec = 0;
+
+//Definición de variable para asignar la frecuencia de la señal PWM que ingresa al buzzer
+uint16_t  frecValue  = 0;
+
 //Definición de variable para asignar el valor del dutty de la señal PWM que ingresa al buzzer
 uint16_t duttyValue  = 0;
 
 //Definición de variable para asignar el valor del periodo de la señal PWM que ingresa al buzzer
 uint16_t periodValue = 0;
-
-//Definición de variable para asignar la frecuencia de la señal PWM que ingresa al buzzer
-uint16_t  frecValue  = 0;
 
 /*Rango de frecuencias a utilizar
  *
@@ -148,7 +151,7 @@ uint16_t  frecValue  = 0;
  * FIN    --> 3952 Hz aprox
  *
  * */
-#define  MAX_FREQUENCY  3952
+#define  MAX_FREQUENCY  3000
 #define  MIN_FREQUENCY  300
 
 //Definición función para configuración inicial
@@ -189,6 +192,9 @@ void getPulseScale(void);
 //Definición función para respetar los límites del intervalo de escalamiento
 uint16_t scaleLimit(uint16_t scaleValue);
 
+//Definición función para respetar los límites del intervalo de escalamiento
+uint16_t scaleLimitFrec(uint16_t scaleValueFrequency);
+
 //Definición de función para escalamiento de resultados RGB a frecuencia
 void getFrequency(void);
 
@@ -218,7 +224,6 @@ int main(void)
 
 		//Llamamos a función para calcular valor de frecuencia a calcular
 		getFrequency();
-
 
 	}//Fin ciclo while
 
@@ -391,12 +396,11 @@ void initialConfig(){
 		signalPWM.ptrTIMx                = TIM3;
 		signalPWM.config.channel         = PWM_CHANNEL_1;
 		signalPWM.config.duttyCicle      = duttyValue; //Se debe asegurar PWM siempre tendrá un dutty del 50%
-		signalPWM.config.prescaler       = 1600;
-		signalPWM.config.periodo         = periodValue; //Periodo es de (2*duttyValue)/10000
+		signalPWM.config.prescaler       = 160;
+		signalPWM.config.periodo         = periodValue; //Periodo es de periodValue/100000
 
 		pwm_Config(&signalPWM);
 		pwm_Enable_Output(&signalPWM);
-		pwm_Start_Signal(&signalPWM);
 
 		/*Configuración PWM*/
 		pinPWMChannel.pGPIOx                        = GPIOC;
@@ -836,6 +840,30 @@ void getPulseScale(void){
 	aporteRGB = (aporteBlue*100) + (aporteGreen*10) + (aporteRed);
 }
 
+//Función para respetar los límites del intervalo de escalamiento
+uint16_t scaleLimitFrec(uint16_t scaleValueFrequency){
+
+	uint16_t scaleAdjustFrec = 0;
+
+	//Se evalua si el valor cumple las condiciones del intervalo
+	if(scaleValueFrequency > 3000){
+
+		//Se establece el valor justo en el máximo en caso de el original sobrepasarlo
+		scaleAdjustFrec = 3000;
+	}
+	else if(scaleValueFrequency < 300){
+
+		//Se establece el valor justo en el mínimo en caso de el original sobrepasarlo
+		scaleAdjustFrec = 300;
+	}
+	else{
+		scaleAdjustFrec = scaleValueFrequency;
+	}
+
+	return scaleAdjustFrec;
+
+}
+
 //Función para escalamiento de resultados RGB a frecuencia
 void getFrequency(void){
 
@@ -848,6 +876,41 @@ void getFrequency(void){
 	//para lograrlo se multiplica por 1000 el valor real de cada pendiente
 
 	pendienteFrec = (1000*(MAX_FREQUENCY-MIN_FREQUENCY))/(111000);
+
+	/*2. Aplicamos multiplicación de la pendiente por el respectivo valor medido.. para conocer el valor escalado resultante*/
+	//NOTA: Se divide el resultado entre 1000 para volver a valor real del escalamiento
+
+	scaleValueFrec = (pendienteFrec*aporteRGB)/1000;
+
+	/*2.1 Es necesario NO sobrepasar los límites del intervalo de escalamiento, por lo tanto se ejecuta una función
+	 * para garantizar el cumplimiento de esta condición */
+
+	frecValue = scaleLimitFrec(scaleValueFrec);
+
+	/*3. Determinamos los valores del Dutty y del periodo que deben ir en la configuración del PWM*/
+
+	//Determinamos el valor del "periodo" que se asigna en la configuración teniendo en cuenta velocidad micro 16MHz y prescaler en 1600Hz
+	periodValue = (100000/frecValue);
+
+	//Evaluamos si el numero es par o impar para poder mejorar el cálculo del Dutty correctamente
+	if((periodValue % 2) != 0){
+
+		periodValue = periodValue + 1;
+	}
+	else{
+
+		periodValue = periodValue;
+	}
+
+	//Determinamos el valor de dutty en el 50% constante para todos los casos de frecuencia
+	duttyValue = (periodValue/2) ;
+
+	//Se actualiza el valor del periodo y el dutty en configuración del PWM
+	pwm_Update_Frequency(&signalPWM, periodValue);
+	pwm_Update_DuttyCycle(&signalPWM, duttyValue);
+
+	//Inicializando la señal PWM
+	pwm_Start_Signal(&signalPWM);
 
 }
 

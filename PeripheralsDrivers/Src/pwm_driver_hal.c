@@ -344,7 +344,7 @@ void pwm_Set_Frequency(PWM_Handler_t *ptrPwmHandler){
 
 	//Cargamos el valor del ARR, el cual es el límite de incrementos del Timer
 	//antes de hacer un opdate y reload
-	ptrPwmHandler->ptrTIMx->ARR = ptrPwmHandler->config.periodo - 1; /*Porqué se resta aquí también 1?*/
+	ptrPwmHandler->ptrTIMx->ARR = ptrPwmHandler->config.periodo - 1;
 }
 
 /**/
