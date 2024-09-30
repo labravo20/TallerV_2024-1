@@ -156,7 +156,7 @@ uint16_t periodValue = 0;
  * NOTAS PARA ASIGNAR INTERVALOS
  *
  * ==CUARTA OCTAVA==
- * Re#/Mib    311 Hz --> 160 Dutty
+ * Re#/Mib    311 Hz --> 161 Dutty
  * Mi         330 Hz --> 152 Dutty
  * Fa         349 Hz --> 143 Dutty
  * Fa#/Solb   370 Hz --> 135 Dutty
@@ -247,6 +247,9 @@ uint16_t scaleLimit(uint16_t scaleValue);
 
 //Definición función para respetar los límites del intervalo de escalamiento
 uint16_t scaleLimitFrec(uint16_t scaleValueFrequency);
+
+//Definición función para respetar los límites de frecuencias en intervalos de notas musicales
+uint16_t noteLimitFrec(uint16_t scaleValueNote);
 
 //Definición de función para escalamiento de resultados RGB a frecuencia
 void getFrequency(void);
@@ -917,6 +920,306 @@ uint16_t scaleLimitFrec(uint16_t scaleValueFrequency){
 
 }
 
+//Función para respetar los límites de frecuencias en intervalos de notas musicales
+uint16_t noteLimitFrec(uint16_t scaleValueNote){
+
+	uint16_t noteAdjustFrec = 0;
+
+	/*CONDICIONES NOTAS CUARTA OCTAVA*/
+	//Se evalua si pertenece al intervalo  Re#/Mib  311 Hz
+	if(scaleValueNote <= 320){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 311;
+	}
+
+	//En este caso se evalua si pertenece al intervalor Mi  330 Hz
+	else if((scaleValueNote > 320) & (scaleValueNote <= 340)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 330;
+	}
+
+	//En este caso se evalua si pertenece al intervalor Fa  349 Hz
+	else if((scaleValueNote > 340) & (scaleValueNote <= 360)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 349;
+	}
+
+	//En este caso se evalua si pertenece al intervalor Fa#/Solb 370 Hz
+	else if((scaleValueNote > 360) & (scaleValueNote <= 380)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 370;
+	}
+
+	//En este caso se evalua si pertenece al intervalor Sol   392 Hz
+	else if((scaleValueNote > 380) & (scaleValueNote <= 400)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 392;
+	}
+
+	//En este caso se evalua si pertenece al intervalor Sol#/Lab 415 Hz
+	else if((scaleValueNote > 400) & (scaleValueNote <= 425)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 415;
+	}
+
+	//En este caso se evalua si pertenece al intervalor La 440 Hz
+	else if((scaleValueNote > 425) & (scaleValueNote <= 455)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 440;
+	}
+
+	//En este caso se evalua si pertenece al intervalor La#/Sib 466 Hz
+	else if((scaleValueNote > 455) & (scaleValueNote <= 480)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 466;
+	}
+
+	//En este caso se evalua si pertenece al intervalor Si   494 Hz
+	else if((scaleValueNote > 480) & (scaleValueNote <= 510)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 494;
+	}
+
+	/*CONDICIONES NOTAS QUINTA OCTAVA*/
+	//En este caso se evalua si pertenece al intervalor Do  523 Hz
+	else if((scaleValueNote > 510) & (scaleValueNote <= 535)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 523;
+	}
+
+	//En este caso se evalua si pertenece al intervalor Do#/Reb  554 Hz
+	else if((scaleValueNote > 535) & (scaleValueNote <= 570)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 554;
+	}
+
+	//En este caso se evalua si pertenece al intervalor Re  587 Hz
+	else if((scaleValueNote > 570) & (scaleValueNote <= 600)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 587;
+	}
+
+	//En este caso se evalua si pertenece al intervalor Re#/Mib  622 Hz
+	else if((scaleValueNote > 600) & (scaleValueNote <= 640)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 622;
+	}
+
+	//En este caso se evalua si pertenece al intervalor Mi   659 Hz
+	else if((scaleValueNote > 640) & (scaleValueNote <= 680)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 659;
+	}
+
+	//En este caso se evalua si pertenece al intervalor Fa  698 Hz
+	else if((scaleValueNote > 680) & (scaleValueNote <= 720)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 698;
+	}
+
+	//En este caso se evalua si pertenece al intervalor Fa#/Solb   740 Hz
+	else if((scaleValueNote > 720) & (scaleValueNote <= 760)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 740;
+	}
+
+	//En este caso se evalua si pertenece al intervalor Sol  784 Hz
+	else if((scaleValueNote > 760) & (scaleValueNote <= 800)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 784;
+	}
+
+	//En este caso se evalua si pertenece al intervalor Sol#/Lab   830 Hz
+	else if((scaleValueNote > 800) & (scaleValueNote <= 855)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 830;
+	}
+
+	//En este caso se evalua si pertenece al intervalor La  880 Hz
+	else if((scaleValueNote > 855) & (scaleValueNote <= 905)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 880;
+	}
+
+	//En este caso se evalua si pertenece al intervalor  La#/Sib  932 Hz
+	else if((scaleValueNote > 905) & (scaleValueNote <= 955)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 932;
+	}
+
+	//En este caso se evalua si pertenece al intervalor  Si  988 Hz
+	else if((scaleValueNote > 955) & (scaleValueNote <= 1020)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 988;
+	}
+
+	/*CONDICIONES NOTAS SEXTA OCTAVA*/
+	//En este caso se evalua si pertenece al intervalor  Do   1046 Hz
+	else if((scaleValueNote > 1020) & (scaleValueNote <= 1080)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 1046;
+	}
+
+	//En este caso se evalua si pertenece al intervalor  Do#/Reb    1108 Hz
+	else if((scaleValueNote > 1080) & (scaleValueNote <= 1140)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 1108;
+	}
+
+	//En este caso se evalua si pertenece al intervalor  Re  1174 Hz
+	else if((scaleValueNote > 1140) & (scaleValueNote <= 1200)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 1174;
+	}
+
+	//En este caso se evalua si pertenece al intervalor  Re#/Mib  1244 Hz
+	else if((scaleValueNote > 1200) & (scaleValueNote <= 1275)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 1244;
+	}
+
+	//En este caso se evalua si pertenece al intervalor  Mi  1318 Hz
+	else if((scaleValueNote > 1275) & (scaleValueNote <= 1350)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 1318;
+	}
+
+	//En este caso se evalua si pertenece al intervalor  Fa  1397 Hz
+	else if((scaleValueNote > 1350) & (scaleValueNote <= 1440)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 1397;
+	}
+
+	//En este caso se evalua si pertenece al intervalor  Fa#/Solb   1480 Hz
+	else if((scaleValueNote > 1440) & (scaleValueNote <= 1520)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 1480;
+	}
+
+	//En este caso se evalua si pertenece al intervalor  Sol   1568 Hz
+	else if((scaleValueNote > 1520) & (scaleValueNote <= 1615)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 1568;
+	}
+
+	//En este caso se evalua si pertenece al intervalor  Sol#/Lab   1661 Hz
+	else if((scaleValueNote > 1615) & (scaleValueNote <= 1705)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 1661;
+	}
+
+	//En este caso se evalua si pertenece al intervalor  La   1760 Hz
+	else if((scaleValueNote > 1705) & (scaleValueNote <= 1810)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 1760;
+	}
+
+	//En este caso se evalua si pertenece al intervalor  La#/Sib    1864 Hz
+	else if((scaleValueNote > 1810) & (scaleValueNote <= 1910)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 1864;
+	}
+
+	//En este caso se evalua si pertenece al intervalor  Si  1975 Hz
+	else if((scaleValueNote > 1910) & (scaleValueNote <= 2030)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 1975;
+	}
+
+	/*CONDICIONES NOTAS SEPTIMA OCTAVA*/
+	//En este caso se evalua si pertenece al intervalor  Do   2093 Hz
+	else if((scaleValueNote > 2030) & (scaleValueNote <= 2155)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 2093;
+	}
+
+	//En este caso se evalua si pertenece al intervalor  Do#/Reb    2217 Hz
+	else if((scaleValueNote > 2155) & (scaleValueNote <= 2275)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 2217;
+	}
+
+	//En este caso se evalua si pertenece al intervalor  Re  2349 Hz
+	else if((scaleValueNote > 2275) & (scaleValueNote <= 2415)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 2349;
+	}
+
+	//En este caso se evalua si pertenece al intervalor  Re#/Mib    2489 Hz
+	else if((scaleValueNote > 2415) & (scaleValueNote <= 2560)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 2489;
+	}
+
+	//En este caso se evalua si pertenece al intervalor  Mi  2637 Hz
+	else if((scaleValueNote > 2560) & (scaleValueNote <= 2710)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 2637;
+	}
+
+	//En este caso se evalua si pertenece al intervalor Fa  2793 Hz
+	else if((scaleValueNote > 2710) & (scaleValueNote <= 2865)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 2793;
+	}
+
+	//En este caso se evalua si pertenece al intervalor Fa#/Solb   2960 Hz
+	else if((scaleValueNote > 2865) & (scaleValueNote <= 3000)){
+
+		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
+		noteAdjustFrec = 2960;
+	}
+
+	//Condicional default
+	else{
+
+		noteAdjustFrec = scaleValueNote;
+	}
+
+
+	return noteAdjustFrec;
+
+}
+
 //Función para escalamiento de resultados RGB a frecuencia
 void getFrequency(void){
 
@@ -939,6 +1242,10 @@ void getFrequency(void){
 	 * para garantizar el cumplimiento de esta condición */
 
 	frecValue = scaleLimitFrec(scaleValueFrec);
+
+	/*2.2 Establecemos intervalos para las frecuencias de modo que siempre se de saltos entre las notas musicales en consideración*/
+
+	frecValue = noteLimitFrec(frecValue);
 
 	/*3. Determinamos los valores del Dutty y del periodo que deben ir en la configuración del PWM*/
 
@@ -965,6 +1272,8 @@ void getFrequency(void){
 	pwm_Start_Signal(&signalPWM);
 
 }
+
+
 
 /*
  * Overwrite function for A5
