@@ -147,8 +147,11 @@ uint16_t periodValue = 0;
  * == Quinta octava del piano de 524 Hz hasta 988 Hz aprox    ==
  * == Sexta octava del piano de 1046 Hz hasta 1976 Hz aprox   ==
  * == Septima octava del piano de 2094 Hz hasta 3952 Hz aprox ==
+ *
+ * Los límites de trabajo usados se muestran a continuación:
  * INICIO --> 300  Hz aprox
  * FIN    --> 3952 Hz aprox
+ *  **Esta selección se determinó analizando el rango de trabajo del buzzer
  *
  * NOTAS PARA ASIGNAR INTERVALOS
  *
@@ -163,7 +166,7 @@ uint16_t periodValue = 0;
  * La#/Sib    466 Hz --> 107 Dutty
  * Si         494 Hz --> 101 Dutty
  *
- *  * ==QUINTA OCTAVA==
+ * ==QUINTA OCTAVA==
  * Do         523 Hz -->  96 Dutty
  * Do#/Reb    554 Hz -->  90 Dutty
  * Re         587 Hz -->  85 Dutty
@@ -176,6 +179,29 @@ uint16_t periodValue = 0;
  * La         880 Hz -->  57 Dutty
  * La#/Sib    932 Hz -->  54 Dutty
  * Si         988 Hz -->  51 Dutty
+ *
+ * ==SEXTA OCTAVA==
+ * Do         1046 Hz -->  48 Dutty
+ * Do#/Reb    1108 Hz -->  45 Dutty
+ * Re         1174 Hz -->  43 Dutty
+ * Re#/Mib    1244 Hz -->  40 Dutty
+ * Mi         1318 Hz -->  38 Dutty
+ * Fa         1397 Hz -->  36 Dutty
+ * Fa#/Solb   1480 Hz -->  34 Dutty
+ * Sol        1568 Hz -->  32 Dutty
+ * Sol#/Lab   1661 Hz -->  30 Dutty
+ * La         1760 Hz -->  28 Dutty
+ * La#/Sib    1864 Hz -->  27 Dutty
+ * Si         1975 Hz -->  25 Dutty
+ *
+ * ==SEPTIMA OCTAVA==
+ * Do         2093 Hz -->  24 Dutty
+ * Do#/Reb    2217 Hz -->  23 Dutty
+ * Re         2349 Hz -->  21 Dutty
+ * Re#/Mib    2489 Hz -->  20 Dutty
+ * Mi         2637 Hz -->  19 Dutty
+ * Fa         2793 Hz -->  18 Dutty
+ * Fa#/Solb   2960 Hz -->  17 Dutty
  *
  * */
 #define  MAX_FREQUENCY  3000
@@ -932,8 +958,8 @@ void getFrequency(void){
 	}
 
 	//Se actualiza el valor del periodo y el dutty en configuración del PWM
-	pwm_Update_Frequency(&signalPWM, 101);
-	pwm_Update_DuttyCycle(&signalPWM, 51);
+	pwm_Update_Frequency(&signalPWM, periodValue);
+	pwm_Update_DuttyCycle(&signalPWM, duttyValue);
 
 	//Inicializando la señal PWM
 	pwm_Start_Signal(&signalPWM);
