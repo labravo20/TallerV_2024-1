@@ -100,13 +100,20 @@ uint16_t pulseWidthBlue           = 0;
 
 //Definición de valores máximos y mínimos de medición de cada filtro de color
 
-/*NOTA --> Terminar de optimizar la calibración para obtener mejor diferenciación entre colores*/
-#define    MIN_APORTE_RED      16000  //Aporte de filtro RED cuando hay menor frecuencia (mayor ancho pulso) --> ANALIZANDO COLOR NEGRO
-#define    MAX_APORTE_RED      2000    //Aporte de filtro RED cuando hay mayor frecuencia (menor ancho pulso) --> ANALIZANDO COLOR BLANCO
-#define    MIN_APORTE_GREEN    14000   //Aporte de filtro GREEN cuando hay menor frecuencia (mayor ancho pulso) --> ANALIZANDO COLOR NEGRO
-#define    MAX_APORTE_GREEN    3000   //Aporte de filtro GREEN cuando hay mayor frecuencia (menor ancho pulso) --> ANALIZANDO COLOR BLANCO
-#define    MIN_APORTE_BLUE     16000 //Aporte de filtro BLUE cuando hay menor frecuencia (mayor ancho pulso) --> ANALIZANDO COLOR NEGRO
-#define    MAX_APORTE_BLUE     3000   //Aporte de filtro BLUE cuando hay mayor frecuencia (menor ancho pulso) --> ANALIZANDO COLOR BLANCO
+//#define    MIN_APORTE_RED      16000  //Aporte de filtro RED cuando hay menor frecuencia (mayor ancho pulso) --> ANALIZANDO COLOR NEGRO
+//#define    MAX_APORTE_RED      2000    //Aporte de filtro RED cuando hay mayor frecuencia (menor ancho pulso) --> ANALIZANDO COLOR BLANCO
+//#define    MIN_APORTE_GREEN    14000   //Aporte de filtro GREEN cuando hay menor frecuencia (mayor ancho pulso) --> ANALIZANDO COLOR NEGRO
+//#define    MAX_APORTE_GREEN    3000   //Aporte de filtro GREEN cuando hay mayor frecuencia (menor ancho pulso) --> ANALIZANDO COLOR BLANCO
+//#define    MIN_APORTE_BLUE     16000 //Aporte de filtro BLUE cuando hay menor frecuencia (mayor ancho pulso) --> ANALIZANDO COLOR NEGRO
+//#define    MAX_APORTE_BLUE     3000   //Aporte de filtro BLUE cuando hay mayor frecuencia (menor ancho pulso) --> ANALIZANDO COLOR BLANCO
+
+/*OPCIÓN 2 DE CALIBRACIÓN:*/
+#define    MIN_APORTE_RED      18000  //Aporte de filtro RED cuando hay menor frecuencia (mayor ancho pulso) --> ANALIZANDO COLOR NEGRO
+#define    MAX_APORTE_RED      1060    //Aporte de filtro RED cuando hay mayor frecuencia (menor ancho pulso) --> ANALIZANDO COLOR BLANCO
+#define    MIN_APORTE_GREEN    15500   //Aporte de filtro GREEN cuando hay menor frecuencia (mayor ancho pulso) --> ANALIZANDO COLOR NEGRO
+#define    MAX_APORTE_GREEN    1440   //Aporte de filtro GREEN cuando hay mayor frecuencia (menor ancho pulso) --> ANALIZANDO COLOR BLANCO
+#define    MIN_APORTE_BLUE     14600 //Aporte de filtro BLUE cuando hay menor frecuencia (mayor ancho pulso) --> ANALIZANDO COLOR NEGRO
+#define    MAX_APORTE_BLUE     1410   //Aporte de filtro BLUE cuando hay mayor frecuencia (menor ancho pulso) --> ANALIZANDO COLOR BLANCO
 
 //Definición de variables para pendientes de escalamiento de medidas en cada filtro del sensor RGB
 uint8_t pendienteRed    = 0;
@@ -122,6 +129,11 @@ uint16_t scaleValueBlue  = 0;
 uint16_t aporteRed   = 0;
 uint16_t aporteGreen = 0;
 uint16_t aporteBlue  = 0;
+
+//Definición de variables para cargar el dato porcentual de aporte de cada filtro
+uint16_t aporteRedPorcentaje   = 0;
+uint16_t aporteGreenPorcentaje = 0;
+uint16_t aporteBluePorcentaje  = 0;
 
 //Definición de variable para cargar el aporte DEFINITIVO de los tres colores en cada medida
 uint32_t aporteRGB   = 0;
@@ -171,8 +183,8 @@ uint16_t periodValue = 0;
  *
  * ==QUINTA OCTAVA==
  * Do         523 Hz -->  96 Dutty
- * Do#/Reb    554 Hz -->  90 Dutty
- * Re         587 Hz -->  85 Dutty
+ * Do#/Reb    554 Hz -->  90 Dutty ----> APROX ROJO
+ * Re         587 Hz -->  85 Dutty ----> APROX ROJO
  * Re#/Mib    622 Hz -->  80 Dutty
  * Mi         659 Hz -->  76 Dutty
  * Fa         698 Hz -->  72 Dutty
@@ -188,7 +200,7 @@ uint16_t periodValue = 0;
  * Do#/Reb    1108 Hz -->  45 Dutty
  * Re         1174 Hz -->  43 Dutty
  * Re#/Mib    1244 Hz -->  40 Dutty
- * Mi         1318 Hz -->  38 Dutty
+ * Mi         1318 Hz -->  38 Dutty ----> APROX VERDE
  * Fa         1397 Hz -->  36 Dutty
  * Fa#/Solb   1480 Hz -->  34 Dutty
  * Sol        1568 Hz -->  32 Dutty
@@ -198,7 +210,7 @@ uint16_t periodValue = 0;
  * Si         1975 Hz -->  25 Dutty
  *
  * ==SEPTIMA OCTAVA==
- * Do         2093 Hz -->  24 Dutty
+ * Do         2093 Hz -->  24 Dutty ----> APROX AZUL
  * Do#/Reb    2217 Hz -->  23 Dutty
  * Re         2349 Hz -->  21 Dutty
  * Re#/Mib    2489 Hz -->  20 Dutty
@@ -643,7 +655,7 @@ void msgUsart(void){
 //		usart_writeMsg(&usart2, bufferMsg);
 
 		//Escribimos mensaje con los datos de aporte de cada color
-		sprintf(bufferMsg,"Aporte PORCENTUAL de cada color RGB en la medida: R = %d , G = %d , B = %d  \n\r",(aporteRed/10),(aporteGreen/10),(aporteBlue/10));
+		sprintf(bufferMsg,"Aporte PORCENTUAL de cada color RGB en la medida: R = %d , G = %d , B = %d  \n\r",(aporteRedPorcentaje),(aporteGreenPorcentaje),(aporteBluePorcentaje));
 		usart_writeMsg(&usart2, bufferMsg);
 
 		//Bajamos la bandera
@@ -887,6 +899,18 @@ void getPulseScale(void){
 
 	//Reajustando aporte respectivo escalado de BLUE
 	aporteBlue = 1000 - scaleLimit(scaleValueBlue);
+
+	/*3.1 Determinamos el aporte porcentual de cada color a la medida definitiva*/
+	//Para encontrar el porcentaje se divide cada aporte entre el TOTAL (1000) y se multiplica por 100
+
+	//Determinamos el aporte porcentual de RED
+	aporteRedPorcentaje = aporteRed/10;
+
+	//Determinamos el aporte porcentual de GREEN
+	aporteGreenPorcentaje = aporteGreen/10;
+
+	//Determinamos el aporte porcentual de BLUE
+	aporteBluePorcentaje = aporteBlue/10;
 
 	//Calculamos el valor del aporte TOTAL de los tres filtros de color
 	/* Esta valor va a ser de utilidad para asignar el respectivo valor de frecuencia para reproducir.
