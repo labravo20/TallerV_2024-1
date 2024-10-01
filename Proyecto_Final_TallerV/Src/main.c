@@ -171,48 +171,48 @@ uint16_t periodValue = 0;
  * NOTAS PARA ASIGNAR INTERVALOS
  *
  * ==CUARTA OCTAVA==
- * Re#/Mib    311 Hz --> 161 Dutty
- * Mi         330 Hz --> 152 Dutty
- * Fa         349 Hz --> 143 Dutty
- * Fa#/Solb   370 Hz --> 135 Dutty
- * Sol        392 Hz --> 128 Dutty
- * Sol#/Lab   415 Hz --> 120 Dutty
- * La         440 Hz --> 114 Dutty
- * La#/Sib    466 Hz --> 107 Dutty
- * Si         494 Hz --> 101 Dutty
+ * Re#/Mib    311 Hz --> 161 Dutty ----> APROX NEGRO// 230R 0G 0B // 0R 180G 0B
+ * Mi         330 Hz --> 152 Dutty ---> 238 0G 0B
+ * Fa         349 Hz --> 143 Dutty ---> 240R 0G 0B
+ * Fa#/Solb   370 Hz --> 135 Dutty ---> 241R/242R 0G 0B // 0R 190G 0B
+ * Sol        392 Hz --> 128 Dutty ---> 243R 0G 0B
+ * Sol#/Lab   415 Hz --> 120 Dutty ---> 244R 0G 0B
+ * La         440 Hz --> 114 Dutty ---> 245R/246R 0G 0B
+ * La#/Sib    466 Hz --> 107 Dutty ---> 247R/248R 0G 0B
+ * Si         494 Hz --> 101 Dutty ---> 249R/250R 0G 0B
  *
  * ==QUINTA OCTAVA==
- * Do         523 Hz -->  96 Dutty
- * Do#/Reb    554 Hz -->  90 Dutty ----> APROX ROJO
- * Re         587 Hz -->  85 Dutty ----> APROX ROJO
- * Re#/Mib    622 Hz -->  80 Dutty
- * Mi         659 Hz -->  76 Dutty
- * Fa         698 Hz -->  72 Dutty
- * Fa#/Solb   740 Hz -->  68 Dutty
- * Sol        784 Hz -->  64 Dutty
- * Sol#/Lab   830 Hz -->  60 Dutty
- * La         880 Hz -->  57 Dutty
- * La#/Sib    932 Hz -->  54 Dutty
- * Si         988 Hz -->  51 Dutty
+ * Do         523 Hz -->  96 Dutty ---> 251R 0G 0B
+ * Do#/Reb    554 Hz -->  90 Dutty ---> 252R/253R 0G 0B
+ * Re         587 Hz -->  85 Dutty ----> 254R/255R 0G-28G 0B // 0R 200G 0B // APROX ROJO
+ * Re#/Mib    622 Hz -->  80 Dutty ---> 255R 40G-43G 0B
+ * Mi         659 Hz -->  76 Dutty ---> 255R 50G-51G 0B
+ * Fa         698 Hz -->  72 Dutty ---> 255G 58G/59G 0B
+ * Fa#/Solb   740 Hz -->  68 Dutty ---> 255R 64G-68G 0B
+ * Sol        784 Hz -->  64 Dutty ---> 255R 72G-75G 0B // 0R 210G 0B
+ * Sol#/Lab   830 Hz -->  60 Dutty ---> 255R 78G-85G 0B
+ * La         880 Hz -->  57 Dutty ---> 255R 90G-92G 0B
+ * La#/Sib    932 Hz -->  54 Dutty ---> 255R 100G 0B // 0R 218G 0B
+ * Si         988 Hz -->  51 Dutty ---> 255R 110G 0B
  *
  * ==SEXTA OCTAVA==
- * Do         1046 Hz -->  48 Dutty
- * Do#/Reb    1108 Hz -->  45 Dutty
- * Re         1174 Hz -->  43 Dutty
- * Re#/Mib    1244 Hz -->  40 Dutty
- * Mi         1318 Hz -->  38 Dutty ----> APROX VERDE
- * Fa         1397 Hz -->  36 Dutty
- * Fa#/Solb   1480 Hz -->  34 Dutty
- * Sol        1568 Hz -->  32 Dutty
- * Sol#/Lab   1661 Hz -->  30 Dutty
- * La         1760 Hz -->  28 Dutty
- * La#/Sib    1864 Hz -->  27 Dutty
- * Si         1975 Hz -->  25 Dutty
+ * Do         1046 Hz -->  48 Dutty ---> 255R 115G 0B  // 0R 225G 0B
+ * Do#/Reb    1108 Hz -->  45 Dutty ---> 255R 120G-130G 0B // 0R 235G 0B
+ * Re         1174 Hz -->  43 Dutty ---> 255R 135G 0B
+ * Re#/Mib    1244 Hz -->  40 Dutty ---> 255R 140G-150G 0B // 0R 240G 0B
+ * Mi         1318 Hz -->  38 Dutty ---> 255R 160G 0B
+ * Fa         1397 Hz -->  36 Dutty ---> 255R 170G 0B // APROX VERDE
+ * Fa#/Solb   1480 Hz -->  34 Dutty ---> 255R 180G 0B
+ * Sol        1568 Hz -->  32 Dutty ---> 255R 190G-200G 0B
+ * Sol#/Lab   1661 Hz -->  30 Dutty ---> 255R 210G-220G 0B
+ * La         1760 Hz -->  28 Dutty ---> 255R 230G-240 0B
+ * La#/Sib    1864 Hz -->  27 Dutty ----> APROX AMARILLO
+ * Si         1975 Hz -->  25 Dutty --->
  *
  * ==SEPTIMA OCTAVA==
  * Do         2093 Hz -->  24 Dutty ----> APROX AZUL
- * Do#/Reb    2217 Hz -->  23 Dutty
- * Re         2349 Hz -->  21 Dutty
+ * Do#/Reb    2217 Hz -->  23 Dutty -----> APROX ROSADO
+ * Re         2349 Hz -->  21 Dutty -----> APROX AGUA MARINA
  * Re#/Mib    2489 Hz -->  20 Dutty
  * Mi         2637 Hz -->  19 Dutty
  * Fa         2793 Hz -->  18 Dutty
