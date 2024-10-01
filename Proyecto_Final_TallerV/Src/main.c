@@ -7,6 +7,7 @@
  */
 
 #include <stdint.h>
+#include <string.h>
 #include "stm32f4xx.h"
 #include "stm32_assert.h"
 #include "gpio_driver_hal.h"
@@ -56,11 +57,17 @@ EXTI_Config_t outputSensorExti    = {0}; //EXTI linea 2 para el output del senso
 //Definimos USART a usar
 USART_Handler_t   usart2          = {0};
 
-//Definimos el caracter para ejecución del USART
+//Definimos el caracteres para ejecución del USART
 char bufferMsg[128]               = {0};
+
+//Definición variable para guardar datos en buffer
+uint8_t posicionSave        = {0};
 
 //Definimos variable para recibir el valor del received char en análisis USART
 uint8_t   receivedChar            = 0;
+
+//Definimos variable para iniciar despliegue del menu principal USART
+uint8_t menuInit                  = 0;
 
 // Definimos variables para contar rising edges en señal PWM output sensor
 uint16_t counterOutputSensorR      = 0;
@@ -244,6 +251,9 @@ void counterTimerPulseB(void);
 //Definición de función para comunicación de datos en usart
 void msgUsart(void);
 
+//Definición de función para comunicación de datos en usart de inicio
+void msgUsartInit(void);
+
 //Definición funciones para determinar el periodo de la señal PWM
 uint32_t pulseOutputSensorConfigR(void);
 uint32_t pulseOutputSensorConfigG(void);
@@ -275,6 +285,9 @@ int main(void)
 	//Llamamos función para realizar configuración inicial
 	initialConfig();
 
+	//Llamamos función para comunicación de datos en usart de iniciialización
+	//msgUsartInit();
+
     /* Loop forever */
 	while(1){
 
@@ -287,14 +300,14 @@ int main(void)
 		//Llamamos a función encargada de obtener el valor del ancho de pulso del colo ROJO
 		getPulseWidthBlue();
 
-		//Llamamos a la función encargada de representación en USART
-		msgUsart();
-
 		//Llamamos función para calcular el aporte de cada color RGB en la medición
 		getPulseScale();
 
 		//Llamamos a función para calcular valor de frecuencia a calcular
 		getFrequency();
+
+		//Llamamos a la función encargada de representación en USART
+		msgUsart();
 
 	}//Fin ciclo while
 
@@ -644,25 +657,88 @@ void counterTimerPulseB(void){
 	}
 }
 
-//Definición de función para comunicación de datos en usart
+//Función para comunicación de datos en usart de inicio
+//void msgUsartInit(void){
+//
+//	usart_writeMsg(&usart2, "NOTA: Escribir ' ' para comenzar... \n\r");
+//}
+
+//Función para comunicación de datos en usart
 void msgUsart(void){
 
-	//Evaluamos si la bandera asociada a la transmisión por USART está activa
-	if(banderaUSARTTx){
+	//Evaluamos si la bandera de usart por recepción está activa
+	if(banderaUSARTRx){
 
-		//Escribimos mensaje con los datos de anchos de pulso de las señales
-//		sprintf(bufferMsg,"Valores de ancho de pulso de cada color: R = %d ms, G = %d ms, B = %d ms \n",pulseWidthRed,pulseWidthGreen,pulseWidthBlue);
-//		usart_writeMsg(&usart2, bufferMsg);
+		//Importante!!!
+		// Asignamos es valor de la función que llama usrt_getRxData, puesto que esta toma el
+		//valor que está cargado en el DR
+		receivedChar = usart_getRxData();
 
-		//Escribimos mensaje con los datos de aporte de cada color
-		sprintf(bufferMsg,"Aporte PORCENTUAL de cada color RGB en la medida: R = %d , G = %d , B = %d  \n\r",(aporteRedPorcentaje),(aporteGreenPorcentaje),(aporteBluePorcentaje));
-		usart_writeMsg(&usart2, bufferMsg);
+		//Evaluamos si el valor del caracter recibido concuerda con la condición para inciciar presentación de datos
+		if((receivedChar == ' ') ){
+
+			//Escribimps mensaje de bienvenida
+			usart_writeMsg(&usart2, "Bienvenido!!!\n");
+			usart_writeMsg(&usart2, "Escriba 'm' para ver el menú principal :) \n");
+			usart_writeMsg(&usart2, "NOTA: Recuerde escribir ' ' para cargar cada comando o: \n\r");
+
+			//Limpiamos variable de recepción
+			receivedChar = '\0';
+
+			//Inicializamos variable para presentación de menú principal
+			menuInit = 1;
+		}
+		else{
+
+			//En caso de no tratarse del caracter ' ' el string se guardará en bufferMsg
+			bufferMsg[0] = receivedChar;
+		}
 
 		//Bajamos la bandera
-		banderaUSARTTx = 0;
-
+		banderaUSARTRx = 0;
 	}
+
+	if(menuInit){
+
+		//Evaluamos si se seleccionó el botón que ejecuta la presentación del menú principal
+		if(strcmp(bufferMsg, "m") == 0){
+
+			usart_writeMsg(&usart2,"1. Escribir 'a' para desplegar ancho de pulso de las medidas de cada filtro RGB\n"  );
+			usart_writeMsg(&usart2,"2. Escribir 'p' para desplegar aporte porcentual de las medidas de cada filtro RGB\n");
+			usart_writeMsg(&usart2,"3. Escribir 'f' para desplegar frecuencia asignada al color medido\n");
+			usart_writeMsg(&usart2,"4. Escribir 'n' para desplegar nota musical asignada al color medido\n\r");
+
+		}
+
+		//Limpiamos buffer
+		bufferMsg[0] = 0;
+
+		//Reiniciamos variable que guarda los datos en buffer
+		posicionSave        = 0;
+
+		//Reiniciamos la variable que presenta el menú principal
+		menuInit = 0;
+	}
+
+
+//	if(banderaUSARTTx){
+//
+//		//Escribimos mensaje con los datos de anchos de pulso de las señales
+//		sprintf(bufferMsg,"Valores de ancho de pulso de cada color: R = %//d ms, G = %d ms, B = %d ms \n",pulseWidthRed,pulseWidthGreen,pulseWidthBlue);
+//		usart_writeMsg(&usart2, bufferMsg);
+//
+//		//Escribimos mensaje con los datos de aporte de cada color
+//		sprintf(bufferMsg,"Aporte PORCENTUAL de cada color RGB en la medida: R = %d , G = %d , B = %d  \n\r",(aporteRedPorcentaje),(aporteGreenPorcentaje),(aporteBluePorcentaje));
+//		usart_writeMsg(&usart2, bufferMsg);
+//
+//		//Bajamos la bandera
+//		banderaUSARTTx = 0;
+//
+//	}
+
 }
+
+
 
 //Función para determinar el periodo de la señal RED PWM
 uint32_t pulseOutputSensorConfigR(void){
