@@ -171,18 +171,18 @@ uint16_t periodValue = 0;
  * NOTAS PARA ASIGNAR INTERVALOS
  *
  * ==CUARTA OCTAVA==
- * Re#/Mib    311 Hz --> 161 Dutty ----> APROX NEGRO// 230R 0G 0B // 0R 180G 0B
- * Mi         330 Hz --> 152 Dutty ---> 238 0G 0B
- * Fa         349 Hz --> 143 Dutty ---> 240R 0G 0B
+ * Re#/Mib    311 Hz --> 161 Dutty ----> APROX NEGRO// 230R 0G 0B // 0R-60R 180G 0B
+ * Mi         330 Hz --> 152 Dutty ---> 238 0G 0B // 66R 180G 0B
+ * Fa         349 Hz --> 143 Dutty ---> 240R 0G 0B // 70R 180G 0B
  * Fa#/Solb   370 Hz --> 135 Dutty ---> 241R/242R 0G 0B // 0R 190G 0B
- * Sol        392 Hz --> 128 Dutty ---> 243R 0G 0B
- * Sol#/Lab   415 Hz --> 120 Dutty ---> 244R 0G 0B
+ * Sol        392 Hz --> 128 Dutty ---> 243R 0G 0B //
+ * Sol#/Lab   415 Hz --> 120 Dutty ---> 244R 0G 0B // 80R 190G 0B
  * La         440 Hz --> 114 Dutty ---> 245R/246R 0G 0B
- * La#/Sib    466 Hz --> 107 Dutty ---> 247R/248R 0G 0B
+ * La#/Sib    466 Hz --> 107 Dutty ---> 247R/248R 0G 0B // 90R 190G 0B
  * Si         494 Hz --> 101 Dutty ---> 249R/250R 0G 0B
  *
  * ==QUINTA OCTAVA==
- * Do         523 Hz -->  96 Dutty ---> 251R 0G 0B
+ * Do         523 Hz -->  96 Dutty ---> 251R 0G 0B // 100R 180G 0B
  * Do#/Reb    554 Hz -->  90 Dutty ---> 252R/253R 0G 0B
  * Re         587 Hz -->  85 Dutty ----> 254R/255R 0G-28G 0B // 0R 200G 0B // APROX ROJO
  * Re#/Mib    622 Hz -->  80 Dutty ---> 255R 40G-43G 0B
@@ -207,12 +207,12 @@ uint16_t periodValue = 0;
  * Sol#/Lab   1661 Hz -->  30 Dutty ---> 255R 210G-220G 0B
  * La         1760 Hz -->  28 Dutty ---> 255R 230G-240 0B
  * La#/Sib    1864 Hz -->  27 Dutty ----> APROX AMARILLO
- * Si         1975 Hz -->  25 Dutty --->
+ * Si         1975 Hz -->  25 Dutty ---> 255R 255G 70B
  *
  * ==SEPTIMA OCTAVA==
  * Do         2093 Hz -->  24 Dutty ----> APROX AZUL
- * Do#/Reb    2217 Hz -->  23 Dutty -----> APROX ROSADO
- * Re         2349 Hz -->  21 Dutty -----> APROX AGUA MARINA
+ * Do#/Reb    2217 Hz -->  23 Dutty -----> APROX ROSADO // 255R 255G 150B
+ * Re         2349 Hz -->  21 Dutty -----> APROX AGUA MARINA // 0R-255R 255G 255B
  * Re#/Mib    2489 Hz -->  20 Dutty
  * Mi         2637 Hz -->  19 Dutty
  * Fa         2793 Hz -->  18 Dutty
