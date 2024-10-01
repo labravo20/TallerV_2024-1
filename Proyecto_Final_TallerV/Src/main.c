@@ -201,7 +201,7 @@ uint16_t periodValue = 0;
  * Fa#/Solb   740 Hz -->  68 Dutty ---> 255R 64G-68G 0B
  * Sol        784 Hz -->  64 Dutty ---> 255R 72G-75G 0B // 0R 210G 0B
  * Sol#/Lab   830 Hz -->  60 Dutty ---> 255R 78G-85G 0B
- * La         880 Hz -->  57 Dutty ---> 255R 90G-92G 0B
+ * La         880 Hz -->  57 Dutty ---> 255R 90G 0B
  * La#/Sib    932 Hz -->  54 Dutty ---> 255R 100G 0B // 0R 218G 0B
  * Si         988 Hz -->  51 Dutty ---> 255R 110G 0B
  *
@@ -229,8 +229,8 @@ uint16_t periodValue = 0;
  * Fa#/Solb   2960 Hz -->  17 Dutty
  *
  * */
-#define  MAX_FREQUENCY  3000
-#define  MIN_FREQUENCY  300
+#define  MAX_FREQUENCY  3000 //Aprox...
+#define  MIN_FREQUENCY  300  //Aprox...
 
 //Definición función para configuración inicial
 void initialConfig(void);
