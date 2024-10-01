@@ -59,9 +59,8 @@ USART_Handler_t   usart2          = {0};
 
 //Definimos el caracteres para ejecución del USART
 char bufferMsg[128]               = {0};
-
-//Definición variable para guardar datos en buffer
-uint8_t posicionSave        = {0};
+char bufferMsgMenu[128]           = {0};
+char bufferNote[60]              = {0};
 
 //Definimos variable para recibir el valor del received char en análisis USART
 uint8_t   receivedChar            = 0;
@@ -93,6 +92,10 @@ uint8_t banderaOutputSensorExti   = 0;
 uint8_t banderaPulseTimer         = 0;
 uint8_t banderaUSARTTx            = 0;
 uint8_t banderaUSARTRx            = 0;
+uint8_t banderaAnchoPulso         = 0;
+uint8_t banderaFrecuencia         = 0;
+uint8_t banderaAporte             = 0;
+uint8_t banderaNota               = 0;
 
 // Definimos variables herramienta para determinar el periodo del output del sensor RGB
 uint32_t pulseOutputSensorR        = 0;
@@ -251,6 +254,9 @@ void counterTimerPulseB(void);
 //Definición de función para comunicación de datos en usart
 void msgUsart(void);
 
+//Definición de función para comunicación de datos de medición en usart
+void msgUsartData(void);
+
 //Definición de función para comunicación de datos en usart de inicio
 void msgUsartInit(void);
 
@@ -286,7 +292,7 @@ int main(void)
 	initialConfig();
 
 	//Llamamos función para comunicación de datos en usart de iniciialización
-	//msgUsartInit();
+	msgUsartInit();
 
     /* Loop forever */
 	while(1){
@@ -308,6 +314,9 @@ int main(void)
 
 		//Llamamos a la función encargada de representación en USART
 		msgUsart();
+
+		//Llamamos función para comunicación de datos de medición en usart
+		msgUsartData();
 
 	}//Fin ciclo while
 
@@ -658,10 +667,12 @@ void counterTimerPulseB(void){
 }
 
 //Función para comunicación de datos en usart de inicio
-//void msgUsartInit(void){
-//
-//	usart_writeMsg(&usart2, "NOTA: Escribir ' ' para comenzar... \n\r");
-//}
+void msgUsartInit(void){
+
+	//Escribimos mensaje para inicializar el sistema
+	usart_writeMsg(&usart2, "Escribir ' ' para comenzar... \n\r");
+
+}
 
 //Función para comunicación de datos en usart
 void msgUsart(void){
@@ -706,39 +717,99 @@ void msgUsart(void){
 			usart_writeMsg(&usart2,"1. Escribir 'a' para desplegar ancho de pulso de las medidas de cada filtro RGB\n"  );
 			usart_writeMsg(&usart2,"2. Escribir 'p' para desplegar aporte porcentual de las medidas de cada filtro RGB\n");
 			usart_writeMsg(&usart2,"3. Escribir 'f' para desplegar frecuencia asignada al color medido\n");
-			usart_writeMsg(&usart2,"4. Escribir 'n' para desplegar nota musical asignada al color medido\n\r");
+			usart_writeMsg(&usart2,"4. Escribir 'n' para desplegar nota musical asignada al color medido\n");
+			usart_writeMsg(&usart2,"5. Escribir 'x' para detener la muestra de datos\n\r");
 
 		}
 
+		//Evaluamos si cumple la condición 1 del menú
+		else if(strcmp(bufferMsg, "a") == 0){
+
+			//Levantamos bandera asociada a presentación de datos ancho de pulso
+			banderaAnchoPulso = 1;
+		}
+
+		//Evaluamos si cumple la condición 2 del menú
+		else if(strcmp(bufferMsg, "p") == 0){
+
+			//Levantamos bandera asociada a presentación de datos aporte porcentual de cada color
+			banderaAporte = 1;
+		}
+
+		//Evaluamos si cumple la condición 3 del menú
+		else if(strcmp(bufferMsg, "f") == 0){
+
+			//Levantamos bandera asociada a presentación de datos frecuencia
+			banderaFrecuencia = 1;
+		}
+
+		//Evaluamos si cumple la condición 4 del menú
+		else if(strcmp(bufferMsg, "n") == 0){
+
+			//Levantamos bandera asociada a presentación de datos nota musical
+			banderaNota = 1;
+		}
+
+		//Evaluamos si cumple la condición 5 del menú
+		else if(strcmp(bufferMsg, "x") == 0){
+
+			//Bajamos las banderas de todas las transmisiones de datos
+			banderaAnchoPulso = 0;
+			banderaAporte = 0;
+			banderaFrecuencia = 0;
+			banderaNota = 0;
+		}
+
+
 		//Limpiamos buffer
 		bufferMsg[0] = 0;
-
-		//Reiniciamos variable que guarda los datos en buffer
-		posicionSave        = 0;
 
 		//Reiniciamos la variable que presenta el menú principal
 		menuInit = 0;
 	}
 
 
-//	if(banderaUSARTTx){
-//
-//		//Escribimos mensaje con los datos de anchos de pulso de las señales
-//		sprintf(bufferMsg,"Valores de ancho de pulso de cada color: R = %//d ms, G = %d ms, B = %d ms \n",pulseWidthRed,pulseWidthGreen,pulseWidthBlue);
-//		usart_writeMsg(&usart2, bufferMsg);
-//
-//		//Escribimos mensaje con los datos de aporte de cada color
-//		sprintf(bufferMsg,"Aporte PORCENTUAL de cada color RGB en la medida: R = %d , G = %d , B = %d  \n\r",(aporteRedPorcentaje),(aporteGreenPorcentaje),(aporteBluePorcentaje));
-//		usart_writeMsg(&usart2, bufferMsg);
-//
-//		//Bajamos la bandera
-//		banderaUSARTTx = 0;
-//
-//	}
-
 }
 
+//Función para comunicación de datos de medición en usart
+void msgUsartData(void){
 
+	//Evaluamos si la bandera de transmisión de usart está activa
+	if(banderaUSARTTx){
+
+		//Evaluamos cuales son los datos que se desea presentar dependiendo de la selección en el menú
+		if(banderaAnchoPulso){
+
+			//Escribimos mensaje con los datos de anchos de pulso de las señales
+		    sprintf(bufferMsgMenu,"Ancho de pulso de cada color: R = %d ms, G = %d ms, B = %d ms \n\r",pulseWidthRed,pulseWidthGreen,pulseWidthBlue);
+		    usart_writeMsg(&usart2, bufferMsgMenu);
+
+		}
+		else if(banderaAporte){
+
+			//Escribimos mensaje con los datos de aporte de cada color
+			sprintf(bufferMsgMenu,"Aporte PORCENTUAL de cada color RGB en la medida: R = %d , G = %d , B = %d  \n\r",(aporteRedPorcentaje),(aporteGreenPorcentaje),(aporteBluePorcentaje));
+			usart_writeMsg(&usart2, bufferMsgMenu);
+		}
+		else if(banderaFrecuencia){
+
+			//Escribimos mensaje con los datos de frecuencia
+			sprintf(bufferMsgMenu,"Frecuencia del sonido:  %d \n\r",noteFrecValue);
+			usart_writeMsg(&usart2, bufferMsgMenu);
+		}
+		else if(banderaNota){
+
+			//Escribimos mensaje con los datos de frecuencia
+			sprintf(bufferMsgMenu,"Nota asociada al color:  %s \n\r",bufferNote);
+			usart_writeMsg(&usart2, bufferMsgMenu);
+		}
+
+		//Bajamos la bandera
+		banderaUSARTTx = 0;
+
+	}
+
+}
 
 //Función para determinar el periodo de la señal RED PWM
 uint32_t pulseOutputSensorConfigR(void){
@@ -1034,6 +1105,31 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 311;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'C';
+		bufferNote[1] = 'u';
+		bufferNote[2] = 'a';
+		bufferNote[3] = 'r';
+		bufferNote[4] = 't';
+		bufferNote[5] = 'a';
+		bufferNote[6] = ' ';
+		bufferNote[7] = 'o';
+		bufferNote[8] = 'c';
+		bufferNote[9] = 't';
+		bufferNote[10] = 'a';
+		bufferNote[11] = 'v';
+		bufferNote[12] = 'a';
+		bufferNote[13] = ' ';
+		bufferNote[14] = 'M';
+		bufferNote[15] = 'i';
+		bufferNote[16] = 'b';
+		bufferNote[17] = '/';
+		bufferNote[18] = 'R';
+		bufferNote[19] = 'e';
+		bufferNote[20] = '#';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
 	}
 
 	//En este caso se evalua si pertenece al intervalor Mi  330 Hz
@@ -1041,6 +1137,32 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 330;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'C';
+		bufferNote[1] = 'u';
+		bufferNote[2] = 'a';
+		bufferNote[3] = 'r';
+		bufferNote[4] = 't';
+		bufferNote[5] = 'a';
+		bufferNote[6] = ' ';
+		bufferNote[7] = 'o';
+		bufferNote[8] = 'c';
+		bufferNote[9] = 't';
+		bufferNote[10] = 'a';
+		bufferNote[11] = 'v';
+		bufferNote[12] = 'a';
+		bufferNote[13] = ' ';
+		bufferNote[14] = 'M';
+		bufferNote[15] = 'i';
+		bufferNote[16] = ' ';
+		bufferNote[17] = ' ';
+		bufferNote[18] = ' ';
+		bufferNote[19] = ' ';
+		bufferNote[20] = ' ';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
+
 	}
 
 	//En este caso se evalua si pertenece al intervalor Fa  349 Hz
@@ -1048,6 +1170,32 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 349;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'C';
+		bufferNote[1] = 'u';
+		bufferNote[2] = 'a';
+		bufferNote[3] = 'r';
+		bufferNote[4] = 't';
+		bufferNote[5] = 'a';
+		bufferNote[6] = ' ';
+		bufferNote[7] = 'o';
+		bufferNote[8] = 'c';
+		bufferNote[9] = 't';
+		bufferNote[10] = 'a';
+		bufferNote[11] = 'v';
+		bufferNote[12] = 'a';
+		bufferNote[13] = ' ';
+		bufferNote[14] = 'F';
+		bufferNote[15] = 'a';
+		bufferNote[16] = ' ';
+		bufferNote[17] = ' ';
+		bufferNote[18] = ' ';
+		bufferNote[19] = ' ';
+		bufferNote[20] = ' ';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
+
 	}
 
 	//En este caso se evalua si pertenece al intervalor Fa#/Solb 370 Hz
@@ -1055,6 +1203,31 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 370;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'C';
+		bufferNote[1] = 'u';
+		bufferNote[2] = 'a';
+		bufferNote[3] = 'r';
+		bufferNote[4] = 't';
+		bufferNote[5] = 'a';
+		bufferNote[6] = ' ';
+		bufferNote[7] = 'o';
+		bufferNote[8] = 'c';
+		bufferNote[9] = 't';
+		bufferNote[10] = 'a';
+		bufferNote[11] = 'v';
+		bufferNote[12] = 'a';
+		bufferNote[13] = ' ';
+		bufferNote[14] = 'S';
+		bufferNote[15] = 'o';
+		bufferNote[16] = 'l';
+		bufferNote[17] = 'b';
+		bufferNote[18] = '/';
+		bufferNote[19] = 'F';
+		bufferNote[20] = 'a';
+		bufferNote[21] = '#';
+		bufferNote[22] = ' ';
 	}
 
 	//En este caso se evalua si pertenece al intervalor Sol   392 Hz
@@ -1062,6 +1235,32 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 392;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'C';
+		bufferNote[1] = 'u';
+		bufferNote[2] = 'a';
+		bufferNote[3] = 'r';
+		bufferNote[4] = 't';
+		bufferNote[5] = 'a';
+		bufferNote[6] = ' ';
+		bufferNote[7] = 'o';
+		bufferNote[8] = 'c';
+		bufferNote[9] = 't';
+		bufferNote[10] = 'a';
+		bufferNote[11] = 'v';
+		bufferNote[12] = 'a';
+		bufferNote[13] = ' ';
+		bufferNote[14] = 'S';
+		bufferNote[15] = 'o';
+		bufferNote[16] = 'l';
+		bufferNote[17] = ' ';
+		bufferNote[18] = ' ';
+		bufferNote[19] = ' ';
+		bufferNote[20] = ' ';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
+
 	}
 
 	//En este caso se evalua si pertenece al intervalor Sol#/Lab 415 Hz
@@ -1069,6 +1268,31 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 415;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'C';
+		bufferNote[1] = 'u';
+		bufferNote[2] = 'a';
+		bufferNote[3] = 'r';
+		bufferNote[4] = 't';
+		bufferNote[5] = 'a';
+		bufferNote[6] = ' ';
+		bufferNote[7] = 'o';
+		bufferNote[8] = 'c';
+		bufferNote[9] = 't';
+		bufferNote[10] = 'a';
+		bufferNote[11] = 'v';
+		bufferNote[12] = 'a';
+		bufferNote[13] = ' ';
+		bufferNote[14] = 'S';
+		bufferNote[15] = 'o';
+		bufferNote[16] = 'l';
+		bufferNote[17] = '#';
+		bufferNote[18] = '/';
+		bufferNote[19] = 'L';
+		bufferNote[20] = 'a';
+		bufferNote[21] = 'b';
+		bufferNote[22] = ' ';
 	}
 
 	//En este caso se evalua si pertenece al intervalor La 440 Hz
@@ -1076,6 +1300,32 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 440;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'C';
+		bufferNote[1] = 'u';
+		bufferNote[2] = 'a';
+		bufferNote[3] = 'r';
+		bufferNote[4] = 't';
+		bufferNote[5] = 'a';
+		bufferNote[6] = ' ';
+		bufferNote[7] = 'o';
+		bufferNote[8] = 'c';
+		bufferNote[9] = 't';
+		bufferNote[10] = 'a';
+		bufferNote[11] = 'v';
+		bufferNote[12] = 'a';
+		bufferNote[13] = ' ';
+		bufferNote[14] = 'L';
+		bufferNote[15] = ' ';
+		bufferNote[16] = ' ';
+		bufferNote[17] = ' ';
+		bufferNote[18] = ' ';
+		bufferNote[19] = ' ';
+		bufferNote[20] = ' ';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
+
 	}
 
 	//En este caso se evalua si pertenece al intervalor La#/Sib 466 Hz
@@ -1083,6 +1333,32 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 466;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'C';
+		bufferNote[1] = 'u';
+		bufferNote[2] = 'a';
+		bufferNote[3] = 'r';
+		bufferNote[4] = 't';
+		bufferNote[5] = 'a';
+		bufferNote[6] = ' ';
+		bufferNote[7] = 'o';
+		bufferNote[8] = 'c';
+		bufferNote[9] = 't';
+		bufferNote[10] = 'a';
+		bufferNote[11] = 'v';
+		bufferNote[12] = 'a';
+		bufferNote[13] = ' ';
+		bufferNote[14] = 'L';
+		bufferNote[15] = 'a';
+		bufferNote[16] = '#';
+		bufferNote[17] = '/';
+		bufferNote[18] = 'S';
+		bufferNote[19] = 'i';
+		bufferNote[20] = 'b';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
+
 	}
 
 	//En este caso se evalua si pertenece al intervalor Si   494 Hz
@@ -1090,6 +1366,32 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 494;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'C';
+		bufferNote[1] = 'u';
+		bufferNote[2] = 'a';
+		bufferNote[3] = 'r';
+		bufferNote[4] = 't';
+		bufferNote[5] = 'a';
+		bufferNote[6] = ' ';
+		bufferNote[7] = 'o';
+		bufferNote[8] = 'c';
+		bufferNote[9] = 't';
+		bufferNote[10] = 'a';
+		bufferNote[11] = 'v';
+		bufferNote[12] = 'a';
+		bufferNote[13] = ' ';
+		bufferNote[14] = 'S';
+		bufferNote[15] = 'i';
+		bufferNote[16] = ' ';
+		bufferNote[17] = ' ';
+		bufferNote[18] = ' ';
+		bufferNote[19] = ' ';
+		bufferNote[20] = ' ';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
+
 	}
 
 	/*CONDICIONES NOTAS QUINTA OCTAVA*/
@@ -1098,6 +1400,32 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 523;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'Q';
+		bufferNote[1] = 'u';
+		bufferNote[2] = 'i';
+		bufferNote[3] = 'n';
+		bufferNote[4] = 't';
+		bufferNote[5] = 'a';
+		bufferNote[6] = ' ';
+		bufferNote[7] = 'o';
+		bufferNote[8] = 'c';
+		bufferNote[9] = 't';
+		bufferNote[10] = 'a';
+		bufferNote[11] = 'v';
+		bufferNote[12] = 'a';
+		bufferNote[13] = ' ';
+		bufferNote[14] = 'D';
+		bufferNote[15] = 'o';
+		bufferNote[16] = ' ';
+		bufferNote[17] = ' ';
+		bufferNote[18] = ' ';
+		bufferNote[19] = ' ';
+		bufferNote[20] = ' ';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
+
 	}
 
 	//En este caso se evalua si pertenece al intervalor Do#/Reb  554 Hz
@@ -1105,6 +1433,31 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 554;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'Q';
+		bufferNote[1] = 'u';
+		bufferNote[2] = 'i';
+		bufferNote[3] = 'n';
+		bufferNote[4] = 't';
+		bufferNote[5] = 'a';
+		bufferNote[6] = ' ';
+		bufferNote[7] = 'o';
+		bufferNote[8] = 'c';
+		bufferNote[9] = 't';
+		bufferNote[10] = 'a';
+		bufferNote[11] = 'v';
+		bufferNote[12] = 'a';
+		bufferNote[13] = ' ';
+		bufferNote[14] = 'D';
+		bufferNote[15] = 'o';
+		bufferNote[16] = '#';
+		bufferNote[17] = '/';
+		bufferNote[18] = 'R';
+		bufferNote[19] = 'e';
+		bufferNote[20] = 'b';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
 	}
 
 	//En este caso se evalua si pertenece al intervalor Re  587 Hz
@@ -1112,6 +1465,32 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 587;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'Q';
+		bufferNote[1] = 'u';
+		bufferNote[2] = 'i';
+		bufferNote[3] = 'n';
+		bufferNote[4] = 't';
+		bufferNote[5] = 'a';
+		bufferNote[6] = ' ';
+		bufferNote[7] = 'o';
+		bufferNote[8] = 'c';
+		bufferNote[9] = 't';
+		bufferNote[10] = 'a';
+		bufferNote[11] = 'v';
+		bufferNote[12] = 'a';
+		bufferNote[13] = ' ';
+		bufferNote[14] = 'R';
+		bufferNote[15] = 'e';
+		bufferNote[16] = ' ';
+		bufferNote[17] = ' ';
+		bufferNote[18] = ' ';
+		bufferNote[19] = ' ';
+		bufferNote[20] = ' ';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
+
 	}
 
 	//En este caso se evalua si pertenece al intervalor Re#/Mib  622 Hz
@@ -1119,6 +1498,31 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 622;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'Q';
+		bufferNote[1] = 'u';
+		bufferNote[2] = 'i';
+		bufferNote[3] = 'n';
+		bufferNote[4] = 't';
+		bufferNote[5] = 'a';
+		bufferNote[6] = ' ';
+		bufferNote[7] = 'o';
+		bufferNote[8] = 'c';
+		bufferNote[9] = 't';
+		bufferNote[10] = 'a';
+		bufferNote[11] = 'v';
+		bufferNote[12] = 'a';
+		bufferNote[13] = ' ';
+		bufferNote[14] = 'R';
+		bufferNote[15] = 'e';
+		bufferNote[16] = '#';
+		bufferNote[17] = '/';
+		bufferNote[18] = 'M';
+		bufferNote[19] = 'i';
+		bufferNote[20] = 'b';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
 	}
 
 	//En este caso se evalua si pertenece al intervalor Mi   659 Hz
@@ -1126,6 +1530,32 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 659;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'Q';
+		bufferNote[1] = 'u';
+		bufferNote[2] = 'i';
+		bufferNote[3] = 'n';
+		bufferNote[4] = 't';
+		bufferNote[5] = 'a';
+		bufferNote[6] = ' ';
+		bufferNote[7] = 'o';
+		bufferNote[8] = 'c';
+		bufferNote[9] = 't';
+		bufferNote[10] = 'a';
+		bufferNote[11] = 'v';
+		bufferNote[12] = 'a';
+		bufferNote[13] = ' ';
+		bufferNote[14] = 'M';
+		bufferNote[15] = 'i';
+		bufferNote[16] = ' ';
+		bufferNote[17] = ' ';
+		bufferNote[18] = ' ';
+		bufferNote[19] = ' ';
+		bufferNote[20] = ' ';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
+
 	}
 
 	//En este caso se evalua si pertenece al intervalor Fa  698 Hz
@@ -1133,6 +1563,32 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 698;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'Q';
+		bufferNote[1] = 'u';
+		bufferNote[2] = 'i';
+		bufferNote[3] = 'n';
+		bufferNote[4] = 't';
+		bufferNote[5] = 'a';
+		bufferNote[6] = ' ';
+		bufferNote[7] = 'o';
+		bufferNote[8] = 'c';
+		bufferNote[9] = 't';
+		bufferNote[10] = 'a';
+		bufferNote[11] = 'v';
+		bufferNote[12] = 'a';
+		bufferNote[13] = ' ';
+		bufferNote[14] = 'F';
+		bufferNote[15] = 'a';
+		bufferNote[16] = ' ';
+		bufferNote[17] = ' ';
+		bufferNote[18] = ' ';
+		bufferNote[19] = ' ';
+		bufferNote[20] = ' ';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
+
 	}
 
 	//En este caso se evalua si pertenece al intervalor Fa#/Solb   740 Hz
@@ -1140,6 +1596,31 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 740;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'Q';
+		bufferNote[1] = 'u';
+		bufferNote[2] = 'i';
+		bufferNote[3] = 'n';
+		bufferNote[4] = 't';
+		bufferNote[5] = 'a';
+		bufferNote[6] = ' ';
+		bufferNote[7] = 'o';
+		bufferNote[8] = 'c';
+		bufferNote[9] = 't';
+		bufferNote[10] = 'a';
+		bufferNote[11] = 'v';
+		bufferNote[12] = 'a';
+		bufferNote[13] = ' ';
+		bufferNote[14] = 'F';
+		bufferNote[15] = 'a';
+		bufferNote[16] = '#';
+		bufferNote[17] = '/';
+		bufferNote[18] = 'S';
+		bufferNote[19] = 'o';
+		bufferNote[20] = 'l';
+		bufferNote[21] = 'b';
+		bufferNote[22] = ' ';
 	}
 
 	//En este caso se evalua si pertenece al intervalor Sol  784 Hz
@@ -1147,6 +1628,32 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 784;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'Q';
+		bufferNote[1] = 'u';
+		bufferNote[2] = 'i';
+		bufferNote[3] = 'n';
+		bufferNote[4] = 't';
+		bufferNote[5] = 'a';
+		bufferNote[6] = ' ';
+		bufferNote[7] = 'o';
+		bufferNote[8] = 'c';
+		bufferNote[9] = 't';
+		bufferNote[10] = 'a';
+		bufferNote[11] = 'v';
+		bufferNote[12] = 'a';
+		bufferNote[13] = ' ';
+		bufferNote[14] = 'S';
+		bufferNote[15] = 'o';
+		bufferNote[16] = 'l';
+		bufferNote[17] = ' ';
+		bufferNote[18] = ' ';
+		bufferNote[19] = ' ';
+		bufferNote[20] = ' ';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
+
 	}
 
 	//En este caso se evalua si pertenece al intervalor Sol#/Lab   830 Hz
@@ -1154,6 +1661,31 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 830;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'Q';
+		bufferNote[1] = 'u';
+		bufferNote[2] = 'i';
+		bufferNote[3] = 'n';
+		bufferNote[4] = 't';
+		bufferNote[5] = 'a';
+		bufferNote[6] = ' ';
+		bufferNote[7] = 'o';
+		bufferNote[8] = 'c';
+		bufferNote[9] = 't';
+		bufferNote[10] = 'a';
+		bufferNote[11] = 'v';
+		bufferNote[12] = 'a';
+		bufferNote[13] = ' ';
+		bufferNote[14] = 'S';
+		bufferNote[15] = 'o';
+		bufferNote[16] = 'l';
+		bufferNote[17] = '#';
+		bufferNote[18] = '/';
+		bufferNote[19] = 'L';
+		bufferNote[20] = 'a';
+		bufferNote[21] = 'b';
+		bufferNote[22] = ' ';
 	}
 
 	//En este caso se evalua si pertenece al intervalor La  880 Hz
@@ -1161,6 +1693,32 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 880;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'Q';
+		bufferNote[1] = 'u';
+		bufferNote[2] = 'i';
+		bufferNote[3] = 'n';
+		bufferNote[4] = 't';
+		bufferNote[5] = 'a';
+		bufferNote[6] = ' ';
+		bufferNote[7] = 'o';
+		bufferNote[8] = 'c';
+		bufferNote[9] = 't';
+		bufferNote[10] = 'a';
+		bufferNote[11] = 'v';
+		bufferNote[12] = 'a';
+		bufferNote[13] = ' ';
+		bufferNote[14] = 'L';
+		bufferNote[15] = 'a';
+		bufferNote[16] = ' ';
+		bufferNote[17] = ' ';
+		bufferNote[18] = ' ';
+		bufferNote[19] = ' ';
+		bufferNote[20] = ' ';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
+
 	}
 
 	//En este caso se evalua si pertenece al intervalor  La#/Sib  932 Hz
@@ -1168,6 +1726,31 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 932;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'Q';
+		bufferNote[1] = 'u';
+		bufferNote[2] = 'i';
+		bufferNote[3] = 'n';
+		bufferNote[4] = 't';
+		bufferNote[5] = 'a';
+		bufferNote[6] = ' ';
+		bufferNote[7] = 'o';
+		bufferNote[8] = 'c';
+		bufferNote[9] = 't';
+		bufferNote[10] = 'a';
+		bufferNote[11] = 'v';
+		bufferNote[12] = 'a';
+		bufferNote[13] = ' ';
+		bufferNote[14] = 'L';
+		bufferNote[15] = 'a';
+		bufferNote[16] = '#';
+		bufferNote[17] = '/';
+		bufferNote[18] = 'S';
+		bufferNote[19] = 'i';
+		bufferNote[20] = 'b';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
 	}
 
 	//En este caso se evalua si pertenece al intervalor  Si  988 Hz
@@ -1175,6 +1758,32 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 988;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'Q';
+		bufferNote[1] = 'u';
+		bufferNote[2] = 'i';
+		bufferNote[3] = 'n';
+		bufferNote[4] = 't';
+		bufferNote[5] = 'a';
+		bufferNote[6] = ' ';
+		bufferNote[7] = 'o';
+		bufferNote[8] = 'c';
+		bufferNote[9] = 't';
+		bufferNote[10] = 'a';
+		bufferNote[11] = 'v';
+		bufferNote[12] = 'a';
+		bufferNote[13] = ' ';
+		bufferNote[14] = 'S';
+		bufferNote[15] = 'i';
+		bufferNote[16] = ' ';
+		bufferNote[17] = ' ';
+		bufferNote[18] = ' ';
+		bufferNote[19] = ' ';
+		bufferNote[20] = ' ';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
+
 	}
 
 	/*CONDICIONES NOTAS SEXTA OCTAVA*/
@@ -1183,6 +1792,32 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 1046;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'S';
+		bufferNote[1] = 'e';
+		bufferNote[2] = 'x';
+		bufferNote[3] = 't';
+		bufferNote[4] = 'a';
+		bufferNote[5] = ' ';
+		bufferNote[6] = 'o';
+		bufferNote[7] = 'c';
+		bufferNote[8] = 't';
+		bufferNote[9] = 'a';
+		bufferNote[10] = 'v';
+		bufferNote[11] = 'a';
+		bufferNote[12] = ' ';
+		bufferNote[13] = 'D';
+		bufferNote[14] = 'o';
+		bufferNote[15] = ' ';
+		bufferNote[16] = ' ';
+		bufferNote[17] = ' ';
+		bufferNote[18] = ' ';
+		bufferNote[19] = ' ';
+		bufferNote[20] = ' ';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
+
 	}
 
 	//En este caso se evalua si pertenece al intervalor  Do#/Reb    1108 Hz
@@ -1190,6 +1825,31 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 1108;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'S';
+		bufferNote[1] = 'e';
+		bufferNote[2] = 'x';
+		bufferNote[3] = 't';
+		bufferNote[4] = 'a';
+		bufferNote[5] = ' ';
+		bufferNote[6] = 'o';
+		bufferNote[7] = 'c';
+		bufferNote[8] = 't';
+		bufferNote[9] = 'a';
+		bufferNote[10] = 'v';
+		bufferNote[11] = 'a';
+		bufferNote[12] = ' ';
+		bufferNote[13] = 'D';
+		bufferNote[14] = 'o';
+		bufferNote[15] = '#';
+		bufferNote[16] = '/';
+		bufferNote[17] = 'R';
+		bufferNote[18] = 'e';
+		bufferNote[19] = 'b';
+		bufferNote[20] = ' ';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
 	}
 
 	//En este caso se evalua si pertenece al intervalor  Re  1174 Hz
@@ -1197,6 +1857,31 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 1174;
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'S';
+		bufferNote[1] = 'e';
+		bufferNote[2] = 'x';
+		bufferNote[3] = 't';
+		bufferNote[4] = 'a';
+		bufferNote[5] = ' ';
+		bufferNote[6] = 'o';
+		bufferNote[7] = 'c';
+		bufferNote[8] = 't';
+		bufferNote[9] = 'a';
+		bufferNote[10] = 'v';
+		bufferNote[11] = 'a';
+		bufferNote[12] = ' ';
+		bufferNote[13] = 'R';
+		bufferNote[14] = 'e';
+		bufferNote[15] = ' ';
+		bufferNote[16] = ' ';
+		bufferNote[17] = ' ';
+		bufferNote[18] = ' ';
+		bufferNote[19] = ' ';
+		bufferNote[20] = ' ';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
+
 	}
 
 	//En este caso se evalua si pertenece al intervalor  Re#/Mib  1244 Hz
@@ -1204,6 +1889,31 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 1244;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'S';
+		bufferNote[1] = 'e';
+		bufferNote[2] = 'x';
+		bufferNote[3] = 't';
+		bufferNote[4] = 'a';
+		bufferNote[5] = ' ';
+		bufferNote[6] = 'o';
+		bufferNote[7] = 'c';
+		bufferNote[8] = 't';
+		bufferNote[9] = 'a';
+		bufferNote[10] = 'v';
+		bufferNote[11] = 'a';
+		bufferNote[12] = ' ';
+		bufferNote[13] = 'R';
+		bufferNote[14] = 'e';
+		bufferNote[15] = '#';
+		bufferNote[16] = '/';
+		bufferNote[17] = 'M';
+		bufferNote[18] = 'i';
+		bufferNote[19] = 'b';
+		bufferNote[20] = ' ';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
 	}
 
 	//En este caso se evalua si pertenece al intervalor  Mi  1318 Hz
@@ -1211,6 +1921,32 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 1318;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'S';
+		bufferNote[1] = 'e';
+		bufferNote[2] = 'x';
+		bufferNote[3] = 't';
+		bufferNote[4] = 'a';
+		bufferNote[5] = ' ';
+		bufferNote[6] = 'o';
+		bufferNote[7] = 'c';
+		bufferNote[8] = 't';
+		bufferNote[9] = 'a';
+		bufferNote[10] = 'v';
+		bufferNote[11] = 'a';
+		bufferNote[12] = ' ';
+		bufferNote[13] = 'M';
+		bufferNote[14] = 'i';
+		bufferNote[15] = ' ';
+		bufferNote[16] = ' ';
+		bufferNote[17] = ' ';
+		bufferNote[18] = ' ';
+		bufferNote[19] = ' ';
+		bufferNote[20] = ' ';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
+
 	}
 
 	//En este caso se evalua si pertenece al intervalor  Fa  1397 Hz
@@ -1218,6 +1954,32 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 1397;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'S';
+		bufferNote[1] = 'e';
+		bufferNote[2] = 'x';
+		bufferNote[3] = 't';
+		bufferNote[4] = 'a';
+		bufferNote[5] = ' ';
+		bufferNote[6] = 'o';
+		bufferNote[7] = 'c';
+		bufferNote[8] = 't';
+		bufferNote[9] = 'a';
+		bufferNote[10] = 'v';
+		bufferNote[11] = 'a';
+		bufferNote[12] = ' ';
+		bufferNote[13] = 'F';
+		bufferNote[14] = 'a';
+		bufferNote[15] = ' ';
+		bufferNote[16] = ' ';
+		bufferNote[17] = ' ';
+		bufferNote[18] = ' ';
+		bufferNote[19] = ' ';
+		bufferNote[20] = ' ';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
+
 	}
 
 	//En este caso se evalua si pertenece al intervalor  Fa#/Solb   1480 Hz
@@ -1225,6 +1987,31 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 1480;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'S';
+		bufferNote[1] = 'e';
+		bufferNote[2] = 'x';
+		bufferNote[3] = 't';
+		bufferNote[4] = 'a';
+		bufferNote[5] = ' ';
+		bufferNote[6] = 'o';
+		bufferNote[7] = 'c';
+		bufferNote[8] = 't';
+		bufferNote[9] = 'a';
+		bufferNote[10] = 'v';
+		bufferNote[11] = 'a';
+		bufferNote[12] = ' ';
+		bufferNote[13] = 'F';
+		bufferNote[14] = 'a';
+		bufferNote[15] = '#';
+		bufferNote[16] = '/';
+		bufferNote[17] = 'S';
+		bufferNote[18] = 'o';
+		bufferNote[19] = 'l';
+		bufferNote[20] = 'b';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
 	}
 
 	//En este caso se evalua si pertenece al intervalor  Sol   1568 Hz
@@ -1232,6 +2019,33 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 1568;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'S';
+		bufferNote[1] = 'e';
+		bufferNote[2] = 'x';
+		bufferNote[3] = 't';
+		bufferNote[4] = 'a';
+		bufferNote[5] = ' ';
+		bufferNote[6] = 'o';
+		bufferNote[7] = 'c';
+		bufferNote[8] = 't';
+		bufferNote[9] = 'a';
+		bufferNote[10] = 'v';
+		bufferNote[11] = 'a';
+		bufferNote[12] = ' ';
+		bufferNote[13] = 'S';
+		bufferNote[14] = 'o';
+		bufferNote[15] = 'l';
+		bufferNote[16] = ' ';
+		bufferNote[17] = ' ';
+		bufferNote[18] = ' ';
+		bufferNote[19] = ' ';
+		bufferNote[20] = ' ';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
+
+
 	}
 
 	//En este caso se evalua si pertenece al intervalor  Sol#/Lab   1661 Hz
@@ -1239,6 +2053,31 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 1661;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'S';
+		bufferNote[1] = 'e';
+		bufferNote[2] = 'x';
+		bufferNote[3] = 't';
+		bufferNote[4] = 'a';
+		bufferNote[5] = ' ';
+		bufferNote[6] = 'o';
+		bufferNote[7] = 'c';
+		bufferNote[8] = 't';
+		bufferNote[9] = 'a';
+		bufferNote[10] = 'v';
+		bufferNote[11] = 'a';
+		bufferNote[12] = ' ';
+		bufferNote[13] = 'S';
+		bufferNote[14] = 'o';
+		bufferNote[15] = 'l';
+		bufferNote[16] = '#';
+		bufferNote[17] = '/';
+		bufferNote[18] = 'L';
+		bufferNote[19] = 'a';
+		bufferNote[20] = 'b';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
 	}
 
 	//En este caso se evalua si pertenece al intervalor  La   1760 Hz
@@ -1246,6 +2085,32 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 1760;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'S';
+		bufferNote[1] = 'e';
+		bufferNote[2] = 'x';
+		bufferNote[3] = 't';
+		bufferNote[4] = 'a';
+		bufferNote[5] = ' ';
+		bufferNote[6] = 'o';
+		bufferNote[7] = 'c';
+		bufferNote[8] = 't';
+		bufferNote[9] = 'a';
+		bufferNote[10] = 'v';
+		bufferNote[11] = 'a';
+		bufferNote[12] = ' ';
+		bufferNote[13] = 'L';
+		bufferNote[14] = 'a';
+		bufferNote[15] = ' ';
+		bufferNote[16] = ' ';
+		bufferNote[17] = ' ';
+		bufferNote[18] = ' ';
+		bufferNote[19] = ' ';
+		bufferNote[20] = ' ';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
+
 	}
 
 	//En este caso se evalua si pertenece al intervalor  La#/Sib    1864 Hz
@@ -1253,6 +2118,31 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 1864;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'S';
+		bufferNote[1] = 'e';
+		bufferNote[2] = 'x';
+		bufferNote[3] = 't';
+		bufferNote[4] = 'a';
+		bufferNote[5] = ' ';
+		bufferNote[6] = 'o';
+		bufferNote[7] = 'c';
+		bufferNote[8] = 't';
+		bufferNote[9] = 'a';
+		bufferNote[10] = 'v';
+		bufferNote[11] = 'a';
+		bufferNote[12] = ' ';
+		bufferNote[13] = 'L';
+		bufferNote[14] = 'a';
+		bufferNote[15] = '#';
+		bufferNote[16] = '/';
+		bufferNote[17] = 'S';
+		bufferNote[18] = 'i';
+		bufferNote[19] = 'b';
+		bufferNote[20] = ' ';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
 	}
 
 	//En este caso se evalua si pertenece al intervalor  Si  1975 Hz
@@ -1260,6 +2150,32 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 1975;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'S';
+		bufferNote[1] = 'e';
+		bufferNote[2] = 'x';
+		bufferNote[3] = 't';
+		bufferNote[4] = 'a';
+		bufferNote[5] = ' ';
+		bufferNote[6] = 'o';
+		bufferNote[7] = 'c';
+		bufferNote[8] = 't';
+		bufferNote[9] = 'a';
+		bufferNote[10] = 'v';
+		bufferNote[11] = 'a';
+		bufferNote[12] = ' ';
+		bufferNote[13] = 'S';
+		bufferNote[14] = 'i';
+		bufferNote[15] = ' ';
+		bufferNote[16] = ' ';
+		bufferNote[17] = ' ';
+		bufferNote[18] = ' ';
+		bufferNote[19] = ' ';
+		bufferNote[20] = ' ';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
+
 	}
 
 	/*CONDICIONES NOTAS SEPTIMA OCTAVA*/
@@ -1268,6 +2184,32 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 2093;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'S';
+		bufferNote[1] = 'e';
+		bufferNote[2] = 'p';
+		bufferNote[3] = 't';
+		bufferNote[4] = 'i';
+		bufferNote[5] = 'm';
+		bufferNote[6] = 'a';
+		bufferNote[7] = ' ';
+		bufferNote[8] = 'o';
+		bufferNote[9] = 'c';
+		bufferNote[10] = 't';
+		bufferNote[11] = 'a';
+		bufferNote[12] = 'v';
+		bufferNote[13] = 'a';
+		bufferNote[14] = ' ';
+		bufferNote[15] = 'D';
+		bufferNote[16] = 'o';
+		bufferNote[17] = ' ';
+		bufferNote[18] = ' ';
+		bufferNote[19] = ' ';
+		bufferNote[20] = ' ';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
+
 	}
 
 	//En este caso se evalua si pertenece al intervalor  Do#/Reb    2217 Hz
@@ -1275,6 +2217,31 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 2217;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'S';
+		bufferNote[1] = 'e';
+		bufferNote[2] = 'p';
+		bufferNote[3] = 't';
+		bufferNote[4] = 'i';
+		bufferNote[5] = 'm';
+		bufferNote[6] = 'a';
+		bufferNote[7] = ' ';
+		bufferNote[8] = 'o';
+		bufferNote[9] = 'c';
+		bufferNote[10] = 't';
+		bufferNote[11] = 'a';
+		bufferNote[12] = 'v';
+		bufferNote[13] = 'a';
+		bufferNote[14] = ' ';
+		bufferNote[15] = 'D';
+		bufferNote[16] = 'o';
+		bufferNote[17] = '#';
+		bufferNote[18] = '/';
+		bufferNote[19] = 'R';
+		bufferNote[20] = 'e';
+		bufferNote[21] = 'b';
+		bufferNote[22] = ' ';
 	}
 
 	//En este caso se evalua si pertenece al intervalor  Re  2349 Hz
@@ -1282,6 +2249,32 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 2349;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'S';
+		bufferNote[1] = 'e';
+		bufferNote[2] = 'p';
+		bufferNote[3] = 't';
+		bufferNote[4] = 'i';
+		bufferNote[5] = 'm';
+		bufferNote[6] = 'a';
+		bufferNote[7] = ' ';
+		bufferNote[8] = 'o';
+		bufferNote[9] = 'c';
+		bufferNote[10] = 't';
+		bufferNote[11] = 'a';
+		bufferNote[12] = 'v';
+		bufferNote[13] = 'a';
+		bufferNote[14] = ' ';
+		bufferNote[15] = 'R';
+		bufferNote[16] = 'e';
+		bufferNote[17] = ' ';
+		bufferNote[18] = ' ';
+		bufferNote[19] = ' ';
+		bufferNote[20] = ' ';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
+
 	}
 
 	//En este caso se evalua si pertenece al intervalor  Re#/Mib    2489 Hz
@@ -1289,6 +2282,31 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 2489;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'S';
+		bufferNote[1] = 'e';
+		bufferNote[2] = 'p';
+		bufferNote[3] = 't';
+		bufferNote[4] = 'i';
+		bufferNote[5] = 'm';
+		bufferNote[6] = 'a';
+		bufferNote[7] = ' ';
+		bufferNote[8] = 'o';
+		bufferNote[9] = 'c';
+		bufferNote[10] = 't';
+		bufferNote[11] = 'a';
+		bufferNote[12] = 'v';
+		bufferNote[13] = 'a';
+		bufferNote[14] = ' ';
+		bufferNote[15] = 'R';
+		bufferNote[16] = 'e';
+		bufferNote[17] = '#';
+		bufferNote[18] = '/';
+		bufferNote[19] = 'M';
+		bufferNote[20] = 'i';
+		bufferNote[21] = 'b';
+		bufferNote[22] = ' ';
 	}
 
 	//En este caso se evalua si pertenece al intervalor  Mi  2637 Hz
@@ -1296,6 +2314,32 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 2637;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'S';
+		bufferNote[1] = 'e';
+		bufferNote[2] = 'p';
+		bufferNote[3] = 't';
+		bufferNote[4] = 'i';
+		bufferNote[5] = 'm';
+		bufferNote[6] = 'a';
+		bufferNote[7] = ' ';
+		bufferNote[8] = 'o';
+		bufferNote[9] = 'c';
+		bufferNote[10] = 't';
+		bufferNote[11] = 'a';
+		bufferNote[12] = 'v';
+		bufferNote[13] = 'a';
+		bufferNote[14] = ' ';
+		bufferNote[15] = 'M';
+		bufferNote[16] = 'i';
+		bufferNote[17] = ' ';
+		bufferNote[18] = ' ';
+		bufferNote[19] = ' ';
+		bufferNote[20] = ' ';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
+
 	}
 
 	//En este caso se evalua si pertenece al intervalor Fa  2793 Hz
@@ -1303,6 +2347,32 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 2793;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'S';
+		bufferNote[1] = 'e';
+		bufferNote[2] = 'p';
+		bufferNote[3] = 't';
+		bufferNote[4] = 'i';
+		bufferNote[5] = 'm';
+		bufferNote[6] = 'a';
+		bufferNote[7] = ' ';
+		bufferNote[8] = 'o';
+		bufferNote[9] = 'c';
+		bufferNote[10] = 't';
+		bufferNote[11] = 'a';
+		bufferNote[12] = 'v';
+		bufferNote[13] = 'a';
+		bufferNote[14] = ' ';
+		bufferNote[15] = 'F';
+		bufferNote[16] = 'a';
+		bufferNote[17] = ' ';
+		bufferNote[18] = ' ';
+		bufferNote[19] = ' ';
+		bufferNote[20] = ' ';
+		bufferNote[21] = ' ';
+		bufferNote[22] = ' ';
+
 	}
 
 	//En este caso se evalua si pertenece al intervalor Fa#/Solb   2960 Hz
@@ -1310,6 +2380,31 @@ uint16_t noteLimitFrec(uint16_t scaleValueNote){
 
 		//En caso de pertenecer se ajusta frecuencia en el valor asignado a la nota
 		noteAdjustFrec = 2960;
+
+		//Definimos cuál será la nota a representar
+		bufferNote[0] = 'S';
+		bufferNote[1] = 'e';
+		bufferNote[2] = 'p';
+		bufferNote[3] = 't';
+		bufferNote[4] = 'i';
+		bufferNote[5] = 'm';
+		bufferNote[6] = 'a';
+		bufferNote[7] = ' ';
+		bufferNote[8] = 'o';
+		bufferNote[9] = 'c';
+		bufferNote[10] = 't';
+		bufferNote[11] = 'a';
+		bufferNote[12] = 'v';
+		bufferNote[13] = 'a';
+		bufferNote[14] = ' ';
+		bufferNote[15] = 'F';
+		bufferNote[16] = 'a';
+		bufferNote[17] = '#';
+		bufferNote[18] = '/';
+		bufferNote[19] = 'S';
+		bufferNote[20] = 'o';
+		bufferNote[21] = 'l';
+		bufferNote[22] = 'b';
 	}
 
 	//Condicional default
