@@ -96,6 +96,7 @@ uint8_t banderaAnchoPulso         = 0;
 uint8_t banderaFrecuencia         = 0;
 uint8_t banderaAporte             = 0;
 uint8_t banderaNota               = 0;
+uint8_t banderaNotaNatural        = 0;
 
 // Definimos variables herramienta para determinar el periodo del output del sensor RGB
 uint32_t pulseOutputSensorR        = 0;
@@ -723,7 +724,9 @@ void msgUsart(void){
 			usart_writeMsg(&usart2,"2. Escribir 'p' para desplegar aporte porcentual de las medidas de cada filtro RGB\n");
 			usart_writeMsg(&usart2,"3. Escribir 'f' para desplegar frecuencia asignada al color medido\n");
 			usart_writeMsg(&usart2,"4. Escribir 'n' para desplegar nota musical asignada al color medido\n");
-			usart_writeMsg(&usart2,"5. Escribir 'x' para detener la muestra de datos\n\r");
+			usart_writeMsg(&usart2,"5. Escribir '+' para activar modo escala musical completa \n");
+			usart_writeMsg(&usart2,"6. Escribir '-' para activar modo escala musical SOLO con notas naturales \n");
+			usart_writeMsg(&usart2,"7. Escribir 'x' para detener la muestra de datos\n\r");
 
 		}
 
@@ -756,6 +759,20 @@ void msgUsart(void){
 		}
 
 		//Evaluamos si cumple la condición 5 del menú
+		else if(strcmp(bufferMsg, "+") == 0){
+
+			//Levantamos bandera asociada a presentación de datos nota musical
+			banderaNotaNatural = 0;
+		}
+
+		//Evaluamos si cumple la condición 6 del menú
+		else if(strcmp(bufferMsg, "-") == 0){
+
+			//Levantamos bandera asociada a presentación de datos nota musical
+			banderaNotaNatural = 1;
+		}
+
+		//Evaluamos si cumple la condición 7 del menú
 		else if(strcmp(bufferMsg, "x") == 0){
 
 			//Bajamos las banderas de todas las transmisiones de datos
@@ -3228,11 +3245,16 @@ void getFrequency(void){
 
 	/*2.2 Establecemos intervalos para las frecuencias de modo que siempre se de saltos entre las notas musicales en consideración*/
 
-	//Se activa esta función en caso de querer mejor reproducción en la melodia debido a que intervalos por nota son mas grandes
-	noteFrecValue = noteLimitFrecSimple(frecValue);
+	//Evaluamos cuál es la escala musical que se desea estudiar, si completa o solo con notas naturales
+	if(banderaNotaNatural){
 
-	//Se activa esta función en caso de querer presentar todas las notas incluyendo #/b
-	//noteFrecValue = noteLimitFrec(frecValue);
+		//Se activa esta función en caso de querer mejor reproducción en la melodia debido a que intervalos por nota son mas grandes
+		noteFrecValue = noteLimitFrecSimple(frecValue);
+	} else{
+
+		//Se activa esta función en caso de querer presentar todas las notas incluyendo #/b
+		noteFrecValue = noteLimitFrec(frecValue);
+	}
 
 	/*3. Determinamos los valores del Dutty y del periodo que deben ir en la configuración del PWM*/
 
