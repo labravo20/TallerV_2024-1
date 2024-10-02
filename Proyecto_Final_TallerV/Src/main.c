@@ -816,7 +816,7 @@ void msgUsartData(void){
 		else if(banderaFrecuencia){
 
 			//Escribimos mensaje con los datos de frecuencia
-			sprintf(bufferMsgMenu,"Frecuencia del sonido:  %d \n\r",noteFrecValue);
+			sprintf(bufferMsgMenu,"Frecuencia del sonido:  %d Hz\n\r",noteFrecValue);
 			usart_writeMsg(&usart2, bufferMsgMenu);
 		}
 		else if(banderaNota){
