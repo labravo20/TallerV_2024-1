@@ -41,15 +41,14 @@ GPIO_Handler_t   userUsart2Tx     = {0};//Pin A2 //USART pin de transmisón
 GPIO_Handler_t   userUsart2Rx     = {0};//Pin A3 //USART pin de recepción
 
 //Definimos pines a utilizar para PWM
-GPIO_Handler_t   pinPWMChannel   = {0};
+GPIO_Handler_t   pinPWMChannel   = {0}; //Pin C6
 
 //Definimos timers a utilizar
 Timer_Handler_t blinkTimer        = {0}; // Timer para el blinking
-Timer_Handler_t controlTimer      = {0}; // Timer asociado al control del tiempo entre mediciones del sensor --> Generamos delay de 200ms
 Timer_Handler_t pulseTimer        = {0}; // Timer asociado a contador del ancho de pulso de la señal PWM
 
 //Definición de canal PWM a usar
-PWM_Handler_t    signalPWM       = {0};
+PWM_Handler_t    signalPWM       = {0}; //Asociado a TIMER 3 --> Serś slimentación de buzzer
 
 //Definición lineas EXTI que vamos a utilizar
 EXTI_Config_t outputSensorExti    = {0}; //EXTI linea 2 para el output del sensor RGB
@@ -110,13 +109,6 @@ uint16_t pulseWidthBlue           = 0;
 
 
 //Definición de valores máximos y mínimos de medición de cada filtro de color
-
-//#define    MIN_APORTE_RED      16000  //Aporte de filtro RED cuando hay menor frecuencia (mayor ancho pulso) --> ANALIZANDO COLOR NEGRO
-//#define    MAX_APORTE_RED      2000    //Aporte de filtro RED cuando hay mayor frecuencia (menor ancho pulso) --> ANALIZANDO COLOR BLANCO
-//#define    MIN_APORTE_GREEN    14000   //Aporte de filtro GREEN cuando hay menor frecuencia (mayor ancho pulso) --> ANALIZANDO COLOR NEGRO
-//#define    MAX_APORTE_GREEN    3000   //Aporte de filtro GREEN cuando hay mayor frecuencia (menor ancho pulso) --> ANALIZANDO COLOR BLANCO
-//#define    MIN_APORTE_BLUE     16000 //Aporte de filtro BLUE cuando hay menor frecuencia (mayor ancho pulso) --> ANALIZANDO COLOR NEGRO
-//#define    MAX_APORTE_BLUE     3000   //Aporte de filtro BLUE cuando hay mayor frecuencia (menor ancho pulso) --> ANALIZANDO COLOR BLANCO
 
 /*OPCIÓN 2 DE CALIBRACIÓN:*/
 #define    MIN_APORTE_RED      18000  //Aporte de filtro RED cuando hay menor frecuencia (mayor ancho pulso) --> ANALIZANDO COLOR NEGRO
@@ -235,9 +227,6 @@ uint16_t periodValue = 0;
 
 //Definición función para configuración inicial
 void initialConfig(void);
-
-//Definición función para generar DELAY
-void delay(void);
 
 //Definición función para definir filtros de color a utilizar
 void sensorConfig(uint8_t filtroColor);
@@ -377,24 +366,9 @@ void initialConfig(){
 
 		//A continuación se está realizando la configuración de los timers a usar
 
-		//Configuración Timer5 --> control del tiempo (DELAY entre mediciones de color)
-		controlTimer.pTIMx                             = TIM4;
-		controlTimer.TIMx_Config.TIMx_Prescaler        = 16000;  //Genera incrementos de 0.1 s
-		controlTimer.TIMx_Config.TIMx_Period           = 3000;    //Periodo asociado a 3s
-		controlTimer.TIMx_Config.TIMx_mode             = TIMER_UP_COUNTER;
-		controlTimer.TIMx_Config.TIMx_InterruptEnable  = TIMER_INT_ENABLE;
-
-		/* Configuramos el Timer */
-		timer_Config(&controlTimer);
-
-		//Encendemos el Timer
-		timer_SetState(&controlTimer, TIMER_ON);
-
 		//Configuración Timer3 --> control del tiempo
 		pulseTimer.pTIMx                             = TIM5;
 		pulseTimer.TIMx_Config.TIMx_Prescaler        = 16;  //Genera incrementos de 0.1 s
-		//pulseTimer.TIMx_Config.TIMx_Period           = 100;    //Periodo asociado a 0.0001s (100 us)
-		/*Porqué al usar la siguiente configuración de periodo se obtienen valores negativos??? --> Cuando variables eran de 16 bit*/
 		pulseTimer.TIMx_Config.TIMx_Period           = 10;    //Periodo asociado a 0.00001s (10 us)
 		pulseTimer.TIMx_Config.TIMx_mode             = TIMER_UP_COUNTER;
 		pulseTimer.TIMx_Config.TIMx_InterruptEnable  = TIMER_INT_ENABLE;
@@ -495,8 +469,6 @@ void initialConfig(){
 		signalPWM.config.duttyCicle      = duttyValue; //Se debe asegurar PWM siempre tendrá un dutty del 50%
 		signalPWM.config.prescaler       = 160;
 		signalPWM.config.periodo         = periodValue; //Periodo es de periodValue/100000
-//		signalPWM.config.prescaler       = 16;
-//		signalPWM.config.periodo         = periodValue; //Periodo es de periodValue/1000000
 
 		pwm_Config(&signalPWM);
 		pwm_Enable_Output(&signalPWM);
@@ -3322,7 +3294,6 @@ void callback_ExtInt2(void){
 	banderaOutputSensorExti = 1;
 
 	//La siguiente función se estableció para poder evaluar como están cambiando los valores de la variable
-
 	__NOP();
 }
 
